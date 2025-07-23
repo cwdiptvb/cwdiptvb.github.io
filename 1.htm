@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; overflow: hidden;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/favicon_play.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+  <link rel="stylesheet" href="https://anym3u8player.com/css/bootstrap.min.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://content.jwplatform.com/libraries/KB5zFt7A.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@hola.org/jwplayer-hlsjs@latest/dist/jwplayer.hlsjs.min.js"></script>
+
+  <style>
+    body {
+      background-color: black;
+      margin: 0;
+      overflow: hidden;
+      height: 100%;
+    }
+    #my-video {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      margin: auto;
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .jwplayer {
+      width: 100% !important;
+      height: auto !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="my-video"></div>
+
+  <script>
+    if (window.top === window.self) {
+      window.location.href = "/live/fox-news";
+    }
+
+    $(document).ready(function () {
+      $(".auto-load").hide();
+
+      const player = jwplayer("my-video");
+      player.setup({
+        file: "https://fl1.moveonjoy.com/FOX_NEWS_CHANNEL/index.m3u8",
+        type: "application/x-mpegURL",
+        image: "/img/foxnews.JPG",
+        width: "100%",
+        aspectratio: "16:9",
+        autostart: false,
+        primary: "html5",
+        preload: "auto",
+        mute: false
+      });
+
+      player.on("play", function () {
+        $("#player .jw-preview").css("background-image", "none");
+        player.setConfig({ image: "" });
+      });
+
+      jwplayer_hls_provider.attach();
+    });
+  </script>
+
+</body>
+</html>
