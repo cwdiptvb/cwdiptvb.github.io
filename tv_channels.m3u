@@ -19,8 +19,8 @@ https://moiptvhls-i.akamaihd.net/hls/live/652313/secure/HQs/chunklist.m3u8
 https://moiptvhls-i.akamaihd.net/hls/live/652314/secure/HQs/chunklist.m3u8
 #EXTINF:-1 tvg-id="" tvg-name="" tvg-language="" tvg-logo="https://i.imgur.com/vhb8zvB.png" group-title="",3ABN International
 https://moiptvhls-i.akamaihd.net/hls/live/652312/secure/HQs/chunklist.m3u8
-#EXTINF:-1 tvg-id="" tvg-name="" tvg-language="" tvg-logo="https://i.imgur.com/eOvzf3d.png" group-title="",3ABN Kids
-https://moiptvhls-i.akamaihd.net/hls/live/652318/secure/HQs/chunklist.m3u8
+#EXTINF:-1 tvg-id="" tvg-name="" tvg-language="" tvg-logo="https://static.wikia.nocookie.net/logopedia/images/2/28/3ABN_Kids_Network_2014.svg/revision/latest/scale-to-width-down/250?cb=20250120233410" group-title="",3ABN Kids TV
+https://3abn.bozztv.com/3abn2/Kids_live/smil:Kids_live.smil/playlist.m3u8
 #EXTINF:-1 tvg-id="" tvg-name="" tvg-language="English" tvg-logo="" group-title="Kids",3ABN KIDS TV
 https://moiptvhls-i.akamaihd.net/hls/live/652318/secure/master.m3u8
 #EXTINF:-1 tvg-id="" tvg-name="" tvg-language="" tvg-logo="https://i.imgur.com/DrGJhG3.png" group-title="",3ABN Latino
@@ -891,6 +891,7 @@ http://z5amshls.akamaized.net/cinemausa/tracks-v1a1/playlist.m3u8
 https://z5amshls.akamaized.net/cinemausa/tracks-v1a1/playlist.m3u8?silma.m3u8
 #EXTINF:-1 tvg-id="" tvg-name="" tvg-language="" tvg-logo="" group-title="",ZEE SMILE
 http://z5amshls.akamaized.net/smileusa/tracks-v1a1/playlist.m3u8
+
 
 
 
