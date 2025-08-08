@@ -1,1 +1,204 @@
-<a href="1">foxnews</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Channels - Free Live TV</title>
+  <link rel="shortcut icon" href="/favicon_channels.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Lato', 'Segoe UI', sans-serif;
+      font-weight: 400;
+      background-color: #0d0d0d;
+      color: #f2f2f2;
+      overflow-x: hidden;
+    }
+
+    header {
+      background-color: #1a1a1a;
+      padding: 1rem 2rem;
+      border-bottom: 2px solid #333;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #00ffff;
+      font-weight: 700;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    nav a {
+      color: #f2f2f2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    nav a:hover {
+      color: #00ffff;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem 10%;
+    }
+
+    .filter-bar {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .filter-select {
+      background-color: #1a1a1a;
+      color: #f2f2f2;
+      border: 2px solid #333;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .channel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .channel-card {
+      display: flex;
+      align-items: center;
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      transition: border-color 0.3s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .channel-card:hover {
+      border-color: #00ffff;
+    }
+
+    .channel-card img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      margin-right: 1rem;
+      border-radius: 4px;
+      background-color: #000;
+    }
+
+    .channel-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border-top: 2px solid #333;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      nav {
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Free Live TV</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/contact">Contact</a>
+      <a href="/about">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="filter-bar">
+      <select class="filter-select" id="categorySelect">
+        <option value="all">All Categories</option>
+        <option value="News">News</option>
+        <option value="Sports">Sports</option>
+        <option value="Movies">Movies</option>
+        <option value="Kids">Kids</option>
+        <option value="Music">Music</option>
+      </select>
+    </div>
+
+    <div class="channel-list" id="channelContainer">
+      <a href="/stream/global-news" class="channel-card" data-category="News">
+        <img src="https://example.com/icons/news1.png" alt="Global News" />
+        <div class="channel-name">Global News</div>
+      </a>
+
+      <a href="/stream/sports-central" class="channel-card" data-category="Sports">
+        <img src="https://example.com/icons/sports1.png" alt="Sports Central" />
+        <div class="channel-name">Sports Central</div>
+      </a>
+
+      <a href="/stream/movie-hub" class="channel-card" data-category="Movies">
+        <img src="https://example.com/icons/movies1.png" alt="Movie Hub" />
+        <div class="channel-name">Movie Hub</div>
+      </a>
+
+      <a href="/stream/kids-zone" class="channel-card" data-category="Kids">
+        <img src="https://example.com/icons/kids1.png" alt="Kids Zone" />
+        <div class="channel-name">Kids Zone</div>
+      </a>
+
+      <a href="/stream/music-live" class="channel-card" data-category="Music">
+        <img src="https://example.com/icons/music1.png" alt="Music Live" />
+        <div class="channel-name">Music Live</div>
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Free Live TV. All rights reserved.
+  </footer>
+
+  <script>
+    const categorySelect = document.getElementById('categorySelect');
+    const cards = document.querySelectorAll('.channel-card');
+
+    categorySelect.addEventListener('change', () => {
+      const selected = categorySelect.value;
+      cards.forEach(card => {
+        if (selected === 'all' || card.dataset.category === selected) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
