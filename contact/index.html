@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact - Free Live TV</title>
+  <link rel="shortcut icon" href="/favicon_contact.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Lato', 'Segoe UI', sans-serif;
+      font-weight: 400;
+      background-color: #0d0d0d;
+      color: #f2f2f2;
+      overflow-x: hidden;
+    }
+
+    header {
+      background-color: #1a1a1a;
+      padding: 1rem 2rem;
+      border-bottom: 2px solid #333;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #00ffff;
+      font-weight: 700;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    nav a {
+      color: #f2f2f2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    nav a:hover {
+      color: #00ffff;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem 10%;
+      text-align: center;
+    }
+
+    h2 {
+      color: #00ffff;
+      font-weight: 600;
+    }
+
+    p {
+      margin-bottom: 2rem;
+    }
+
+    .discord-button {
+      background-color: #5865F2;
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .discord-button:hover {
+      background-color: #4752c4;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border-top: 2px solid #333;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      nav {
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Free Live TV</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/contact">Contact</a>
+      <a href="/about">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Contact Us</h2>
+    <p>If you'd like to connect with the community or ask questions, join us on Discord:</p>
+    <a href="https://discord.gg/wJeqncqskr" class="discord-button" target="_blank">Join Our Discord</a>
+  </main>
+
+  <footer>
+    &copy; 2025 Free Live TV. All rights reserved.
+  </footer>
+
+</body>
+</html>
