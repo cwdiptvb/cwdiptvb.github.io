@@ -154,7 +154,7 @@ https://fl3.moveonjoy.com/DISCOVERY_LIFE/index.m3u8
 https://fl3.moveonjoy.com/Discovery_Science/index.m3u8
 
 #EXTINF:-1 group-title="Kids" tvg-id="Disney.-.Eastern.Feed.us" tvg-logo="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10171_dark_360w_270h.png" tvg-name="DISNEY CHANNEL",DISNEY CHANNEL
-https://fl3.moveonjoy.com/DISNEY_CHANNEL/index.m3u8
+https://zekonew.newkso.ru/zeko/premium312/mono.m3u8
 
 #EXTINF:-1 group-title="Kids" tvg-id="Disney.Junior.USA.-.East.us" tvg-logo="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s74796_dark_360w_270h.png" tvg-name="DISNEY JR",DISNEY JR
 https://fl3.moveonjoy.com/DISNEY_JR/index.m3u8
@@ -692,6 +692,7 @@ http://fl3.moveonjoy.com/WORLD_FISHING_NETWORK/index.m3u8
 
 #EXTINF:-1 group-title="Sports" tvg-id="YES.Network.us" tvg-logo="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/yes-network-us.png?raw=true" tvg-name="YES Network",YES Network
 http://fl3.moveonjoy.com/YES_NETWORK/index.m3u8
+
 
 
 
