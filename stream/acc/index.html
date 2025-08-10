@@ -210,8 +210,10 @@
     $(document).ready(function () {
       const player = jwplayer("my-video");
       player.setup({
-        file: "https://fl1.moveonjoy.com/ACC_NETWORK/index.html",
-        type: "application/x-mpegURL"
+        file: "https://fl1.moveonjoy.com/ACC_NETWORK/index.m3u8",
+        type: "application/x-mpegURL",
+        image: "/img/abc7.png", // Optional thumbnail
+        width: "100%",
         aspectratio: "16:9",
         autostart: true,
         primary: "html5",
