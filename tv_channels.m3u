@@ -523,7 +523,7 @@ http://fl3.moveonjoy.com/OXYGEN/index.m3u8
 #EXTINF:-1 group-title="Entertainment" tvg-id="Paramount.Network.USA.-.Eastern.Feed.us" tvg-logo="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/paramount-network-us.png?raw=true" tvg-name="Paramount Network",Paramount Network
 http://fl3.moveonjoy.com/PARAMOUNT_NETWORK/index.m3u8
 
-#EXTINF:-1 group-title="Kids" tvg-id="" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/e/e3/PBS_Kids_logo_%282022%29.svg" tvg-name="PBS Kids",PBS Kids
+#EXTINF:-1 group-title="Kids" tvg-id="" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/PBS_Kids_logo_%282022%29.svg/1200px-PBS_Kids_logo_%282022%29.svg.png" tvg-name="PBS Kids",PBS Kids
 https://2-fss-2.streamhoster.com/pl_140/amlst:200914-1298290/playlist.m3u8
 
 #EXTINF:-1 group-title="Events" tvg-id="PPV.EVENTS.Dummy.us" tvg-logo="https://codeberg.org/pigzillaaa/moveonjoy-stremio/raw/branch/main/logos/PPV%206.png" tvg-name="PPV 1",PPV 1
@@ -693,6 +693,7 @@ http://fl3.moveonjoy.com/WORLD_FISHING_NETWORK/index.m3u8
 
 #EXTINF:-1 group-title="Sports" tvg-id="YES.Network.us" tvg-logo="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/yes-network-us.png?raw=true" tvg-name="YES Network",YES Network
 http://fl3.moveonjoy.com/YES_NETWORK/index.m3u8
+
 
 
 
