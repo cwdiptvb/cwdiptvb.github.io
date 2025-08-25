@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watch Cartoon Network Free Online - Free Live TV</title>
+  <link rel="icon" href="/fav/16.png" sizes="16x16">
+  <link rel="icon" href="/fav/32.png" sizes="32x32">
+  <link rel="icon" href="/fav/48.png" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="192x192" href="/fav/192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/fav/512.png">
+  <link rel="apple-touch-icon" href="fav/180.png" sizes="/180x180">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700&display=swap" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://content.jwplatform.com/libraries/KB5zFt7A.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@hola.org/jwplayer-hlsjs@latest/dist/jwplayer.hlsjs.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: 'Lato', 'Segoe UI', sans-serif;
+      background-color: #0d0d0d;
+      color: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #1a1a1a;
+      padding: 1rem 2rem;
+      border-bottom: 2px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #00ffff;
+      font-weight: 700;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    nav a {
+      color: #f2f2f2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    nav a:hover {
+      color: #00ffff;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem 10%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      color: #00ffff;
+      margin-bottom: 1rem;
+    }
+
+    #my-video {
+      width: 100%;
+      max-width: 800px;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      background-color: #000;
+      margin-bottom: 2rem;
+    }
+
+    .playlist-card {
+      display: flex;
+      align-items: center;
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.3s;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 1rem;
+    }
+
+    .playlist-card:hover {
+      border-color: #00ffff;
+    }
+
+    .playlist-card img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      margin-right: 1rem;
+      border-radius: 4px;
+      background-color: #000;
+    }
+
+    .playlist-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      flex-grow: 1;
+    }
+
+    .playlist-label small {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    .copy-btn {
+      margin-left: auto;
+      background-color: #00ffff;
+      border: none;
+      color: #000;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border-top: 2px solid #333;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      nav {
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+
+      #my-video {
+        width: 100%;
+      }
+
+      .playlist-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .copy-btn {
+        margin-top: 0.5rem;
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Free Live TV</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/contact">Contact</a>
+      <a href="/about">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Now Streaming</h2>
+    <div id="my-video"></div>
+
+    <div class="playlist-card">
+      <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
+      <div class="playlist-label">
+        Free M3U Playlist
+        <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
+      </div>
+      <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Free Live TV. All rights reserved.
+  </footer>
+
+  <script>
+    function copyPlaylistURL() {
+      const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Playlist URL copied to clipboard!");
+      }).catch(err => {
+        alert("Failed to copy URL.");
+      });
+    }
+
+    $(document).ready(function () {
+      const player = jwplayer("my-video");
+      player.setup({
+        file: "https://fl1.moveonjoy.com/CARTOON_NETWORK/index.m3u8",
+        type: "application/x-mpegURL",
+        width: "100%",
+        aspectratio: "16:9",
+        autostart: true,
+        primary: "html5",
+        preload: "auto",
+        mute: false
+      });
+
+      player.on("play", function () {
+        $("#player .jw-preview").css("background-image", "none");
+        player.setConfig({ image: "" });
+      });
+
+      jwplayer_hls_provider.attach();
+    });
+  </script>
+
+</body>
+  </html>
