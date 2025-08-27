@@ -489,7 +489,7 @@ http://fl3.moveonjoy.com/NHL_9/index.m3u8
 http://fl3.moveonjoy.com/NHL_NETWORK/index.m3u8
 
 #EXTINF:-1 group-title="Kids" tvg-id="Nickelodeon.USA.-.East.Feed.us" tvg-logo="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s11006_dark_360w_270h.png" tvg-name="Nickelodeon",Nickelodeon
-https://aly.cfcdn247.space/memfs/64e9b01f-1dfc-4708-b9b6-ab6249c25536.m3u8
+https://fl3.moveonjoy.com/NICKELODEON/index.m3u8
 
 #EXTINF:-1 group-title="Kids" tvg-id="Nick.Jr..-.East.us" tvg-logo="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s19211_dark_360w_270h.png" tvg-name="NickJr",NickJr
 http://fl3.moveonjoy.com/NICK_JR/index.m3u8
