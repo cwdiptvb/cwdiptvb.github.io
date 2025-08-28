@@ -35,6 +35,11 @@
       justify-content: space-between;
     }
 
+    header a {
+      text-decoration: none;
+      color: inherit;
+    }
+
     header h1 {
       margin: 0;
       font-size: 2rem;
@@ -45,7 +50,6 @@
     nav {
       display: flex;
       gap: 1rem;
-      text-decoration: none;
     }
 
     nav a {
@@ -138,8 +142,11 @@
 <body>
 
   <header>
-         <a href="/"> <h1>Free Live TV</h1>
-    <nav>Home</a>
+    <a href="/">
+      <h1>Free Live TV</h1>
+    </a>
+    <nav>
+      <a href="/">Home</a>
       <a href="/contact">Contact</a>
       <a href="/about">About</a>
     </nav>
@@ -196,11 +203,7 @@
     categorySelect.addEventListener('change', () => {
       const selected = categorySelect.value;
       cards.forEach(card => {
-        if (selected === 'all' || card.dataset.category === selected) {
-          card.style.display = 'flex';
-        } else {
-          card.style.display = 'none';
-        }
+        card.style.display = (selected === 'all' || card.dataset.category === selected) ? 'flex' : 'none';
       });
     });
   </script>
