@@ -212,45 +212,54 @@
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
-  <script>
-    function copyPlaylistURL() {
-      const url = "https://cwdiptvb.github.io/tv_channels.m3u";
-      navigator.clipboard.writeText(url).then(() => {
-        alert("Playlist URL copied to clipboard!");
-      }).catch(err => {
-        alert("Failed to copy URL.");
-      });
-    }
-
-    $(document).ready(function () {
-      const player = jwplayer("my-video");
-      player.setup({
-        file: "https://fl1.moveonjoy.com/CARTOON_NETWORK/index.m3u8",
-        type: "application/x-mpegURL",
-        width: "100%",
-        aspectratio: "16:9",
-        autostart: true,
-        primary: "html5",
-        preload: "auto",
-        mute: false
-      });
-      
-      player.on("play", function () {
-        $("#loading-container").remove();
-        $("#my-video").show();
-        $("#player .jw-preview").css("background-image", "none");
-        player.setConfig({ image: "" });
-      });
-
-      player.on("fullscreen", function (e) {
-        const isFullscreen = e.fullscreen;
-        const videoElement = document.getElementById("my-video");
-        videoElement.style.border = isFullscreen ? "none" : "2px solid #00ffff";
-      });
-
-      jwplayer_hls_provider.attach();
+<script>
+  function copyPlaylistURL() {
+    const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+    navigator.clipboard.writeText(url).then(() => {
+      alert("Playlist URL copied to clipboard!");
+    }).catch(err => {
+      alert("Failed to copy URL.");
     });
-  </script>
+  }
+
+  $(document).ready(function () {
+    const player = jwplayer("my-video");
+    player.setup({
+      file: "https://fl1.moveonjoy.com/CARTOON_NETWORK/index.m3u8",
+      type: "application/x-mpegURL",
+      width: "100%",
+      aspectratio: "16:9",
+      autostart: true,
+      primary: "html5",
+      preload: "auto",
+      mute: false
+    });
+
+    // Show video and remove loading as soon as player is ready
+    player.on("ready", function () {
+      player.setMute(false);
+      $("#loading-container").remove();
+      $("#my-video").show();
+    });
+
+    // Also remove loading if play event fires (fallback for autoplay block)
+    player.on("play", function () {
+      $("#loading-container").remove();
+      $("#my-video").show();
+      $("#player .jw-preview").css("background-image", "none");
+      player.setConfig({ image: "" });
+    });
+
+    // Toggle border on fullscreen enter/exit
+    player.on("fullscreen", function (e) {
+      const isFullscreen = e.fullscreen;
+      const videoElement = document.getElementById("my-video");
+      videoElement.style.border = isFullscreen ? "none" : "2px solid #00ffff";
+    });
+
+    jwplayer_hls_provider.attach();
+  });
+</script>
 
 </body>
 </html>
