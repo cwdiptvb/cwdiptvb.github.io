@@ -26,34 +26,6 @@
     }
 
     header {
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Watch Cartoon Network Free Online - Free Live TV</title>
-  <link rel="icon" href="/fav/16.png" sizes="16x16">
-  <link rel="icon" href="/fav/32.png" sizes="32x32">
-  <link rel="icon" href="/fav/48.png" sizes="48x48">
-  <link rel="icon" type="image/png" sizes="192x192" href="/fav/192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/fav/512.png">
-  <link rel="apple-touch-icon" href="fav/180.png" sizes="/180x180">
-  <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700&display=swap" rel="stylesheet">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-  <script src="https://content.jwplatform.com/libraries/KB5zFt7A.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@hola.org/jwplayer-hlsjs@latest/dist/jwplayer.hlsjs.min.js"></script>
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      font-family: 'Lato', 'Segoe UI', sans-serif;
-      background-color: #0d0d0d;
-      color: #f2f2f2;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
       background-color: #1a1a1a;
       padding: 1rem 2rem;
       border-bottom: 2px solid #333;
@@ -258,42 +230,6 @@
         const isFullscreen = e.fullscreen;
         const videoElement = document.getElementById("my-video");
         videoElement.style.border = isFullscreen ? "none" : "2px solid #00ffff";
-      });
-
-      jwplayer_hls_provider.attach();
-    });
-  </script>
-
-</body>
-</html>
-
-    .
-  <script>
-    function copyPlaylistURL() {
-      const url = "https://cwdiptvb.github.io/tv_channels.m3u";
-      navigator.clipboard.writeText(url).then(() => {
-        alert("Playlist URL copied to clipboard!");
-      }).catch(err => {
-        alert("Failed to copy URL.");
-      });
-    }
-
-    $(document).ready(function () {
-      const player = jwplayer("my-video");
-      player.setup({
-        file: "https://fl1.moveonjoy.com/CARTOON_NETWORK/index.m3u8",
-        type: "application/x-mpegURL",
-        width: "100%",
-        aspectratio: "16:9",
-        autostart: true,
-        primary: "html5",
-        preload: "auto",
-        mute: false
-      });
-
-      player.on("play", function () {
-        $("#player .jw-preview").css("background-image", "none");
-        player.setConfig({ image: "" });
       });
 
       jwplayer_hls_provider.attach();
