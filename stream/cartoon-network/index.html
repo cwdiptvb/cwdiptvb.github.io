@@ -234,13 +234,7 @@
         preload: "auto",
         mute: false
       });
-
-      // Ensure unmuted playback
-      player.on("ready", function () {
-        player.setMute(false);
-      });
-
-      // Hide loading GIF and show video when player starts
+      
       player.on("play", function () {
         $("#loading-container").remove();
         $("#my-video").show();
@@ -248,7 +242,6 @@
         player.setConfig({ image: "" });
       });
 
-      // Toggle border on fullscreen enter/exit
       player.on("fullscreen", function (e) {
         const isFullscreen = e.fullscreen;
         const videoElement = document.getElementById("my-video");
