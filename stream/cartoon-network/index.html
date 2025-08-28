@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+an<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -235,14 +235,11 @@
       mute: false
     });
 
-    // Show video and remove loading as soon as player is ready
     player.on("ready", function () {
-      player.setMute(false);
       $("#loading-container").remove();
       $("#my-video").show();
     });
 
-    // Also remove loading if play event fires (fallback for autoplay block)
     player.on("play", function () {
       $("#loading-container").remove();
       $("#my-video").show();
@@ -250,7 +247,6 @@
       player.setConfig({ image: "" });
     });
 
-    // Toggle border on fullscreen enter/exit
     player.on("fullscreen", function (e) {
       const isFullscreen = e.fullscreen;
       const videoElement = document.getElementById("my-video");
