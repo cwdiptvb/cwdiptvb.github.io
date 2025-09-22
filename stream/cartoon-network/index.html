@@ -236,61 +236,72 @@
   </footer>
 
   <script>
-    function copyPlaylistURL() {
-      const url = "https://cwdiptvb.github.io/tv_channels.m3u";
-      navigator.clipboard.writeText(url).then(() => {
-        alert("Playlist URL copied to clipboard!");
-      }).catch(err => {
-        alert("Failed to copy URL.");
-      });
-    }
-
-    function showError(errorCode) {
-      $("#loading-container").remove();
-      $("#my-video").hide();
-      $("#error-code-text").text("err_code_" + errorCode);
-      $("#error-message").show();
-    }
-
-    $(document).ready(function () {
-      const player = jwplayer("my-video");
-
-      player.setup({
-        file: "https://fl4.moveonjoy.com/CARTOON_NETWORK/index.m3u8",
-        type: "application/x-mpegURL",
-        width: "100%",
-        aspectratio: "16:9",
-        autostart: true,
-        primary: "html5",
-        preload: "auto",
-        mute: false
-      });
-
-      player.on("ready", function () {
-        $("#loading-container").remove();
-        $("#my-video").show();
-      });
-
-      player.on("play", function () {
-        $("#loading-container").remove();
-        $("#my-video").show();
-        $("#player .jw-preview").css("background-image", "none");
-        player.setConfig({ image: "" });
-      });
-
-      player.on("fullscreen", function (e) {
-        const isFullscreen = e.fullscreen;
-        const videoElement = document.getElementById("my-video");
-        videoElement.style.border = isFullscreen ? "none" : "2px solid #00ffff";
-      });
-
-      player.on("error", function (e) {
-        console.error("Player error:", e.message || e);
-        showError(e.code || "unknown");
-      });
-
-      jwplayer_hls_provider.attach();
+  function copyPlaylistURL() {
+    const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+    navigator.clipboard.writeText(url).then(() => {
+      alert("Playlist URL copied to clipboard!");
+    }).catch(err => {
+      alert("Failed to copy URL.");
     });
-  </script>
+  }
+
+  function showError(errorCode) {
+    $("#loading-container").remove();
+    $("#my-video").hide();
+    $("#error-code-text").text("err_code_" + errorCode);
+    $("#error-message").show();
+  }
+
+  $(document).ready(function () {
+    const player = jwplayer("my-video");
+
+    player.setup({
+      file: "https://fl7.moveonjoy.com/CARTOON_NETWORK/index.m3u8", // ✅ updated stream URL
+      type: "application/x-mpegURL",
+      width: "100%",
+      aspectratio: "16:9",
+      autostart: true,
+      primary: "html5",
+      preload: "auto",
+      mute: false
+    });
+
+    player.on("ready", function () {
+      $("#loading-container").remove();
+      $("#my-video").show();
+
+      // 🧠 Subtitle parser: log available caption tracks
+      const captions = player.getCaptionsList();
+      if (captions.length > 0) {
+        console.log("🧠 Subtitle tracks detected:");
+        captions.forEach((track, index) => {
+          console.log(`Track ${index + 1}: Label="${track.label}", Language="${track.language}"`);
+        });
+      } else {
+        console.log("🧠 No subtitle tracks detected in stream.");
+      }
+    });
+
+    player.on("play", function () {
+      $("#loading-container").remove();
+      $("#my-video").show();
+      $("#player .jw-preview").css("background-image", "none");
+      player.setConfig({ image: "" });
+    });
+
+    player.on("fullscreen", function (e) {
+      const isFullscreen = e.fullscreen;
+      const videoElement = document.getElementById("my-video");
+      videoElement.style.border = isFullscreen ? "none" : "2px solid #00ffff";
+    });
+
+    player.on("error", function (e) {
+      console.error("Player error:", e.message || e);
+      showError(e.code || "unknown");
+    });
+
+    jwplayer_hls_provider.attach();
+  });
+</script>
 </body>
 </html>
