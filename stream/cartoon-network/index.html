@@ -246,6 +246,17 @@
   }
 
   function showError(errorCode) {
+<script>
+  function copyPlaylistURL() {
+    const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+    navigator.clipboard.writeText(url).then(() => {
+      alert("Playlist URL copied to clipboard!");
+    }).catch(err => {
+      alert("Failed to copy URL.");
+    });
+  }
+
+  function showError(errorCode) {
     $("#loading-container").remove();
     $("#my-video").hide();
     $("#error-code-text").text("err_code_" + errorCode);
@@ -270,13 +281,16 @@
       $("#loading-container").remove();
       $("#my-video").show();
 
-      // 🧠 Subtitle parser: log available caption tracks
+      // 🧠 Subtitle parser: log and activate caption tracks
       const captions = player.getCaptionsList();
       if (captions.length > 0) {
         console.log("🧠 Subtitle tracks detected:");
         captions.forEach((track, index) => {
           console.log(`Track ${index + 1}: Label="${track.label}", Language="${track.language}"`);
         });
+
+        // ✅ Activate the first track and show CC button
+        player.setCurrentCaptions(1); // 0 = off, 1+ = track index
       } else {
         console.log("🧠 No subtitle tracks detected in stream.");
       }
@@ -303,5 +317,6 @@
     jwplayer_hls_provider.attach();
   });
 </script>
+
 </body>
 </html>
