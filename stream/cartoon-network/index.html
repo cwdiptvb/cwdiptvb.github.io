@@ -214,39 +214,7 @@
     <div id="my-video"></div>
 
     <div id="error-message">
-      <p>
-        An unexpected error has occurred. Please try refreshing the page. <br />
-        If the error persists, please contact us here:
-        <a href="/contact">Contact</a>.<br />
-        <span id="error-code-text" style="display: block; margin-top: 1rem; color: #888;"></span>
-      </p>
-    </div>
-
-    <div class="playlist-card">
-      <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
-      <div class="playlist-label">
-        Free M3U Playlist
-        <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
-      </div>
-      <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
-    </div>
-  </main>
-  <footer>
-    &copy; 2025 Free Live TV. All rights reserved.
-  </footer>
-
-  <script>
-  function copyPlaylistURL() {
-    const url = "https://cwdiptvb.github.io/tv_channels.m3u";
-    navigator.clipboard.writeText(url).then(() => {
-      alert("Playlist URL copied to clipboard!");
-    }).catch(err => {
-      alert("Failed to copy URL.");
-    });
-  }
-
-  function showError(errorCode) {
-<script>
+   <script>
   function copyPlaylistURL() {
     const url = "https://cwdiptvb.github.io/tv_channels.m3u";
     navigator.clipboard.writeText(url).then(() => {
@@ -267,7 +235,7 @@
     const player = jwplayer("my-video");
 
     player.setup({
-      file: "https://fl7.moveonjoy.com/CARTOON_NETWORK/index.m3u8", // ✅ updated stream URL
+      file: "https://fl7.moveonjoy.com/CARTOON_NETWORK/index.m3u8",
       type: "application/x-mpegURL",
       width: "100%",
       aspectratio: "16:9",
@@ -281,19 +249,21 @@
       $("#loading-container").remove();
       $("#my-video").show();
 
-      // 🧠 Subtitle parser: log and activate caption tracks
-      const captions = player.getCaptionsList();
-      if (captions.length > 0) {
-        console.log("🧠 Subtitle tracks detected:");
-        captions.forEach((track, index) => {
-          console.log(`Track ${index + 1}: Label="${track.label}", Language="${track.language}"`);
-        });
+      // 🧠 Delay caption activation to ensure JW has parsed them
+      setTimeout(() => {
+        const captions = player.getCaptionsList();
+        if (captions.length > 0) {
+          console.log("🧠 Subtitle tracks detected:");
+          captions.forEach((track, index) => {
+            console.log(`Track ${index + 1}: Label="${track.label}", Language="${track.language}"`);
+          });
 
-        // ✅ Activate the first track and show CC button
-        player.setCurrentCaptions(1); // 0 = off, 1+ = track index
-      } else {
-        console.log("🧠 No subtitle tracks detected in stream.");
-      }
+          // ✅ Activate first subtitle track to show CC button
+          player.setCurrentCaptions(1);
+        } else {
+          console.log("🧠 No subtitle tracks detected in stream.");
+        }
+      }, 500); // slight delay to ensure captions are indexed
     });
 
     player.on("play", function () {
@@ -317,6 +287,28 @@
     jwplayer_hls_provider.attach();
   });
 </script>
+   <p>
+        An unexpected error has occurred. Please try refreshing the page. <br />
+        If the error persists, please contact us here:
+        <a href="/contact">Contact</a>.<br />
+        <span id="error-code-text" style="display: block; margin-top: 1rem; color: #888;"></span>
+      </p>
+    </div>
+
+    <div class="playlist-card">
+      <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
+      <div class="playlist-label">
+        Free M3U Playlist
+        <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
+      </div>
+      <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 Free Live TV. All rights reserved.
+  </footer>
+
+
 
 </body>
 </html>
