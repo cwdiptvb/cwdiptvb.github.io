@@ -16,8 +16,184 @@
   <script src="https://cdn.jsdelivr.net/npm/@hola.org/jwplayer-hlsjs@latest/dist/jwplayer.hlsjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <style>
-    /* [Your existing CSS remains unchanged] */
-    /* ... */
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: 'Lato', 'Segoe UI', sans-serif;
+      background-color: #0d0d0d;
+      color: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background-color: #1a1a1a;
+      padding: 1rem 2rem;
+      border-bottom: 2px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    header a {
+      text-decoration: none;
+      color: inherit;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #00ffff;
+      font-weight: 700;
+    }
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+    nav a {
+      color: #f2f2f2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    nav a:hover {
+      color: #00ffff;
+    }
+    main {
+      flex: 1;
+      padding: 2rem 10%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 {
+      font-size: 1.6rem;
+      color: #00ffff;
+      margin-bottom: 1rem;
+    }
+    #my-video {
+      width: 100%;
+      max-width: 800px;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      background-color: #000;
+      margin-bottom: 2rem;
+      display: none;
+      transition: border 0.3s ease;
+    }
+    #loading-container {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      margin-bottom: 2rem;
+    }
+    #loading-container img {
+      width: 100%;
+      height: 100%;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      background-color: #000;
+      object-fit: cover;
+      display: block;
+    }
+    #error-message {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      background-color: #000;
+      color: #f2f2f2;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 1.5rem;
+      box-sizing: border-box;
+      margin-bottom: 2rem;
+    }
+    #error-message p {
+      font-size: 1.1rem;
+    }
+    #error-message a {
+      color: #00ffff;
+      text-decoration: underline;
+    }
+    .playlist-card {
+      display: flex;
+      align-items: center;
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.3s;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 1rem;
+    }
+    .playlist-card:hover {
+      border-color: #00ffff;
+    }
+    .playlist-card img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      margin-right: 1rem;
+      border-radius: 4px;
+      background-color: #000;
+    }
+    .playlist-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      flex-grow: 1;
+    }
+    .playlist-label small {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+    .copy-btn {
+      margin-left: auto;
+      background-color: #00ffff;
+      border: none;
+      color: #000;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border-top: 2px solid #333;
+      font-size: 0.9rem;
+      color: #888;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+      nav {
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+      #my-video {
+        width: 100%;
+      }
+      #loading-container {
+        aspect-ratio: auto;
+      }
+      .playlist-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .copy-btn {
+        margin-top: 0.5rem;
+        align-self: flex-end;
+      }
+    }
   </style>
 </head>
 <body>
@@ -83,26 +259,6 @@
       $("#error-message").show();
     }
 
-    function getStreamURLFromM3U(tvgId, callback) {
-      $.get("https://cwdiptvb.github.io/tv_channels.m3u", function (data) {
-        const lines = data.split(/\r?\n/);
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i].includes(`tvg-id="${tvgId}"`)) {
-            const streamURL = lines[i + 1]?.trim();
-            if (streamURL && streamURL.startsWith("http")) {
-              callback(streamURL);
-              return;
-            }
-          }
-        }
-        console.error("Stream URL not found for tvg-id:", tvgId);
-        showError("not_found");
-      }).fail(function () {
-        console.error("Failed to load M3U file.");
-        showError("load_failed");
-      });
-    }
-
     function parseEPGTime(epgTime) {
       const year = epgTime.slice(0, 4);
       const month = epgTime.slice(4, 6) - 1;
@@ -161,6 +317,26 @@
       }
     }
 
+    function getStreamURLFromM3U(tvgId, callback) {
+      $.get("https://cwdiptvb.github.io/tv_channels.m3u", function (data) {
+        const lines = data.split(/\r?\n/);
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].includes(`tvg-id="${tvgId}"`)) {
+            const streamURL = lines[i + 1]?.trim();
+            if (streamURL && streamURL.startsWith("http")) {
+              callback(streamURL);
+              return;
+            }
+          }
+        }
+        console.error("Stream URL not found for tvg-id:", tvgId);
+        showError("not_found");
+      }).fail(function () {
+        console.error("Failed to load M3U file.");
+        showError("load_failed");
+      });
+    }
+
     $(document).ready(function () {
       const tvgId = "cartoon-network";
 
@@ -207,6 +383,7 @@
           const videoElement = document.getElementById("my-video");
           videoElement.style.border = e.fullscreen ? "none" : "2px solid #00ffff";
         });
+
         player.on("error", function (e) {
           console.error("Player error:", e.message || e);
           showError(e.code || "unknown");
@@ -215,7 +392,6 @@
         jwplayer_hls_provider.attach();
       });
 
-      // Load EPGTalk schedule after player setup
       loadEPGSchedule();
     });
   </script>
