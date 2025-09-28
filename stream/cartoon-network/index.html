@@ -302,7 +302,7 @@
 
     let data;
     try {
-      const res = await fetch("https://tvpass.org/tv_schedules/cartoon-network-usa-eastern-feed.json");
+      const res = await fetch("https://cwdiptvb-github-io.onrender.com/?ch-id=cartoon-network-usa-eastern-feed);
       if (!res.ok) {
         console.error(`❌ Fetch failed: HTTP ${res.status} ${res.statusText}`);
         scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_http_${res.status}</p>`;
