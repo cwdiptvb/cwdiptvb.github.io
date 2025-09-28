@@ -161,6 +161,33 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .schedule-card {
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto 0 auto;
+      box-sizing: border-box;
+    }
+    .schedule-entry {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #333;
+    }
+    .schedule-entry:last-child {
+      border-bottom: none;
+    }
+    .schedule-entry strong {
+      color: #00ffff;
+      font-weight: 700;
+    }
+    .schedule-entry small {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
     footer {
       text-align: center;
       padding: 1rem;
@@ -231,194 +258,194 @@
       <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
     </div>
 
-    <div id="schedule-section" style="width:100%; max-width:800px; margin-top:2rem;">
-      <h2>TV Schedule</h2>
-      <div id="schedule-list"></div>
+    <!-- 📺 TVPass Schedule Section -->
+    <div id="schedule-section">
+      <div class="schedule-card">
+        <h2>Today's Schedule</h2>
+        <div id="schedule-list"></div>
+      </div>
     </div>
   </main>
   <footer>
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
-<script>
-  function copyPlaylistURL() {
-    const url = "https://cwdiptvb.github.io/tv_channels.m3u";
-    navigator.clipboard.writeText(url).then(() => {
-      alert("Playlist URL copied to clipboard!");
-    }).catch(err => {
-      alert("Failed to copy URL.");
-    });
-  }
+  <script>
+    function copyPlaylistURL() {
+      const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Playlist URL copied to clipboard!");
+      }).catch(err => {
+        alert("Failed to copy URL.");
+      });
+    }
 
-  function showError(errorCode) {
-    $("#loading-container").remove();
-    $("#my-video").hide();
-    $("#error-code-text").text("err_code_" + errorCode);
-    $("#error-message").show();
-  }
+    function showError(errorCode) {
+      $("#loading-container").remove();
+      $("#my-video").hide();
+      $("#error-code-text").text("err_code_" + errorCode);
+      $("#error-message").show();
+    }
 
-  function getStreamURLFromM3U(tvgId, callback) {
-    $.get("https://cwdiptvb.github.io/tv_channels.m3u", function (data) {
-      const lines = data.split(/\r?\n/);
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes(`tvg-id="${tvgId}"`)) {
-          const streamURL = lines[i + 1]?.trim();
-          if (streamURL && streamURL.startsWith("http")) {
-            console.log("✅ Stream URL found:", streamURL);
-            callback(streamURL);
-            return;
+    function getStreamURLFromM3U(tvgId, callback) {
+      $.get("https://cwdiptvb.github.io/tv_channels.m3u", function (data) {
+        const lines = data.split(/\r?\n/);
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].includes(`tvg-id="${tvgId}"`)) {
+            const streamURL = lines[i + 1]?.trim();
+            if (streamURL && streamURL.startsWith("http")) {
+              console.log("✅ Stream URL found:", streamURL);
+              callback(streamURL);
+              return;
+            }
           }
         }
-      }
-      console.error("Stream URL not found for tvg-id:", tvgId);
-      showError("not_found");
-    }).fail(function () {
-      console.error("Failed to load M3U file.");
-      showError("load_failed");
-    });
-  }
-
-  async function getUserTimezone() {
-    try {
-      const res = await fetch("https://ipapi.co/timezone");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.text();
-    } catch (err) {
-      console.warn("⚠️ Failed to detect timezone:", err);
-      throw new Error("err_timezone");
-    }
-  }
-
-  async function loadTVPassSchedule() {
-    const scheduleList = document.getElementById("schedule-list");
-    scheduleList.innerHTML = "<p>Loading schedule...</p>";
-
-    let timezone = "UTC";
-    try {
-      timezone = await getUserTimezone();
-    } catch (err) {
-      scheduleList.innerHTML = `<p>Unable to detect timezone.<br><strong>Error Code:</strong> ${err.message}</p>`;
-      return;
-    }
-
-    let data;
-    try {
-      const res = await fetch("https://cwdiptvb-github-io.onrender.com/?ch-id=cartoon-network-usa-eastern-feed");
-      if (!res.ok) {
-        console.error(`❌ Fetch failed: HTTP ${res.status} ${res.statusText}`);
-        scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_http_${res.status}</p>`;
-        return;
-      }
-      data = await res.json();
-      console.log("✅ Schedule data loaded:", data);
-    } catch (err) {
-      console.error("❌ Network or CORS error:", err);
-      scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_network_or_cors</p>`;
-      return;
-    }
-
-    try {
-      const now = new Date();
-      const end = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-      scheduleList.innerHTML = "";
-
-      const filtered = data.filter(item => {
-        const start = new Date(item["data-listdatetime"]);
-        const stop = new Date(start.getTime() + item["data-duration"] * 60000);
-        return start >= now && start <= end;
+        console.error("Stream URL not found for tvg-id:", tvgId);
+        showError("not_found");
+      }).fail(function () {
+        console.error("Failed to load M3U file.");
+        showError("load_failed");
       });
+    }
 
-      if (filtered.length === 0) {
-        scheduleList.innerHTML = `<p>No upcoming Cartoon Network programs found.<br><strong>Error Code:</strong> err_no_programs</p>`;
+    async function getUserTimezone() {
+      try {
+        const res = await fetch("https://ipapi.co/timezone");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.text();
+      } catch (err) {
+        console.warn("⚠️ Failed to detect timezone:", err);
+        throw new Error("err_timezone");
+      }
+    }
+
+    async function loadTVPassSchedule() {
+      const scheduleList = document.getElementById("schedule-list");
+      scheduleList.innerHTML = "<p>Loading schedule...</p>";
+
+      let timezone = "UTC";
+      try {
+        timezone = await getUserTimezone();
+      } catch (err) {
+        scheduleList.innerHTML = `<p>Unable to detect timezone.<br><strong>Error Code:</strong> ${err.message}</p>`;
         return;
       }
 
-      filtered.forEach(item => {
-        const startUTC = new Date(item["data-listdatetime"]);
-        const localStart = new Intl.DateTimeFormat([], {
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZone: timezone
-        }).format(startUTC);
+      let data;
+      try {
+        const res = await fetch("https://cwdiptvb-github-io.onrender.com/?ch-id=cartoon-network-usa-eastern-feed");
+        if (!res.ok) {
+          console.error(`❌ Fetch failed: HTTP ${res.status} ${res.statusText}`);
+          scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_http_${res.status}</p>`;
+          return;
+        }
+        data = await res.json();
+        console.log("✅ Schedule data loaded:", data);
+      } catch (err) {
+        console.error("❌ Network or CORS error:", err);
+        scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_network_or_cors</p>`;
+        return;
+      }
 
-        const title = item["data-showname"] || "Untitled";
-        const episode = item["data-episodetitle"] ? ` — ${item["data-episodetitle"]}` : "";
-        const desc = item["data-description"] || "No description";
+      try {
+        const now = new Date();
+        const end = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+        scheduleList.innerHTML = "";
 
-        const block = document.createElement("div");
-        block.className = "playlist-card";
-        block.innerHTML = `
-          <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
-          <div class="playlist-label">
+        const filtered = data.filter(item => {
+          const start = new Date(item["data-listdatetime"]);
+          const stop = new Date(start.getTime() + item["data-duration"] * 60000);
+          return start >= now && start <= end;
+        });
+
+        if (filtered.length === 0) {
+          scheduleList.innerHTML = `<p>No upcoming Cartoon Network programs found.<br><strong>Error Code:</strong> err_no_programs</p>`;
+          return;
+        }
+
+        filtered.forEach(item => {
+          const startUTC = new Date(item["data-listdatetime"]);
+          const localStart = new Intl.DateTimeFormat([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: timezone
+          }).format(startUTC);
+
+          const title = item["data-showname"] || "Untitled";
+          const episode = item["data-episodetitle"] ? ` — ${item["data-episodetitle"]}` : "";
+          const desc = item["data-description"] || "No description";
+
+          const entry = document.createElement("div");
+          entry.className = "schedule-entry";
+          entry.innerHTML = `
             <strong>${localStart}</strong> — ${title}${episode}
             <small>${desc}</small>
-          </div>
-        `;
-        scheduleList.appendChild(block);
-      });
-    } catch (err) {
-      console.error("❌ Failed to render schedule:", err);
-      scheduleList.innerHTML = `<p>Unable to render schedule.<br><strong>Error Code:</strong> err_render_failed</p>`;
+          `;
+          scheduleList.appendChild(entry);
+        });
+      } catch (err) {
+        console.error("❌ Failed to render schedule:", err);
+        scheduleList.innerHTML = `<p>Unable to render schedule.<br><strong>Error Code:</strong> err_render_failed</p>`;
+      }
     }
-  }
 
-  $(document).ready(function () {
-    const tvgId = "cartoon-network";
+    $(document).ready(function () {
+      const tvgId = "cartoon-network";
 
-    getStreamURLFromM3U(tvgId, function (streamURL) {
-      const player = jwplayer("my-video");
+      getStreamURLFromM3U(tvgId, function (streamURL) {
+        const player = jwplayer("my-video");
 
-      player.setup({
-        file: streamURL,
-        type: "application/x-mpegURL",
-        width: "100%",
-        aspectratio: "16:9",
-        autostart: true,
-        primary: "html5",
-        preload: "auto",
-        mute: false
+        player.setup({
+          file: streamURL,
+          type: "application/x-mpegURL",
+          width: "100%",
+          aspectratio: "16:9",
+          autostart: true,
+          primary: "html5",
+          preload: "auto",
+          mute: false
+        });
+
+        player.on("ready", function () {
+          $("#loading-container").remove();
+          $("#my-video").show();
+
+          setTimeout(() => {
+            const captions = player.getCaptionsList();
+            if (captions.length > 0) {
+              console.log("🧠 Subtitle tracks detected:");
+              captions.forEach((track, index) => {
+                console.log(`Track ${index + 1}: Label="${track.label}", Language="${track.language}"`);
+              });
+              player.setCurrentCaptions(1);
+            } else {
+              console.log("🧠 No subtitle tracks detected in stream.");
+            }
+          }, 500);
+        });
+
+        player.on("play", function () {
+          $("#loading-container").remove();
+          $("#my-video").show();
+          $("#player .jw-preview").css("background-image", "none");
+          player.setConfig({ image: "" });
+        });
+
+        player.on("fullscreen", function (e) {
+          const videoElement = document.getElementById("my-video");
+          videoElement.style.border = e.fullscreen ? "none" : "2px solid #00ffff";
+        });
+
+        player.on("error", function (e) {
+          console.error("Player error:", e.message || e);
+          showError(e.code || "unknown");
+        });
+
+        jwplayer_hls_provider.attach();
       });
 
-      player.on("ready", function () {
-        $("#loading-container").remove();
-        $("#my-video").show();
-
-        setTimeout(() => {
-          const captions = player.getCaptionsList();
-          if (captions.length > 0) {
-            console.log("🧠 Subtitle tracks detected:");
-            captions.forEach((track, index) => {
-              console.log(`Track ${index + 1}: Label="${track.label}", Language="${track.language}"`);
-            });
-            player.setCurrentCaptions(1);
-          } else {
-            console.log("🧠 No subtitle tracks detected in stream.");
-          }
-        }, 500);
-      });
-
-      player.on("play", function () {
-        $("#loading-container").remove();
-        $("#my-video").show();
-        $("#player .jw-preview").css("background-image", "none");
-        player.setConfig({ image: "" });
-      });
-
-      player.on("fullscreen", function (e) {
-        const videoElement = document.getElementById("my-video");
-        videoElement.style.border = e.fullscreen ? "none" : "2px solid #00ffff";
-      });
-
-      player.on("error", function (e) {
-        console.error("Player error:", e.message || e);
-        showError(e.code || "unknown");
-      });
-
-      jwplayer_hls_provider.attach();
+      loadTVPassSchedule();
     });
-
-    loadTVPassSchedule();
-  });
-</script>
+  </script>
 </body>
 </html>
