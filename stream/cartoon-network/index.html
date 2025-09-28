@@ -231,9 +231,8 @@
       <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
     </div>
 
-    <!-- 📺 TVPass Schedule Section -->
     <div id="schedule-section" style="width:100%; max-width:800px; margin-top:2rem;">
-      <h2>Today's Schedule</h2>
+      <h2>TV Schedule</h2>
       <div id="schedule-list"></div>
     </div>
   </main>
@@ -281,15 +280,16 @@
     async function getUserTimezone() {
       try {
         const res = await fetch("https://ipapi.co/timezone");
-        const tz = await res.text();
-        return tz || "UTC";
-      } catch (err) {
-        console.warn("Failed to detect timezone, defaulting to UTC");
+        return await res.text();
+      } catch {
         return "UTC";
       }
     }
 
     async function loadTVPassSchedule() {
+      const scheduleList = document.getElementById("schedule-list");
+      scheduleList.innerHTML = "<p>Loading schedule...</p>";
+
       try {
         const [res, timezone] = await Promise.all([
           fetch("https://tvpass.org/tv_schedules/cartoon-network-usa-eastern-feed.json"),
@@ -298,16 +298,23 @@
 
         const data = await res.json();
         const now = new Date();
-        const end = new Date(now.getTime() + 6 * 60 * 60 * 1000); // next 6 hours
-        const scheduleList = document.getElementById("schedule-list");
+        const end = new Date(now.getTime() + 6 * 60 * 60 * 1000);
         scheduleList.innerHTML = "";
 
-        let count = 0;
-        data.forEach(item => {
-          const startUTC = new Date(item["data-listdatetime"]);
-          if (startUTC < now || startUTC > end) return;
+        const filtered = data.filter(item => {
+          const start = new Date(item["data-listdatetime"]);
+          const stop = new Date(start.getTime() + item["data-duration"] * 60000);
+          return start >= now && start <= end;
+        });
 
-          const localTime = new Intl.DateTimeFormat([], {
+        if (filtered.length === 0) {
+          scheduleList.innerHTML = "<p>No upcoming Cartoon Network programs found.</p>";
+          return;
+        }
+
+        filtered.forEach(item => {
+          const startUTC = new Date(item["data-listdatetime"]);
+          const localStart = new Intl.DateTimeFormat([], {
             hour: '2-digit',
             minute: '2-digit',
             timeZone: timezone
@@ -322,20 +329,15 @@
           block.innerHTML = `
             <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
             <div class="playlist-label">
-              <strong>${localTime}</strong> — ${title}${episode}
+              <strong>${localStart}</strong> — ${title}${episode}
               <small>${desc}</small>
             </div>
           `;
           scheduleList.appendChild(block);
-          count++;
         });
-
-        if (count === 0) {
-          scheduleList.innerHTML = "<p>No upcoming Cartoon Network programs found.</p>";
-        }
       } catch (err) {
-        console.error("TVPass schedule load failed:", err);
-        document.getElementById("schedule-section").innerHTML = "<p>Unable to load schedule.</p>";
+        console.error("Schedule load failed:", err);
+        scheduleList.innerHTML = "<p>Unable to load schedule.</p>";
       }
     }
 
