@@ -14,7 +14,6 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
   <script src="https://content.jwplatform.com/libraries/KB5zFt7A.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@hola.org/jwplayer-hlsjs@latest/dist/jwplayer.hlsjs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -102,6 +101,7 @@
       background-color: #000;
       color: #f2f2f2;
       display: none;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
@@ -115,6 +115,19 @@
     #error-message a {
       color: #00ffff;
       text-decoration: underline;
+    }
+    #error-code-text {
+      display: block;
+      margin-top: 1rem;
+      color: #888;
+    }
+    #error-log {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #ccc;
+      white-space: pre-wrap;
+      text-align: left;
+      width: 100%;
     }
     .playlist-card {
       display: flex;
@@ -161,6 +174,32 @@
       border-radius: 4px;
       font-weight: bold;
       cursor: pointer;
+    }
+    #schedule {
+      width: 100%;
+      max-width: 800px;
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 8px;
+    }
+    #schedule h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      color: #00ffff;
+    }
+    .schedule-entry {
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #333;
+    }
+    .schedule-entry strong {
+      color: #00ffff;
+    }
+    .schedule-entry small {
+      color: #aaa;
     }
     footer {
       text-align: center;
@@ -218,9 +257,10 @@
       <p>
         An unexpected error has occurred. Please try refreshing the page. <br />
         If the error persists, please contact us here:
-        <a href="/contact">Contact</a>.<br />
-        <span id="error-code-text" style="display: block; margin-top: 1rem; color: #888;"></span>
+        <a href="/contact">Contact</a>.
       </p>
+      <span id="error-code-text"></span>
+      <pre id="error-log"></pre>
     </div>
 
     <div class="playlist-card">
@@ -232,10 +272,9 @@
       <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
     </div>
 
-    <!-- 📺 EPGTalk Schedule Section -->
-    <div id="schedule-section" style="width:100%; max-width:800px; margin-top:2rem;">
-      <h2>Today's Schedule</h2>
-      <div id="schedule-list"></div>
+    <div id="schedule">
+      <h3>Upcoming Shows</h3>
+      <div id="schedule-entries"></div>
     </div>
   </main>
   <footer>
@@ -243,6 +282,8 @@
   </footer>
 
   <script>
+    const tvgId = "CARTOON_NETWORK";
+
     function copyPlaylistURL() {
       const url = "https://cwdiptvb.github.io/tv_channels.m3u";
       navigator.clipboard.writeText(url).then(() => {
@@ -252,69 +293,21 @@
       });
     }
 
-    function showError(errorCode) {
+    function logErrorDetails(message, context = {}) {
+      const log = [
+        `🛠 Error Message: ${message}`,
+        `📦 Context: ${JSON.stringify(context, null, 2)}`
+      ].join("\n");
+      $("#error-log").text(log);
+      console.warn("🛠 Error Details:\n", log);
+    }
+
+    function showError(errorCode, details = {}) {
       $("#loading-container").remove();
       $("#my-video").hide();
       $("#error-code-text").text("err_code_" + errorCode);
       $("#error-message").show();
-    }
-
-    function parseEPGTime(epgTime) {
-      const year = epgTime.slice(0, 4);
-      const month = epgTime.slice(4, 6) - 1;
-      const day = epgTime.slice(6, 8);
-      const hour = epgTime.slice(8, 10);
-      const minute = epgTime.slice(10, 12);
-      return new Date(Date.UTC(year, month, day, hour, minute));
-    }
-
-    async function loadEPGSchedule() {
-      try {
-        const res = await fetch("https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_guide.xml.gz");
-        const compressed = await res.arrayBuffer();
-        const xmlText = new TextDecoder().decode(pako.ungzip(new Uint8Array(compressed)));
-
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-        const programs = xmlDoc.querySelectorAll("programme");
-        const now = new Date();
-        const end = new Date(now.getTime() + 6 * 60 * 60 * 1000); // next 6 hours
-
-        const scheduleList = document.getElementById("schedule-list");
-        scheduleList.innerHTML = "";
-
-        let count = 0;
-        programs.forEach(prog => {
-          const channel = prog.getAttribute("channel");
-          if (!channel.toLowerCase().includes("cartoon")) return;
-
-          const start = parseEPGTime(prog.getAttribute("start"));
-          if (start < now || start > end) return;
-
-          const title = prog.querySelector("title")?.textContent || "Untitled";
-          const desc = prog.querySelector("desc")?.textContent || "No description";
-
-          const block = document.createElement("div");
-          block.className = "playlist-card";
-          block.innerHTML = `
-            <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
-            <div class="playlist-label">
-              <strong>${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong> — ${title}
-              <small>${desc}</small>
-            </div>
-          `;
-          scheduleList.appendChild(block);
-          count++;
-        });
-
-        if (count === 0) {
-          scheduleList.innerHTML = "<p>No upcoming Cartoon Network programs found.</p>";
-        }
-      } catch (err) {
-        console.error("EPG load failed:", err);
-        document.getElementById("schedule-section").innerHTML = "<p>Unable to load schedule.</p>";
-      }
+      logErrorDetails(`Stream failed with code: ${errorCode}`, details);
     }
 
     function getStreamURLFromM3U(tvgId, callback) {
@@ -329,17 +322,88 @@
             }
           }
         }
-        console.error("Stream URL not found for tvg-id:", tvgId);
-        showError("not_found");
-      }).fail(function () {
-        console.error("Failed to load M3U file.");
-        showError("load_failed");
+        showError("not_found", { searchedId: tvgId });
+      }).fail(function (xhr, status, error) {
+        showError("load_failed", { status, error });
       });
     }
 
-    $(document).ready(function () {
-      const tvgId = "cartoon-network";
+    function parseXMLTVDate(dateStr) {
+      const match = dateStr.match(/^(\d{14})\s?([+-]\d{4})?$/);
+      if (!match) return new Date(0);
+      const [_, base, offset] = match;
+      const year = base.slice(0, 4);
+      const month = base.slice(4, 6) - 1;
+      const day = base.slice(6, 8);
+      const hour = base.slice(8, 10);
+      const minute = base.slice(10, 12);
+      const second = base.slice(12, 14);
+      const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+      if (offset) {
+        const sign = offset[0] === "+" ? 1 : -1;
+        const offsetHours = parseInt(offset.slice(1, 3), 10);
+        const offsetMinutes = parseInt(offset.slice(3, 5), 10);
+        date.setUTCMinutes(date.getUTCMinutes() - sign * (offsetHours * 60 + offsetMinutes));
+      }
+      return date;
+    }
 
+    function loadScheduleXMLTV(channelId, hoursAhead = 72) {
+      $.ajax({
+        url: "/epg.xml",
+        dataType: "xml",
+        success: function (xml) {
+          const now = new Date();
+          const cutoff = new Date(now.getTime() + hoursAhead * 60 * 60 * 1000);
+          const entries = [];
+
+          $(xml).find("programme").each(function () {
+            const channel = $(this).attr("channel");
+            const startStr = $(this).attr("start");
+            const title = $(this).find("title").text();
+            const desc = $(this).find("desc").text();
+
+            if (channel !== channelId) return;
+
+            const start = parseXMLTVDate(startStr);
+            if (start >= now && start <= cutoff) {
+              entries.push({ start, title, desc });
+            }
+          });
+
+          renderSchedule(entries);
+        },
+        error: function (xhr, status, error) {
+          $("#schedule-entries").html(`<p style="color:#ccc;">Failed to load schedule.</p>`);
+        }
+      });
+    }
+
+    function renderSchedule(entries) {
+      const container = $("#schedule-entries");
+      container.empty();
+
+      if (entries.length === 0) {
+        container.html(`<p style="color:#ccc;">No upcoming shows found.</p>`);
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      entries.forEach(prog => {
+        const div = document.createElement("div");
+        div.className = "schedule-entry";
+        div.innerHTML = `
+          <strong>${prog.start.toLocaleString()}</strong><br/>
+          ${prog.title}<br/>
+          <small>${prog.desc}</small>
+        `;
+        fragment.appendChild(div);
+      });
+
+      container.append(fragment);
+    }
+
+    $(document).ready(function () {
       getStreamURLFromM3U(tvgId, function (streamURL) {
         const player = jwplayer("my-video");
 
@@ -385,15 +449,17 @@
         });
 
         player.on("error", function (e) {
-          console.error("Player error:", e.message || e);
-          showError(e.code || "unknown");
+          showError(e.code || "unknown", {
+            message: e.message,
+            raw: e
+          });
         });
 
         jwplayer_hls_provider.attach();
       });
 
-      loadEPGSchedule();
+      loadScheduleXMLTV(tvgId, 72);
     });
   </script>
 </body>
-</html>
+  </html>
