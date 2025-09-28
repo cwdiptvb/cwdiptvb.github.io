@@ -1,6 +1,7 @@
 import express from 'express';
 import fetch from 'node-fetch';
 import { convertMultipleToXMLTV } from './utils/convert.js';
+import { CHANNEL_MAP } from './utils/channelMap.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,12 +10,6 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   next();
 });
-
-// Simplified tvg-id → TVPass filename mapping
-const CHANNEL_MAP = {
-  "cartoon-network": "cartoon-network-usa-eastern-feed",
-  // Add more mappings as needed
-};
 
 app.get('/', async (req, res) => {
   const chId = req.query['ch-id'];
@@ -79,4 +74,4 @@ app.get('/m3usch', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`TVPass proxy running on port ${PORT}`);
-});     
+});  
