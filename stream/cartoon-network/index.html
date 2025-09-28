@@ -240,7 +240,7 @@
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
-<script>
+        <script>
   function copyPlaylistURL() {
     const url = "https://cwdiptvb.github.io/tv_channels.m3u";
     navigator.clipboard.writeText(url).then(() => {
@@ -303,11 +303,15 @@
     let data;
     try {
       const res = await fetch("https://tvpass.org/tv_schedules/cartoon-network-usa-eastern-feed.json");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        console.error(`❌ Fetch failed: HTTP ${res.status} ${res.statusText}`);
+        scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_http_${res.status}</p>`;
+        return;
+      }
       data = await res.json();
     } catch (err) {
-      console.error("❌ Failed to fetch or parse schedule:", err);
-      scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_fetch_failed</p>`;
+      console.error("❌ Network or CORS error:", err);
+      scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_network_or_cors</p>`;
       return;
     }
 
@@ -413,6 +417,6 @@
 
     loadTVPassSchedule();
   });
-</script>
+    </script>
 </body>
 </html>
