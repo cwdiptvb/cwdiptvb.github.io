@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Watch BBC America Free Online - Free Live TV</title>
+  <title>Watch ACC Network Free Online - Free Live TV</title>
   <link rel="icon" href="/fav/16.png" sizes="16x16">
   <link rel="icon" href="/fav/32.png" sizes="32x32">
   <link rel="icon" href="/fav/48.png" sizes="48x48">
@@ -161,6 +161,33 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .schedule-card {
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto 0 auto;
+      box-sizing: border-box;
+    }
+    .schedule-entry {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #333;
+    }
+    .schedule-entry:last-child {
+      border-bottom: none;
+    }
+    .schedule-entry strong {
+      color: #00ffff;
+      font-weight: 700;
+    }
+    .schedule-entry small {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
     footer {
       text-align: center;
       padding: 1rem;
@@ -230,33 +257,171 @@
       </div>
       <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
     </div>
+
+    <div id="schedule-section">
+      <div class="schedule-card">
+        <h2>TV Schedule</h2>
+        <div id="schedule-list"></div>
+      </div>
+    </div>
   </main>
   <footer>
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
   <script>
-    function copyPlaylistURL() {
-      const url = "https://cwdiptvb.github.io/tv_channels.m3u";
-      navigator.clipboard.writeText(url).then(() => {
-        alert("Playlist URL copied to clipboard!");
-      }).catch(err => {
-        alert("Failed to copy URL.");
+  function copyPlaylistURL() {
+    const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+    navigator.clipboard.writeText(url).then(() => {
+      alert("Playlist URL copied to clipboard!");
+    }).catch(err => {
+      alert("Failed to copy URL.");
+    });
+  }
+
+  function showError(errorCode) {
+    $("#loading-container").remove();
+    $("#my-video").hide();
+    $("#error-code-text").text("err_code_" + errorCode);
+    $("#error-message").show();
+  }
+
+  function getStreamURLFromM3U(tvgId, callback) {
+    $.get("https://cwdiptvb.github.io/tv_channels.m3u", function (data) {
+      const lines = data.split(/\r?\n/);
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes(`tvg-id="${tvgId}"`)) {
+          const streamURL = lines[i + 1]?.trim();
+          if (streamURL && streamURL.startsWith("http")) {
+            console.log("✅ Stream URL found:", streamURL);
+            callback(streamURL);
+            return;
+          }
+        }
+      }
+      console.error("Stream URL not found for tvg-id:", tvgId);
+      showError("not_found");
+    }).fail(function () {
+      console.error("Failed to load M3U file.");
+      showError("load_failed");
+    });
+  }
+
+  async function getUserTimezone() {
+    try {
+      const res = await fetch("https://ipapi.co/timezone");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.text();
+    } catch (err) {
+      console.warn("⚠️ Failed to detect timezone:", err);
+      throw new Error("err_timezone");
+    }
+  }
+
+  async function loadTVPassSchedule() {
+    const scheduleList = document.getElementById("schedule-list");
+    scheduleList.innerHTML = "<p>Loading schedule...</p>";
+
+    let timezone = "UTC";
+    try {
+      timezone = await getUserTimezone();
+    } catch (err) {
+      scheduleList.innerHTML = `<p>Unable to detect timezone.<br><strong>Error Code:</strong> ${err.message}</p>`;
+      return;
+    }
+
+    let data;
+    try {
+      const res = await fetch("https://cwdiptvb-github-io.onrender.com/?ch-id=bbc-america-easts");
+      if (!res.ok) {
+        console.error(`❌ Fetch failed: HTTP ${res.status} ${res.statusText}`);
+        scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_http_${res.status}</p>`;
+        return;
+      }
+      data = await res.json();
+      console.log("✅ Schedule data loaded:", data);
+    } catch (err) {
+      console.error("❌ Network or CORS error:", err);
+      scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_network_or_cors</p>`;
+      return;
+    }
+
+    try {
+      const now = new Date();
+      now.setSeconds(0, 0); // Round to nearest minute
+      const end = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days ahead
+
+      const filtered = data.filter(item => {
+        const start = new Date(item["data-listdatetime"]);
+        const stop = new Date(start.getTime() + item["data-duration"] * 60000);
+        return stop >= now && start <= end;
       });
-    }
 
-    function showError(errorCode) {
-      $("#loading-container").remove();
-      $("#my-video").hide();
-      $("#error-code-text").text("err_code_" + errorCode);
-      $("#error-message").show();
-    }
+      if (filtered.length === 0) {
+        scheduleList.innerHTML = `<p>No upcoming programs found.<br><strong>Error Code:</strong> err_no_programs</p>`;
+        return;
+      }
 
-    $(document).ready(function () {
+      scheduleList.innerHTML = "";
+
+      const groupedByDay = {};
+
+      filtered.forEach(item => {
+        const start = new Date(item["data-listdatetime"]);
+        const localDate = new Intl.DateTimeFormat([], {
+          timeZone: timezone,
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }).format(start);
+
+        if (!groupedByDay[localDate]) {
+          groupedByDay[localDate] = [];
+        }
+        groupedByDay[localDate].push(item);
+      });
+
+      Object.entries(groupedByDay).forEach(([dayLabel, programs]) => {
+        const dayHeader = document.createElement("div");
+        dayHeader.className = "schedule-entry";
+        dayHeader.innerHTML = `<h3 style="margin:0; color:#00ffff;">${dayLabel}</h3>`;
+        scheduleList.appendChild(dayHeader);
+
+        programs.forEach(item => {
+          const startUTC = new Date(item["data-listdatetime"]);
+          const localStart = new Intl.DateTimeFormat([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: timezone
+          }).format(startUTC);
+
+          const title = item["data-showname"] || "Untitled";
+          const episode = item["data-episodetitle"] ? ` — ${item["data-episodetitle"]}` : "";
+          const desc = item["data-description"] || "No description";
+
+          const entry = document.createElement("div");
+          entry.className = "schedule-entry";
+          entry.innerHTML = `
+            <strong>${localStart}</strong> — ${title}${episode}
+            <small>${desc}</small>
+          `;
+          scheduleList.appendChild(entry);
+        });
+      });
+    } catch (err) {
+      console.error("❌ Failed to render schedule:", err);
+      scheduleList.innerHTML = `<p>Unable to render schedule.<br><strong>Error Code:</strong> err_render_failed</p>`;
+    }
+  }
+
+  $(document).ready(function () {
+    const tvgId = "bbc-america";
+
+    getStreamURLFromM3U(tvgId, function (streamURL) {
       const player = jwplayer("my-video");
 
       player.setup({
-        file: "https://fl7.moveonjoy.com/BBC_AMERICA/index.m3u8",
+        file: streamURL,
         type: "application/x-mpegURL",
         width: "100%",
         aspectratio: "16:9",
@@ -269,6 +434,19 @@
       player.on("ready", function () {
         $("#loading-container").remove();
         $("#my-video").show();
+
+        setTimeout(() => {
+          const captions = player.getCaptionsList();
+          if (captions.length > 0) {
+            console.log("🧠 Subtitle tracks detected:");
+            captions.forEach((track, index) => {
+              console.log(`Track ${index + 1}: Label="${track.label}", Language="${track.language}"`);
+            });
+            player.setCurrentCaptions(1);
+          } else {
+            console.log("🧠 No subtitle tracks detected in stream.");
+          }
+        }, 500);
       });
 
       player.on("play", function () {
@@ -279,9 +457,8 @@
       });
 
       player.on("fullscreen", function (e) {
-        const isFullscreen = e.fullscreen;
         const videoElement = document.getElementById("my-video");
-        videoElement.style.border = isFullscreen ? "none" : "2px solid #00ffff";
+        videoElement.style.border = e.fullscreen ? "none" : "2px solid #00ffff";
       });
 
       player.on("error", function (e) {
@@ -291,6 +468,9 @@
 
       jwplayer_hls_provider.attach();
     });
-  </script>
+
+    loadTVPassSchedule();
+  });
+  </script> 
 </body>
-  </html>
+</html>
