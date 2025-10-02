@@ -1,34 +1,67 @@
-export function convertMultipleToXMLTV(schedules) {
-  const pad = (n) => n.toString().padStart(2, '0');
-  const formatDate = (date) => {
-    const yyyy = date.getUTCFullYear();
-    const MM = pad(date.getUTCMonth() + 1);
-    const dd = pad(date.getUTCDate());
-    const hh = pad(date.getUTCHours());
-    const mm = pad(date.getUTCMinutes());
-    const ss = pad(date.getUTCSeconds());
-    return `${yyyy}${MM}${dd}${hh}${mm}${ss} +0000`;
-  };
+import express from 'express';
+import fetch from 'node-fetch';
+import { convertMultipleToXMLTV } from './utils/convert.js';
+import { CHANNEL_MAP } from './utils/channelMap.js';
 
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<tv>\n`;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  schedules.forEach(({ id, data }) => {
-    xml += `<channel id="${id}">\n  <display-name>${id}</display-name>\n</channel>\n`;
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
 
-    data.forEach(item => {
-      const start = new Date(item["data-listdatetime"]);
-      const stop = new Date(start.getTime() + item["data-duration"] * 60000);
-      const title = item["data-showname"] || "Untitled";
-      const episode = item["data-episodetitle"] || "";
-      const desc = item["data-description"] || "";
+app.get('/m3usch', async (req, res) => {
+  try {
+    const schedules = await Promise.all(
+      Object.entries(CHANNEL_MAP).map(async ([tvgId, tvpassId]) => {
+        const url = `https://tvpass.org/tv_schedules/${encodeURIComponent(tvpassId)}.json`;
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`Unavailable: ${tvpassId}`);
+          const data = await response.json();
+          return { id: tvgId, data };
+        } catch (err) {
+          console.warn(`⚠️ Skipping ${tvpassId}: ${err.message}`);
+          return null;
+        }
+      })
+    );
 
-      xml += `<programme start="${formatDate(start)}" stop="${formatDate(stop)}" channel="${id}">\n`;
-      xml += `  <title>${title}${episode ? ` — ${episode}` : ''}</title>\n`;
-      if (desc) xml += `  <desc>${desc}</desc>\n`;
-      xml += `</programme>\n`;
-    });
-  });
+    const filtered = schedules.filter(Boolean); // remove nulls
+    const xmltv = convertMultipleToXMLTV(filtered);
+    res.setHeader('Content-Type', 'application/xml');
+    res.send(xmltv);
+  } catch (err) {
+    console.error("❌ Failed to build unified XMLTV:", err);
+    res.status(500).send("Failed to generate schedule");
+  }
+});
 
-  xml += `</tv>`;
-  return xml;
-                             }
+app.get('/', async (req, res) => {
+  const plId = req.query['pl-id'];
+  if (plId) {
+    const tvpassId = CHANNEL_MAP[plId] || plId; // fallback to raw pl-id
+    const url = `https://tvpass.org/tv_schedules/${encodeURIComponent(tvpassId)}.json`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.warn(`⚠️ Skipping ${tvpassId}: ${response.statusText}`);
+        return res.status(204).send(); // No content
+      }
+      const data = await response.json();
+      const xmltv = convertMultipleToXMLTV([{ id: plId, data }]);
+      res.setHeader('Content-Type', 'application/xml');
+      return res.send(xmltv);
+    } catch (err) {
+      console.warn(`⚠️ Failed to fetch ${tvpassId}: ${err.message}`);
+      return res.status(204).send(); // No content
+    }
+  }
+
+  return res.status(400).send('Missing pl-id or ch-id');
+});
+
+app.listen(PORT, () => {
+  console.log(`TVPass proxy running on port ${PORT}`);
+});
