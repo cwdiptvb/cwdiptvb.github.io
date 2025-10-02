@@ -1,3 +1,5 @@
+import path from 'path';
+console.log("Current file:", path.resolve('./server.js'));
 import express from 'express';
 import fetch from 'node-fetch';
 import { convertMultipleToXMLTV } from './utils/convert.js';
