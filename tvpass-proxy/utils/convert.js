@@ -1,67 +1,79 @@
-import express from 'express';
-import fetch from 'node-fetch';
-import { convertMultipleToXMLTV } from './utils/convert.js';
-import { CHANNEL_MAP } from './utils/channelMap.js';
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  next();
-});
-
-app.get('/m3usch', async (req, res) => {
-  try {
-    const schedules = await Promise.all(
-      Object.entries(CHANNEL_MAP).map(async ([tvgId, tvpassId]) => {
-        const url = `https://tvpass.org/tv_schedules/${encodeURIComponent(tvpassId)}.json`;
-        try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`Unavailable: ${tvpassId}`);
-          const data = await response.json();
-          return { id: tvgId, data };
-        } catch (err) {
-          console.warn(`⚠️ Skipping ${tvpassId}: ${err.message}`);
-          return null;
+/**
+ * Helper function to escape special XML characters.
+ * This directly addresses the "xmlParseEntityRef: no name" error.
+ * @param {string} unsafe The string to escape.
+ * @returns {string} The escaped string.
+ */
+function escapeXml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.replace(/[&<>"']/g, function (match) {
+        switch (match) {
+            case '&': return '&amp;';
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '"': return '&quot;';
+            case "'": return '&apos;';
         }
-      })
-    );
+    });
+}
 
-    const filtered = schedules.filter(Boolean); // remove nulls
-    const xmltv = convertMultipleToXMLTV(filtered);
-    res.setHeader('Content-Type', 'application/xml');
-    res.send(xmltv);
-  } catch (err) {
-    console.error("❌ Failed to build unified XMLTV:", err);
-    res.status(500).send("Failed to generate schedule");
-  }
-});
+/**
+ * Converts TVPass JSON schedules into an XMLTV string.
+ * @param {Array<{id: string, data: Array<Object>}>} schedules 
+ * @returns {string} The complete XMLTV string.
+ */
+export function convertMultipleToXMLTV(schedules) {
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<!DOCTYPE tv SYSTEM "xmltv.dtd">\n';
+    // xmltv.dtd is just for validation, not required for parsing
 
-app.get('/', async (req, res) => {
-  const plId = req.query['pl-id'];
-  if (plId) {
-    const tvpassId = CHANNEL_MAP[plId] || plId; // fallback to raw pl-id
-    const url = `https://tvpass.org/tv_schedules/${encodeURIComponent(tvpassId)}.json`;
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        console.warn(`⚠️ Skipping ${tvpassId}: ${response.statusText}`);
-        return res.status(204).send(); // No content
-      }
-      const data = await response.json();
-      const xmltv = convertMultipleToXMLTV([{ id: plId, data }]);
-      res.setHeader('Content-Type', 'application/xml');
-      return res.send(xmltv);
-    } catch (err) {
-      console.warn(`⚠️ Failed to fetch ${tvpassId}: ${err.message}`);
-      return res.status(204).send(); // No content
-    }
-  }
+    xml += '<tv>\n';
 
-  return res.status(400).send('Missing pl-id or ch-id');
-});
+    // 1. Channel Definitions
+    schedules.forEach(schedule => {
+        // Use the tvg-id from the CHANNEL_MAP as the XMLTV channel ID
+        xml += `<channel id="${schedule.id}">\n`;
+        // Assuming the channel name is derived from the tvg-id for simplicity
+        xml += `<display-name lang="en">${escapeXml(schedule.id.replace(/-/g, ' ').toUpperCase())}</display-name>\n`;
+        xml += `</channel>\n`;
+    });
 
-app.listen(PORT, () => {
-  console.log(`TVPass proxy running on port ${PORT}`);
-});
+    // 2. Programme Listings
+    schedules.forEach(schedule => {
+        schedule.data.forEach(item => {
+            const start = item['data-listdatetime'].replace(/[-:T.]/g, '') + ' +0000'; // Format: YYYYMMDDhhmmss +0000 (UTC)
+            const durationMinutes = item['data-duration'] || 60;
+            const stopDate = new Date(new Date(item['data-listdatetime']).getTime() + durationMinutes * 60000);
+            
+            // Format stop time
+            const pad = (num) => String(num).padStart(2, '0');
+            const stop = stopDate.getUTCFullYear() + 
+                         pad(stopDate.getUTCMonth() + 1) + 
+                         pad(stopDate.getUTCDate()) + 
+                         pad(stopDate.getUTCHours()) + 
+                         pad(stopDate.getUTCMinutes()) + 
+                         pad(stopDate.getUTCSeconds()) + ' +0000';
+
+            xml += `<programme start="${start}" stop="${stop}" channel="${schedule.id}">\n`;
+            
+            // ESCAPING APPLIED HERE
+            xml += `<title lang="en">${escapeXml(item['data-showname'] || 'Untitled')}</title>\n`;
+            
+            if (item['data-episodetitle']) {
+                // ESCAPING APPLIED HERE
+                xml += `<sub-title lang="en">${escapeXml(item['data-episodetitle'])}</sub-title>\n`;
+            }
+
+            // ESCAPING APPLIED HERE
+            xml += `<desc lang="en">${escapeXml(item['data-description'] || 'No description available.')}</desc>\n`;
+
+            xml += `<category lang="en">TV Show</category>\n`;
+            // Add other standard tags like episode-num, star-rating, etc., as needed
+            
+            xml += `</programme>\n`;
+        });
+    });
+
+    xml += '</tv>';
+    return xml;
+}
