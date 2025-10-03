@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Watch Cartoon Network Free Online - Free Live TV</title>
+  <title>Watch Live TV Free Online - Free Live TV</title>
   <link rel="icon" href="/fav/16.png" sizes="16x16">
   <link rel="icon" href="/fav/32.png" sizes="32x32">
   <link rel="icon" href="/fav/48.png" sizes="48x48">
@@ -92,6 +92,7 @@
       object-fit: cover;
       display: block;
     }
+    /* Updated Error Message Styling */
     #error-message {
       width: 100%;
       max-width: 800px;
@@ -101,6 +102,7 @@
       background-color: #000;
       color: #f2f2f2;
       display: none;
+      flex-direction: column; /* Use flex to center content vertically */
       justify-content: center;
       align-items: center;
       text-align: center;
@@ -110,11 +112,42 @@
     }
     #error-message p {
       font-size: 1.1rem;
+      margin-bottom: 1.5rem;
     }
-    #error-message a {
-      color: #00ffff;
-      text-decoration: underline;
+    #invalid-channel-name {
+        font-weight: bold;
+        color: #ff3333; /* Slightly more vibrant red */
+        display: none;
+        word-break: break-all;
     }
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .error-actions a {
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+    .btn-home {
+        background-color: #00ffff;
+        color: #0d0d0d;
+    }
+    .btn-contact {
+        background-color: #333;
+        color: #f2f2f2;
+        border: 1px solid #00ffff;
+    }
+    .btn-home:hover {
+        background-color: #00dddd;
+    }
+    .btn-contact:hover {
+        background-color: #555;
+    }
+    /* Rest of the original styling */
     .playlist-card {
       display: flex;
       align-items: center;
@@ -219,6 +252,13 @@
         margin-top: 0.5rem;
         align-self: flex-end;
       }
+      .error-actions {
+        flex-direction: column;
+      }
+      .error-actions a {
+        width: 100%;
+        box-sizing: border-box;
+      }
     }
   </style>
 </head>
@@ -242,11 +282,15 @@
 
     <div id="error-message">
       <p>
-        An unexpected error has occurred. Please try refreshing the page. <br />
-        If the error persists, please contact us here:
-        <a href="/contact">Contact</a>.<br />
-        <span id="error-code-text" style="display: block; margin-top: 1rem; color: #888;"></span>
+        <span id="invalid-channel-name"></span> is not a valid channel name. 
+        If you received this error and clicked on a link on our homepage, please contact us. 
+        Otherwise, you can return to the homepage.
       </p>
+      <div class="error-actions">
+        <a href="/" class="btn-home">Return Home</a>
+        <a href="/contact" class="btn-contact">Contact us</a>
+      </div>
+      <span id="error-code-text" style="display: block; margin-top: 1rem; color: #888; font-size: 0.9rem;"></span>
     </div>
 
     <div class="playlist-card">
@@ -268,256 +312,285 @@
   <footer>
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
+
   <script>
-  // Global map to store tvg-id -> channel name and URL
-  let CHANNEL_NAME_MAP = {};
+    // Global map to store tvg-id -> channel name and URL
+    let CHANNEL_NAME_MAP = {};
 
-  function copyPlaylistURL() {
-    const url = "https://cwdiptvb.github.io/tv_channels.m3u";
-    navigator.clipboard.writeText(url).then(() => {
-      alert("Playlist URL copied to clipboard!");
-    }).catch(err => {
-      alert("Failed to copy URL.");
-    });
-  }
+    function copyPlaylistURL() {
+      const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Playlist URL copied to clipboard!");
+      }).catch(err => {
+        alert("Failed to copy URL.");
+      });
+    }
 
-  function showError(errorCode) {
-    $("#loading-container").remove();
-    $("#my-video").hide();
-    $("#error-code-text").text("err_code_" + errorCode);
-    $("#error-message").show();
-  }
-
-  // NEW FUNCTION: Fetches the M3U and builds a map of tvg-id to Channel Name and Stream URL
-  async function buildChannelMap() {
-      try {
-          const response = await fetch("https://cwdiptvb.github.io/tv_channels.m3u");
-          if (!response.ok) throw new Error("Failed to fetch M3U file");
-          const data = await response.text();
-          const lines = data.split(/\r?\n/);
-          
-          let currentTvgId = null;
-          let currentName = null;
-
-          for (let i = 0; i < lines.length; i++) {
-              if (lines[i].startsWith("#EXTINF")) {
-                  // Extract tvg-id
-                  const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
-                  currentTvgId = idMatch ? idMatch[1] : null;
-
-                  // Extract channel name (the text after the last comma)
-                  const nameMatch = lines[i].match(/,([^,]+)$/);
-                  currentName = nameMatch ? nameMatch[1].trim() : "Unknown Channel";
-              } else if (lines[i].startsWith("http") && currentTvgId) {
-                  // Stream URL is on the next line
-                  const streamURL = lines[i].trim();
-                  CHANNEL_NAME_MAP[currentTvgId] = { 
-                      name: currentName, 
-                      url: streamURL 
-                  };
-                  currentTvgId = null; 
-                  currentName = null;
-              }
-          }
-          console.log("✅ Channel Map built successfully.");
-      } catch (error) {
-          console.error("❌ Error building channel map:", error);
-      }
-  }
-
-  // UPDATED: Uses the global map to get the stream URL
-  function getStreamURL(tvgId, callback) {
-      const channelInfo = CHANNEL_NAME_MAP[tvgId];
-      if (channelInfo && channelInfo.url) {
-          callback(channelInfo.url);
+    // UPDATED: Function to handle errors and potentially display the invalid ID
+    function showError(errorCode, invalidId = null) {
+      $("#loading-container").remove();
+      $("#my-video").hide();
+      $("#schedule-section").hide(); // Hide the schedule section on critical error
+      
+      // Customize message for invalid ID error
+      if (errorCode === "invalid_id" && invalidId) {
+          $("#invalid-channel-name").text(invalidId);
+          $("#invalid-channel-name").show();
+          $("#error-code-text").text(`Error Code: err_invalid_tvg_id`);
+          $(".error-actions").show(); // Show navigation buttons
       } else {
-          console.error("Stream URL not found for tvg-id:", tvgId);
-          showError("not_found");
-      }
-  }
-
-  async function getUserTimezone() {
-    try {
-      const res = await fetch("https://ipapi.co/timezone");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.text();
-    } catch (err) {
-      console.warn("⚠️ Failed to detect timezone:", err);
-      throw new Error("err_timezone");
-    }
-  }
-
-  // Function to handle the *incorrectly formatted* XMLTV date string
-  const parseXmlTvDateFix = (dateStr) => {
-    const cleanDigits = dateStr.substring(0, 14);
-
-    if (cleanDigits.length !== 14) return new Date(NaN);
-
-    const year = cleanDigits.substring(0, 4);
-    const month = cleanDigits.substring(4, 6);
-    const day = cleanDigits.substring(6, 8);
-    const hour = cleanDigits.substring(8, 10);
-    const minute = cleanDigits.substring(10, 12);
-    const second = cleanDigits.substring(12, 14);
-    
-    const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}.000Z`;
-    return new Date(isoString);
-  };
-
-
-  async function loadXMLTVSchedule(tvgId) {
-    const scheduleList = document.getElementById("schedule-list");
-    scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
-
-    const xmltvUrl = "https://cwdiptvb-github-io.onrender.com/m3usch";
-    
-    let timezone = "UTC";
-    try {
-      timezone = await getUserTimezone();
-    } catch (err) {
-      scheduleList.innerHTML = `<p>⚠️ Schedule shown in UTC as timezone detection failed.<br><strong>Error:</strong> ${err.message}</p>`;
-    }
-    
-    let xmlDoc;
-    try {
-      const res = await fetch(xmltvUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      let xmlText = await res.text();
-      
-      const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
-
-      const parser = new DOMParser();
-      xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
-      
-      const errorNode = xmlDoc.querySelector('parsererror');
-      if (errorNode) {
-          console.error("XML Parsing Failed:", errorNode.textContent);
-          throw new Error("XML Parsing Failed (Invalid XML Structure)");
+          $("#invalid-channel-name").hide();
+          $("#error-code-text").text("Error Code: err_code_" + errorCode);
+          $(".error-actions").hide(); // Hide navigation buttons for standard player errors
       }
       
-    } catch (err) {
-      console.error("❌ Failed during XML fetch or parsing:", err.message);
-      scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
-      return;
+      $("#error-message").show();
     }
-    
-    try {
-      const targetChannelId = tvgId; 
 
-      const channelElement = xmlDoc.querySelector(`channel[id="${targetChannelId}"]`);
-      if (!channelElement) {
-          scheduleList.innerHTML = `<p>Channel with ID '${targetChannelId}' not found in the XMLTV file.</p>`;
-          return;
+    // NEW FUNCTION: Fetches the M3U and builds a map of tvg-id to Channel Name and Stream URL
+    async function buildChannelMap() {
+        try {
+            const response = await fetch("https://cwdiptvb.github.io/tv_channels.m3u");
+            if (!response.ok) throw new Error("Failed to fetch M3U file");
+            const data = await response.text();
+            const lines = data.split(/\r?\n/);
+            
+            let currentTvgId = null;
+            let currentName = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith("#EXTINF")) {
+                    const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
+                    currentTvgId = idMatch ? idMatch[1] : null;
+
+                    const nameMatch = lines[i].match(/,([^,]+)$/);
+                    currentName = nameMatch ? nameMatch[1].trim() : "Unknown Channel";
+                } else if (lines[i].startsWith("http") && currentTvgId) {
+                    const streamURL = lines[i].trim();
+                    CHANNEL_NAME_MAP[currentTvgId] = { 
+                        name: currentName, 
+                        url: streamURL 
+                    };
+                    currentTvgId = null; 
+                    currentName = null;
+                }
+            }
+            console.log("✅ Channel Map built successfully.");
+        } catch (error) {
+            console.error("❌ Error building channel map:", error);
+        }
+    }
+
+    // UPDATED: Uses the global map to get the stream URL
+    function getStreamURL(tvgId, callback) {
+        const channelInfo = CHANNEL_NAME_MAP[tvgId];
+        if (channelInfo && channelInfo.url) {
+            callback(channelInfo.url);
+        } else {
+            // This path should not be hit if we check for channelInfo before calling
+            showError("not_found");
+        }
+    }
+
+    async function getUserTimezone() {
+      try {
+        const res = await fetch("https://ipapi.co/timezone");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.text();
+      } catch (err) {
+        console.warn("⚠️ Failed to detect timezone:", err);
+        throw new Error("err_timezone");
       }
+    }
 
-      const programElements = xmlDoc.querySelectorAll(`programme[channel="${targetChannelId}"]`);
+    // Function to handle the *incorrectly formatted* XMLTV date string
+    const parseXmlTvDateFix = (dateStr) => {
+      const cleanDigits = dateStr.substring(0, 14);
+
+      if (cleanDigits.length !== 14) return new Date(NaN);
+
+      const year = cleanDigits.substring(0, 4);
+      const month = cleanDigits.substring(4, 6);
+      const day = cleanDigits.substring(6, 8);
+      const hour = cleanDigits.substring(8, 10);
+      const minute = cleanDigits.substring(10, 12);
+      const second = cleanDigits.substring(12, 14);
       
-      if (programElements.length === 0) {
-        scheduleList.innerHTML = `<p>No program entries found for this channel in the EPG file.</p>`;
+      const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}.000Z`;
+      return new Date(isoString);
+    };
+
+
+    async function loadXMLTVSchedule(tvgId) {
+      const scheduleList = document.getElementById("schedule-list");
+      scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
+
+      const xmltvUrl = "https://cwdiptvb-github-io.onrender.com/m3usch";
+      
+      let timezone = "UTC";
+      try {
+        timezone = await getUserTimezone();
+      } catch (err) {
+        scheduleList.innerHTML = `<p>⚠️ Schedule shown in UTC as timezone detection failed.<br><strong>Error:</strong> ${err.message}</p>`;
+      }
+      
+      let xmlDoc;
+      try {
+        const res = await fetch(xmltvUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        let xmlText = await res.text();
+        
+        const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
+
+        const parser = new DOMParser();
+        xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
+        
+        const errorNode = xmlDoc.querySelector('parsererror');
+        if (errorNode) {
+            console.error("XML Parsing Failed:", errorNode.textContent);
+            throw new Error("XML Parsing Failed (Invalid XML Structure)");
+        }
+        
+      } catch (err) {
+        console.error("❌ Failed during XML fetch or parsing:", err.message);
+        scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
         return;
       }
-
-      scheduleList.innerHTML = "";
-      const groupedByDay = {};
-      const now = new Date();
-      const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); 
       
-      programElements.forEach(program => {
-          const startStr = program.getAttribute('start');
-          const stopStr = program.getAttribute('stop'); 
-          if (!startStr || !stopStr || startStr.length < 14 || stopStr.length < 14) return;
+      try {
+        const targetChannelId = tvgId; 
+
+        const channelElement = xmlDoc.querySelector(`channel[id="${targetChannelId}"]`);
+        if (!channelElement) {
+            scheduleList.innerHTML = `<p>Channel with ID '${targetChannelId}' not found in the XMLTV file.</p>`;
+            return;
+        }
+
+        const programElements = xmlDoc.querySelectorAll(`programme[channel="${targetChannelId}"]`);
+        
+        if (programElements.length === 0) {
+          scheduleList.innerHTML = `<p>No program entries found for this channel in the EPG file.</p>`;
+          return;
+        }
+
+        scheduleList.innerHTML = "";
+        const groupedByDay = {};
+        const now = new Date();
+        const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); 
+        
+        programElements.forEach(program => {
+            const startStr = program.getAttribute('start');
+            const stopStr = program.getAttribute('stop'); 
+            if (!startStr || !stopStr || startStr.length < 14 || stopStr.length < 14) return;
+            
+            const startUTC = parseXmlTvDateFix(startStr);
+            const stopUTC = parseXmlTvDateFix(stopStr);
+
+            if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
+            
+            if (stopUTC < now) return; 
+            
+            if (startUTC > threeDaysAhead) return; 
+
+            const title = program.querySelector('title')?.textContent || "Untitled Program";
+            const subtitle = program.querySelector('sub-title')?.textContent;
+            const desc = program.querySelector('desc')?.textContent || "No description available.";
+
+            const localDate = new Intl.DateTimeFormat([], {
+                timeZone: timezone,
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }).format(startUTC);
+            
+            if (!groupedByDay[localDate]) {
+                groupedByDay[localDate] = [];
+            }
+
+            groupedByDay[localDate].push({ startUTC, title, subtitle, desc });
+        });
+
+        if (Object.keys(groupedByDay).length === 0) {
+            scheduleList.innerHTML = `<p>No current or upcoming programs were found. The EPG data may be stale or incomplete.</p>`;
+            return;
+        }
+
+        Object.entries(groupedByDay).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB)).forEach(([dayLabel, programs]) => {
+            const dayHeader = document.createElement("div");
+            dayHeader.className = "schedule-entry";
+            dayHeader.innerHTML = `<h3 style="margin:0; color:#00ffff;">${dayLabel}</h3>`;
+            scheduleList.appendChild(dayHeader);
+
+            programs.sort((a, b) => a.startUTC - b.startUTC).forEach(item => {
+                const localStart = new Intl.DateTimeFormat([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: timezone
+                }).format(item.startUTC);
+
+                const episode = item.subtitle ? ` — ${item.subtitle}` : "";
+
+                const entry = document.createElement("div");
+                entry.className = "schedule-entry";
+                entry.innerHTML = `
+                    <strong>${localStart}</strong> — ${item.title}${episode}
+                    <small>${item.desc}</small>
+                `;
+                scheduleList.appendChild(entry);
+            });
+        });
+
+      } catch (err) {
+        console.error("❌ Failed during XML processing/rendering:", err.message, err.stack);
+        scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_processing_xml_data</p>`;
+      }
+    }
+
+
+    $(document).ready(async function () {
+      // 1. Build the channel map
+      await buildChannelMap();
+      
+      // 2. Get tvg-id from the URL query parameter: ?id={channel-id}
+      const urlParams = new URLSearchParams(window.location.search);
+      const tvgId = urlParams.get('id');
+      
+      // 3. Handle missing ID (default to Cartoon Network)
+      if (!tvgId) {
+          const defaultTvgId = "cartoon-network";
+          const defaultChannelInfo = CHANNEL_NAME_MAP[defaultTvgId];
           
-          const startUTC = parseXmlTvDateFix(startStr);
-          const stopUTC = parseXmlTvDateFix(stopStr);
-
-          if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
+          document.title = `Watch ${defaultChannelInfo.name} Free Online - Free Live TV`;
+          $('main h2').text(`Now Streaming: ${defaultChannelInfo.name}`);
           
-          if (stopUTC < now) return; 
-          
-          if (startUTC > threeDaysAhead) return; 
-
-          const title = program.querySelector('title')?.textContent || "Untitled Program";
-          const subtitle = program.querySelector('sub-title')?.textContent;
-          const desc = program.querySelector('desc')?.textContent || "No description available.";
-
-          const localDate = new Intl.DateTimeFormat([], {
-              timeZone: timezone,
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-          }).format(startUTC);
-          
-          if (!groupedByDay[localDate]) {
-              groupedByDay[localDate] = [];
-          }
-
-          groupedByDay[localDate].push({ startUTC, title, subtitle, desc });
-      });
-
-      if (Object.keys(groupedByDay).length === 0) {
-          scheduleList.innerHTML = `<p>No current or upcoming programs were found. The EPG data may be stale or incomplete.</p>`;
+          getStreamURL(defaultTvgId, function (streamURL) {
+            initializePlayer(streamURL);
+          });
+          loadXMLTVSchedule(defaultTvgId);
           return;
       }
+      
+      const channelInfo = CHANNEL_NAME_MAP[tvgId];
+      
+      // 4. Handle invalid ID (display custom error)
+      if (!channelInfo) {
+          showError("invalid_id", tvgId);
+          return; 
+      }
+      
+      // 5. Load valid channel
+      const channelName = channelInfo.name;
+      document.title = `Watch ${channelName} Free Online - Free Live TV`;
+      $('main h2').text(`Now Streaming: ${channelName}`);
 
-      Object.entries(groupedByDay).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB)).forEach(([dayLabel, programs]) => {
-          const dayHeader = document.createElement("div");
-          dayHeader.className = "schedule-entry";
-          dayHeader.innerHTML = `<h3 style="margin:0; color:#00ffff;">${dayLabel}</h3>`;
-          scheduleList.appendChild(dayHeader);
-
-          programs.sort((a, b) => a.startUTC - b.startUTC).forEach(item => {
-              const localStart = new Intl.DateTimeFormat([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZone: timezone
-              }).format(item.startUTC);
-
-              const episode = item.subtitle ? ` — ${item.subtitle}` : "";
-
-              const entry = document.createElement("div");
-              entry.className = "schedule-entry";
-              entry.innerHTML = `
-                  <strong>${localStart}</strong> — ${item.title}${episode}
-                  <small>${item.desc}</small>
-              `;
-              scheduleList.appendChild(entry);
-          });
+      getStreamURL(tvgId, function (streamURL) {
+        initializePlayer(streamURL);
       });
+      loadXMLTVSchedule(tvgId);
+    });
 
-    } catch (err) {
-      console.error("❌ Failed during XML processing/rendering:", err.message, err.stack);
-      scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_processing_xml_data</p>`;
-    }
-  }
-
-
-  $(document).ready(async function () {
-    // 1. Build the channel map
-    await buildChannelMap();
-    
-    // 2. Get tvg-id from the URL query parameter: ?id={channel-id}
-    const urlParams = new URLSearchParams(window.location.search);
-    const tvgId = urlParams.get('id') || "cartoon-network"; // Default if 'id' is missing
-
-    const channelInfo = CHANNEL_NAME_MAP[tvgId];
-    
-    let channelName = "Cartoon Network"; // Default if not found
-    
-    if (channelInfo) {
-        channelName = channelInfo.name;
-        // 3. Update the page title and header
-        document.title = `Watch ${channelName} Free Online - Free Live TV`;
-        $('main h2').text(`Now Streaming: ${channelName}`);
-    } else {
-         // If no channel info is found for the ID (even the default), it's a critical error
-         if (tvgId !== "cartoon-network") {
-             showError("channel_not_in_m3u");
-             return; 
-         }
-    }
-
-    // 4. Initialize player and schedule
-    getStreamURL(tvgId, function (streamURL) {
+    // Function to handle the JWPlayer initialization logic
+    function initializePlayer(streamURL) {
       const player = jwplayer("my-video");
 
       player.setup({
@@ -554,10 +627,7 @@
       });
 
       jwplayer_hls_provider.attach();
-    });
-
-    loadXMLTVSchedule(tvgId);
-  });
-        </script>
+    }
+  </script>
 </body>
   </html>
