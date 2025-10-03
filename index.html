@@ -3,131 +3,163 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Live TV</title>
-
-  <!-- Icons -->
+  <title>Free Live TV - Watch Free Online Channels</title>
   <link rel="icon" href="/fav/16.png" sizes="16x16">
   <link rel="icon" href="/fav/32.png" sizes="32x32">
-  <link rel="icon" href="/fav/48.png" sizes="48x48">
-  <link rel="icon" type="image/png" sizes="192x192" href="/fav/192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/fav/512.png">
-  <link rel="apple-touch-icon" href="fav/180.png" sizes="/180x180">
-
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700&display=swap" rel="stylesheet">
-
-  <!-- iOS Web App Meta -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Free Live TV">
-
-  <!-- iOS/iPadOS Splash Screens -->
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-768x1024.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 1)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-1536x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-1668x2224.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-1668x2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)">
-  <link rel="apple-touch-startup-image" href="/iospsh/launch-2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
-
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  
   <style>
     html, body {
-      height: 100%;
       margin: 0;
-      display: flex;
-      flex-direction: column;
+      height: 100%;
       font-family: 'Lato', 'Segoe UI', sans-serif;
-      font-weight: 400;
       background-color: #0d0d0d;
       color: #f2f2f2;
-      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
     }
-
     header {
       background-color: #1a1a1a;
       padding: 1rem 2rem;
       border-bottom: 2px solid #333;
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
     }
-
     header a {
       text-decoration: none;
       color: inherit;
     }
-
     header h1 {
       margin: 0;
       font-size: 2rem;
       color: #00ffff;
       font-weight: 700;
     }
-
     nav {
       display: flex;
       gap: 1rem;
     }
-
     nav a {
       color: #f2f2f2;
       text-decoration: none;
       font-weight: 600;
     }
-
     nav a:hover {
       color: #00ffff;
     }
-
     main {
       flex: 1;
       padding: 2rem 10%;
-    }
-
-    .filter-bar {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .filter-select {
-      background-color: #1a1a1a;
-      color: #f2f2f2;
-      border: 2px solid #333;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-
-    .channel-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      align-items: center;
     }
-
+    h2 {
+      font-size: 1.8rem;
+      color: #00ffff;
+      margin-bottom: 2rem;
+      width: 100%;
+      max-width: 1200px;
+      text-align: center;
+    }
+    
+    /* Channel Grid and Card Styling */
+    #channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 1200px;
+      padding-bottom: 2rem;
+    }
     .channel-card {
+      background-color: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.3s, background-color 0.3s;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    .channel-card:hover {
+      border-color: #00ffff;
+      background-color: #252525;
+      transform: translateY(-2px);
+    }
+    .channel-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .channel-logo {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      margin-right: 1rem;
+      border-radius: 4px;
+      background-color: #000;
+      border: 1px solid #444;
+      flex-shrink: 0;
+    }
+    .channel-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f2f2f2;
+      line-height: 1.2;
+    }
+    .channel-category {
+      font-size: 0.8rem;
+      color: #888;
+      font-weight: 600;
+      margin-top: 0.25rem;
+    }
+    .channel-program {
+      padding-top: 0.75rem;
+      border-top: 1px solid #333;
+      font-size: 0.95rem;
+    }
+    .channel-program strong {
+      display: block;
+      color: #00ffff;
+      font-weight: 600;
+    }
+    .program-time {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 0.25rem;
+    }
+    
+    /* Loading and Playlist Card */
+    #loading-message {
+      text-align: center;
+      padding: 3rem;
+      font-size: 1.2rem;
+      color: #00ffff;
+    }
+    .playlist-card {
       display: flex;
       align-items: center;
       background-color: #1a1a1a;
       border: 2px solid #333;
       border-radius: 6px;
       padding: 0.75rem 1rem;
-      transition: border-color 0.3s;
       text-decoration: none;
       color: inherit;
+      transition: border-color 0.3s;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 1rem;
     }
-
-    .channel-card:hover {
+    .playlist-card:hover {
       border-color: #00ffff;
     }
-
-    .channel-card img {
+    .playlist-card img {
       width: 48px;
       height: 48px;
       object-fit: contain;
@@ -135,10 +167,26 @@
       border-radius: 4px;
       background-color: #000;
     }
-
-    .channel-name {
+    .playlist-label {
       font-size: 1.1rem;
       font-weight: 600;
+      flex-grow: 1;
+    }
+    .playlist-label small {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+    .copy-btn {
+      margin-left: auto;
+      background-color: #00ffff;
+      border: none;
+      color: #000;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     footer {
@@ -150,183 +198,288 @@
       color: #888;
     }
 
-    @media (max-width: 600px) {
-      header {
-        flex-direction: column;
-        text-align: center;
+    @media (max-width: 768px) {
+      main {
+        padding: 1rem 5%;
       }
-
-      nav {
-        justify-content: center;
-        margin-top: 0.5rem;
+      #channel-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-
   <header>
-    <a href="/">
-      <h1>Free Live TV</h1>
-    </a>
+    <a href="/"><h1>Free Live TV</h1></a>
     <nav>
       <a href="/">Home</a>
       <a href="/contact">Contact</a>
       <a href="/about">About</a>
     </nav>
   </header>
-
   <main>
-    <div class="filter-bar">
-      <select class="filter-select" id="categorySelect">
-        <option value="all">All Categories</option>
-        <option value="News">News</option>
-        <option value="Sports">Sports</option>
-        <option value="Movies">Movies</option>
-        <option value="Kids">Kids</option>
-        <option value="Music">Music</option>
-        <option value="Entertainment">Entertainment</option>
-      </select>
-    </div>
+    <h2>Live Channel Guide</h2>
 
-    <div class="channel-list" id="channelContainer">
-      <a href="/stream/abc-east" class="channel-card" data-category="News">
-        <img src="https://payload.cargocollective.com/1/4/146919/13926257/V_BoxedBlackBorder_569.png" alt="logo" />
-        <div class="channel-name">ABC News Live</div>
-      </a>
+    <div id="loading-message">Loading channel data and TV schedule...</div>
+    
+    <div id="channel-grid">
+      </div>
 
-      <a href="/stream/acc" class="channel-card" data-category="Sports">
-        <img src="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/acc-network-us.png?raw=true" alt="logo" />
-        <div class="channel-name">ACC Network</div>
-      </a>
-
-      <a href="/stream/amc" class="channel-card" data-category="Movies">
-        <img src="https://cdn.amcnetworks.com/amc/theme/web/amc_logo_bk_bg.png" alt="logo" />
-        <div class="channel-name">AMC</div>
-      </a>
-
-      <a href="/stream/american-heroes" class="channel-card" data-category="Entertainment">
-        <img src="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s18284_dark_360w_270h.png" alt="logo" />
-        <div class="channel-name">American Heroes Channel</div>
-      </a>
-
-      <a href="/stream/animal-planet" class="channel-card" data-category="Documentary">
-        <img src="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/animal-planet-us.png" alt="logo" />
-        <div class="channel-name">Animal Planet</div>
-      </a>
-
-			<a href="/stream/antenna" class="channel-card" data-category="Entertainment">
-        <img src="https://raw.githubusercontent.com/tv-logo/tv-logos/refs/heads/main/countries/united-states/antenna-us.png" alt="logo" />
-        <div class="channel-name">Antenna TV</div>
-			</a>
-
-			<a href="/stream/aspire" class="channel-card" data-category="Entertainment">
-        <img src="https://raw.githubusercontent.com/tv-logo/tv-logos/refs/heads/main/countries/united-states/aspire-tv-us.png" alt="logo" />
-        <div class="channel-name">Aspire</div>
-      </a>
-
-      <a href="/stream/bbc-america" class="channel-card" data-category="Entertainment">
-        <img src="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s18332_dark_360w_270h.png" alt="logo" />
-        <div class="channel-name">BBC America</div>
-      </a>
-		
-      <a href="/stream/bbc-world" class="channel-card" data-category="News">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/BBC_World_News_2022.svg/768px-BBC_World_News_2022.svg.png?20220425110846" alt="logo" />
-        <div class="channel-name">BBC World News</div>
-	  </a>
-		
-	  <a href="/stream/bein" class="channel-card" data-category="Sports">
-        <img src="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/bein-sports-us.png?raw=true" alt="logo" />
-        <div class="channel-name">BEIN Sports</div>
-	  </a>
-
-      <a href="/stream/bet-east" class="channel-card" data-category="Entertainment">
-        <img src="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10051_dark_360w_270h.png" alt="logo" />
-        <div class="channel-name">BET</div>
-	  </a>
-		
-      <a href="/stream/bet-gospel" class="channel-card" data-category="Entertainment">
-        <img src="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/bet-gospel-us.png?raw=true" alt="logo" />
-        <div class="channel-name">BET Gospel</div>
-	  </a>
-		
-	  <a href="/stream/bet-her" class="channel-card" data-category="Entertainment">
-        <img src="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s14897_dark_360w_270h.png" alt="logo" />
-        <div class="channel-name">BET Her</div>
-	  </a>
-
-      <a href="/stream/bet-jams" class="channel-card" data-category="Entertainment">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8f/BET_Jams_Logo.png?20210706212207" alt="logo" />
-        <div class="channel-name">Bet Jams</div>
-	  </a>
-		
-      <a href="/stream/bet-soul" class="channel-card" data-category="Entertainment">
-        <img src="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/bet-soul-us.png?raw=true" alt="logo" />
-        <div class="channel-name">BET Soul</div>
-      </a>
-		
-      <a href="/stream/big-ten" class="channel-card" data-category="Sports">
-        <img src="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/big-ten-network-us.png?raw=true" alt="logo" />
-        <div class="channel-name">Big Ten Network</div>
-	  </a>
-     
-	  <a href="/stream/bloomberg" class="channel-card" data-category="News">
-        <img src="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/bloomberg-television-us.png?raw=true" alt="logo" />
-        <div class="channel-name">Bloomberg</div>
-	  </a>
-		
-      <a href="/stream/boomerang" class="channel-card" data-category="Kids">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Boomerang_2014_logo.svg" alt="logo" />
-        <div class="channel-name">Boomerang</div>
-      </a>
-		
-      <a href="/stream/bounce" class="channel-card" data-category="Entertainment">
-        <img src="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/bounce-us.png?raw=true" alt="logo" />
-        <div class="channel-name">Bounce</div>
-	  </a>
-		
-      <a href="/stream/bravo" class="channel-card" data-category="Entertainment">
-        <img src="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10057_dark_360w_270h.png" alt="logo" />
-        <div class="channel-name">Bravo</div>
-	  </a>
-      <a href="/stream/buzzr" class="channel-card" data-category="Entertainment">
-        <img src="https://raw.githubusercontent.com/tv-logo/tv-logos/refs/heads/main/countries/united-states/buzzr-us.png" alt="logo" />
-        <div class="channel-name">Buzzr</div>
-      </a>
-		
-      <a href="/stream/cartoon-network" class="channel-card" data-category="Kids">
-        <img src="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s12131_dark_360w_270h.png" alt="logo" />
-        <div class="channel-name">Cartoon Network</div>
-      </a>
-		
-      <a href="/stream/cspan" class="channel-card" data-category="News">
-        <img src="http://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10161_dark_360w_270h.png" alt="logo" />
-        <div class="channel-name">C-SPAN</div>
-	  </a>
-		
-      <a href="/stream/nick-music" class="channel-card" data-category="Music">
-        <img src="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/nick-music-us.png?raw=true" alt="logo" />
-        <div class="channel-name">Nick Music</div>
-	  </a>
-		
+    <div class="playlist-card">
+      <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
+      <div class="playlist-label">
+        Free M3U Playlist
+        <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
+      </div>
+      <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
     </div>
   </main>
-
   <footer>
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
   <script>
-    const categorySelect = document.getElementById('categorySelect');
-    const cards = document.querySelectorAll('.channel-card');
+    const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
+    const XMLTV_URL = "https://cwdiptvb-github-io.onrender.com/m3usch";
+    
+    let CHANNEL_DATA = [];
+    let EPG_DATA = {}; // Stores all programs grouped by channel ID
 
-    categorySelect.addEventListener('change', () => {
-      const selected = categorySelect.value;
-      cards.forEach(card => {
-        card.style.display = (selected === 'all' || card.dataset.category === selected) ? 'flex' : 'none';
+    function copyPlaylistURL() {
+      navigator.clipboard.writeText(M3U_URL).then(() => {
+        alert("Playlist URL copied to clipboard!");
+      }).catch(err => {
+        alert("Failed to copy URL.");
       });
+    }
+
+    // --- EPG Utility Functions (Copied from player.html for consistency) ---
+
+    // Function to handle the *incorrectly formatted* XMLTV date string
+    const parseXmlTvDateFix = (dateStr) => {
+      const cleanDigits = dateStr.substring(0, 14);
+
+      if (cleanDigits.length !== 14) return new Date(NaN);
+
+      const year = cleanDigits.substring(0, 4);
+      const month = cleanDigits.substring(4, 6);
+      const day = cleanDigits.substring(6, 8);
+      const hour = cleanDigits.substring(8, 10);
+      const minute = cleanDigits.substring(10, 12);
+      const second = cleanDigits.substring(12, 14);
+      
+      const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}.000Z`;
+      return new Date(isoString);
+    };
+
+    // --- Data Fetching Functions ---
+
+    async function fetchM3UData() {
+        try {
+            const response = await fetch(M3U_URL);
+            if (!response.ok) throw new Error("Failed to fetch M3U file");
+            const data = await response.text();
+            const lines = data.split(/\r?\n/);
+            
+            let currentChannel = {};
+
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith("#EXTINF")) {
+                    // Extract tvg-id, logo, and group-title
+                    const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
+                    const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/i);
+                    const categoryMatch = lines[i].match(/group-title="([^"]+)"/i);
+                    
+                    currentChannel.id = idMatch ? idMatch[1] : null;
+                    currentChannel.logo = logoMatch ? logoMatch[1] : '';
+                    currentChannel.category = categoryMatch ? categoryMatch[1] : 'Uncategorized';
+                    
+                    // Extract channel name (the text after the last comma)
+                    const nameMatch = lines[i].match(/,([^,]+)$/);
+                    currentChannel.name = nameMatch ? nameMatch[1].trim() : 'Unknown Channel';
+
+                } else if (lines[i].startsWith("http") && currentChannel.id) {
+                    currentChannel.url = lines[i].trim();
+                    CHANNEL_DATA.push(currentChannel);
+                    currentChannel = {}; // Reset for the next channel
+                }
+            }
+            console.log(`✅ Loaded ${CHANNEL_DATA.length} channels from M3U.`);
+        } catch (error) {
+            console.error("❌ Error fetching M3U data:", error);
+            $("#loading-message").text("Error: Failed to load channel list.");
+        }
+    }
+
+    async function fetchXMLTVData() {
+        try {
+            const res = await fetch(XMLTV_URL);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            let xmlText = await res.text();
+            
+            const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
+
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
+            
+            const errorNode = xmlDoc.querySelector('parsererror');
+            if (errorNode) {
+                console.error("XML Parsing Failed:", errorNode.textContent);
+                throw new Error("XML Parsing Failed");
+            }
+
+            const programElements = xmlDoc.querySelectorAll('programme');
+            programElements.forEach(program => {
+                const channelId = program.getAttribute('channel');
+                if (!channelId) return;
+
+                const startStr = program.getAttribute('start');
+                const stopStr = program.getAttribute('stop'); 
+                
+                // Use the fix function to parse the broken server output
+                const startUTC = parseXmlTvDateFix(startStr);
+                const stopUTC = parseXmlTvDateFix(stopStr);
+
+                // Skip if date is invalid
+                if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
+                
+                const title = program.querySelector('title')?.textContent || "Untitled Program";
+                const subtitle = program.querySelector('sub-title')?.textContent;
+                
+                if (!EPG_DATA[channelId]) {
+                    EPG_DATA[channelId] = [];
+                }
+                
+                EPG_DATA[channelId].push({
+                    start: startUTC,
+                    stop: stopUTC,
+                    title: title,
+                    subtitle: subtitle
+                });
+            });
+
+            console.log(`✅ Loaded EPG data for ${Object.keys(EPG_DATA).length} channels.`);
+        } catch (error) {
+            console.error("❌ Error fetching XMLTV data:", error);
+            // Non-critical error, log and continue, but flag it.
+            EPG_DATA.error = true;
+        }
+    }
+
+    function getCurrentProgram(tvgId) {
+        const programs = EPG_DATA[tvgId];
+        const now = new Date();
+
+        if (!programs) {
+            return { title: 'No EPG data available.', time: '' };
+        }
+
+        // Find the program where start <= now < stop
+        const currentProgram = programs.find(p => p.start <= now && p.stop > now);
+
+        if (currentProgram) {
+            const localStartTime = currentProgram.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const localStopTime = currentProgram.stop.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            let fullTitle = currentProgram.title;
+            if (currentProgram.subtitle) {
+                fullTitle += `: ${currentProgram.subtitle}`;
+            }
+
+            return {
+                title: fullTitle,
+                time: `${localStartTime} - ${localStopTime}`
+            };
+        }
+
+        // If no program is currently running, find the next one
+        const nextPrograms = programs.filter(p => p.start > now).sort((a, b) => a.start - b.start);
+        
+        if (nextPrograms.length > 0) {
+            const nextProgram = nextPrograms[0];
+            const localStartTime = nextProgram.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            return {
+                title: nextProgram.title,
+                time: `Next at ${localStartTime}`
+            };
+        }
+
+        return { title: 'Schedule TBD.', time: '' };
+    }
+
+    function renderChannels() {
+        const grid = $("#channel-grid");
+        grid.empty();
+        
+        // Group channels by category
+        const categorizedChannels = CHANNEL_DATA.reduce((acc, channel) => {
+            const category = channel.category || 'Other';
+            if (!acc[category]) {
+                acc[category] = [];
+            }
+            acc[category].push(channel);
+            return acc;
+        }, {});
+        
+        // Determine the order (optional, but good for consistency)
+        const categoryOrder = ['News', 'Sports', 'Entertainment', 'Kids', 'Music', 'Other', 'Uncategorized'];
+        const sortedCategories = Object.keys(categorizedChannels).sort((a, b) => {
+            const indexA = categoryOrder.indexOf(a);
+            const indexB = categoryOrder.indexOf(b);
+            if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+        });
+
+        sortedCategories.forEach(category => {
+            const categoryHeader = $(`<h3 style="grid-column: 1 / -1; color:#f2f2f2; margin-top:1.5rem; border-bottom: 2px solid #00ffff; padding-bottom: 0.5rem;">${category}</h3>`);
+            grid.append(categoryHeader);
+            
+            categorizedChannels[category].forEach(channel => {
+                const program = getCurrentProgram(channel.id);
+
+                const cardHtml = `
+                    <a href="/play.html?id=${channel.id}" class="channel-card">
+                        <div class="channel-header">
+                            <img src="${channel.logo}" alt="${channel.name} Logo" class="channel-logo" onerror="this.onerror=null;this.src='/placeholder.png';">
+                            <div>
+                                <div class="channel-name">${channel.name}</div>
+                                <div class="channel-category">${channel.category}</div>
+                            </div>
+                        </div>
+                        <div class="channel-program">
+                            <strong>${program.title}</strong>
+                            <span class="program-time">${program.time}</span>
+                        </div>
+                    </a>
+                `;
+                grid.append(cardHtml);
+            });
+        });
+
+        // Remove loading message
+        $("#loading-message").remove();
+    }
+
+
+    // --- Initialization ---
+
+    $(document).ready(async function () {
+        // 1. Fetch data concurrently
+        await Promise.all([
+            fetchM3UData(),
+            fetchXMLTVData()
+        ]);
+
+        // 2. Render the grid
+        if (CHANNEL_DATA.length > 0) {
+            renderChannels();
+        } else {
+             $("#loading-message").text("Fatal Error: Could not load any channel data.");
+        }
     });
   </script>
-
 </body>
 </html>
