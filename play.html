@@ -313,7 +313,7 @@
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
-  <script>
+<script>
     const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
     // Global map to store tvg-id -> channel name and URL
     let CHANNEL_NAME_MAP = {};
@@ -348,7 +348,7 @@
       $("#error-message").show();
     }
 
-    // UPDATED: Function now also parses the M3U header for x-tvg-url
+    // --- UPDATED buildChannelMap function to use 'url-tvg=' ---
     async function buildChannelMap() {
         try {
             const response = await fetch(M3U_URL);
@@ -360,9 +360,10 @@
             let currentName = null;
 
             for (let i = 0; i < lines.length; i++) {
-                // 1. Check for EPG URL in the header
+                // 1. Check for EPG URL in the header using the 'url-tvg=' format
                 if (i === 0 && lines[i].startsWith("#EXTM3U")) {
-                    const epgUrlMatch = lines[i].match(/x-tvg-url="([^"]+)"/i);
+                    // Regex updated to look for both 'url-tvg' and 'x-tvg-url' just in case
+                    const epgUrlMatch = lines[i].match(/(?:url-tvg|x-tvg-url)="([^"]+)"/i);
                     if (epgUrlMatch && epgUrlMatch[1]) {
                         XMLTV_URL = epgUrlMatch[1];
                         console.log(`✅ Dynamically loaded XMLTV URL: ${XMLTV_URL}`);
@@ -387,7 +388,7 @@
                 }
             }
             if (!XMLTV_URL) {
-                console.warn("⚠️ Could not find x-tvg-url in M3U header. Schedule may not load.");
+                console.warn("⚠️ Could not find url-tvg or x-tvg-url in M3U header. Schedule may not load.");
             }
             console.log("✅ Channel Map built successfully.");
         } catch (error) {
@@ -433,13 +434,13 @@
       return new Date(isoString);
     };
 
-    // UPDATED: This function now uses the global XMLTV_URL
+    // This function uses the global XMLTV_URL set by buildChannelMap
     async function loadXMLTVSchedule(tvgId) {
       const scheduleList = document.getElementById("schedule-list");
       scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
 
       if (!XMLTV_URL) {
-          scheduleList.innerHTML = `<p>⚠️ Cannot load schedule. XMLTV URL not found in M3U header (x-tvg-url).</p>`;
+          scheduleList.innerHTML = `<p>⚠️ Cannot load schedule. XMLTV URL not found in M3U header (url-tvg or x-tvg-url).</p>`;
           return;
       }
       
@@ -635,6 +636,6 @@
 
       jwplayer_hls_provider.attach();
     }
-  </script>
+            </script>
 </body>
   </html>
