@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watch Cartoon Network Free Online - Free Live TV</title>
+  <link rel="icon" href="/fav/16.png" sizes="16x16">
+  <link rel="icon" href="/fav/32.png" sizes="32x32">
+  <link rel="icon" href="/fav/48.png" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="192x192" href="/fav/192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/fav/512.png">
+  <link rel="apple-touch-icon" href="fav/180.png" sizes="/180x180">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700&display=swap" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://content.jwplatform.com/libraries/KB5zFt7A.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@hola.org/jwplayer-hlsjs@latest/dist/jwplayer.hlsjs.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: 'Lato', 'Segoe UI', sans-serif;
+      background-color: #0d0d0d;
+      color: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background-color: #1a1a1a;
+      padding: 1rem 2rem;
+      border-bottom: 2px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    header a {
+      text-decoration: none;
+      color: inherit;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #00ffff;
+      font-weight: 700;
+    }
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+    nav a {
+      color: #f2f2f2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    nav a:hover {
+      color: #00ffff;
+    }
+    main {
+      flex: 1;
+      padding: 2rem 10%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 {
+      font-size: 1.6rem;
+      color: #00ffff;
+      margin-bottom: 1rem;
+    }
+    #my-video {
+      width: 100%;
+      max-width: 800px;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      background-color: #000;
+      margin-bottom: 2rem;
+      display: none;
+      transition: border 0.3s ease;
+    }
+    #loading-container {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      margin-bottom: 2rem;
+    }
+    #loading-container img {
+      width: 100%;
+      height: 100%;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      background-color: #000;
+      object-fit: cover;
+      display: block;
+    }
+    #error-message {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      background-color: #000;
+      color: #f2f2f2;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 1.5rem;
+      box-sizing: border-box;
+      margin-bottom: 2rem;
+    }
+    #error-message p {
+      font-size: 1.1rem;
+    }
+    #error-message a {
+      color: #00ffff;
+      text-decoration: underline;
+    }
+    .playlist-card {
+      display: flex;
+      align-items: center;
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.3s;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 1rem;
+    }
+    .playlist-card:hover {
+      border-color: #00ffff;
+    }
+    .playlist-card img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      margin-right: 1rem;
+      border-radius: 4px;
+      background-color: #000;
+    }
+    .playlist-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      flex-grow: 1;
+    }
+    .playlist-label small {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+    .copy-btn {
+      margin-left: auto;
+      background-color: #00ffff;
+      border: none;
+      color: #000;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .schedule-card {
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto 0 auto;
+      box-sizing: border-box;
+    }
+    .schedule-entry {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #333;
+    }
+    .schedule-entry:last-child {
+      border-bottom: none;
+    }
+    .schedule-entry strong {
+      color: #00ffff;
+      font-weight: 700;
+    }
+    .schedule-entry small {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border-top: 2px solid #333;
+      font-size: 0.9rem;
+      color: #888;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+      nav {
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+      #my-video {
+        width: 100%;
+      }
+      #loading-container {
+        aspect-ratio: auto;
+      }
+      .playlist-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .copy-btn {
+        margin-top: 0.5rem;
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/"><h1>Free Live TV</h1></a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/contact">Contact</a>
+      <a href="/about">About</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Now Streaming</h2>
+
+    <div id="loading-container">
+      <img src="/loading.gif" alt="Loading..." />
+    </div>
+
+    <div id="my-video"></div>
+
+    <div id="error-message">
+      <p>
+        An unexpected error has occurred. Please try refreshing the page. <br />
+        If the error persists, please contact us here:
+        <a href="/contact">Contact</a>.<br />
+        <span id="error-code-text" style="display: block; margin-top: 1rem; color: #888;"></span>
+      </p>
+    </div>
+
+    <div class="playlist-card">
+      <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
+      <div class="playlist-label">
+        Free M3U Playlist
+        <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
+      </div>
+      <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
+    </div>
+
+    <div id="schedule-section">
+      <div class="schedule-card">
+        <h2>TV Schedule</h2>
+        <div id="schedule-list"></div>
+      </div>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 Free Live TV. All rights reserved.
+  </footer>
+  <script>
+  // Global map to store tvg-id -> channel name and URL
+  let CHANNEL_NAME_MAP = {};
+
+  function copyPlaylistURL() {
+    const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+    navigator.clipboard.writeText(url).then(() => {
+      alert("Playlist URL copied to clipboard!");
+    }).catch(err => {
+      alert("Failed to copy URL.");
+    });
+  }
+
+  function showError(errorCode) {
+    $("#loading-container").remove();
+    $("#my-video").hide();
+    $("#error-code-text").text("err_code_" + errorCode);
+    $("#error-message").show();
+  }
+
+  // NEW FUNCTION: Fetches the M3U and builds a map of tvg-id to Channel Name and Stream URL
+  async function buildChannelMap() {
+      try {
+          const response = await fetch("https://cwdiptvb.github.io/tv_channels.m3u");
+          if (!response.ok) throw new Error("Failed to fetch M3U file");
+          const data = await response.text();
+          const lines = data.split(/\r?\n/);
+          
+          let currentTvgId = null;
+          let currentName = null;
+
+          for (let i = 0; i < lines.length; i++) {
+              if (lines[i].startsWith("#EXTINF")) {
+                  // Extract tvg-id
+                  const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
+                  currentTvgId = idMatch ? idMatch[1] : null;
+
+                  // Extract channel name (the text after the last comma)
+                  const nameMatch = lines[i].match(/,([^,]+)$/);
+                  currentName = nameMatch ? nameMatch[1].trim() : "Unknown Channel";
+              } else if (lines[i].startsWith("http") && currentTvgId) {
+                  // Stream URL is on the next line
+                  const streamURL = lines[i].trim();
+                  CHANNEL_NAME_MAP[currentTvgId] = { 
+                      name: currentName, 
+                      url: streamURL 
+                  };
+                  currentTvgId = null; 
+                  currentName = null;
+              }
+          }
+          console.log("✅ Channel Map built successfully.");
+      } catch (error) {
+          console.error("❌ Error building channel map:", error);
+      }
+  }
+
+  // UPDATED: Uses the global map to get the stream URL
+  function getStreamURL(tvgId, callback) {
+      const channelInfo = CHANNEL_NAME_MAP[tvgId];
+      if (channelInfo && channelInfo.url) {
+          callback(channelInfo.url);
+      } else {
+          console.error("Stream URL not found for tvg-id:", tvgId);
+          showError("not_found");
+      }
+  }
+
+  async function getUserTimezone() {
+    try {
+      const res = await fetch("https://ipapi.co/timezone");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.text();
+    } catch (err) {
+      console.warn("⚠️ Failed to detect timezone:", err);
+      throw new Error("err_timezone");
+    }
+  }
+
+  // Function to handle the *incorrectly formatted* XMLTV date string
+  const parseXmlTvDateFix = (dateStr) => {
+    const cleanDigits = dateStr.substring(0, 14);
+
+    if (cleanDigits.length !== 14) return new Date(NaN);
+
+    const year = cleanDigits.substring(0, 4);
+    const month = cleanDigits.substring(4, 6);
+    const day = cleanDigits.substring(6, 8);
+    const hour = cleanDigits.substring(8, 10);
+    const minute = cleanDigits.substring(10, 12);
+    const second = cleanDigits.substring(12, 14);
+    
+    const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}.000Z`;
+    return new Date(isoString);
+  };
+
+
+  async function loadXMLTVSchedule(tvgId) {
+    const scheduleList = document.getElementById("schedule-list");
+    scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
+
+    const xmltvUrl = "https://cwdiptvb-github-io.onrender.com/m3usch";
+    
+    let timezone = "UTC";
+    try {
+      timezone = await getUserTimezone();
+    } catch (err) {
+      scheduleList.innerHTML = `<p>⚠️ Schedule shown in UTC as timezone detection failed.<br><strong>Error:</strong> ${err.message}</p>`;
+    }
+    
+    let xmlDoc;
+    try {
+      const res = await fetch(xmltvUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      let xmlText = await res.text();
+      
+      const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
+
+      const parser = new DOMParser();
+      xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
+      
+      const errorNode = xmlDoc.querySelector('parsererror');
+      if (errorNode) {
+          console.error("XML Parsing Failed:", errorNode.textContent);
+          throw new Error("XML Parsing Failed (Invalid XML Structure)");
+      }
+      
+    } catch (err) {
+      console.error("❌ Failed during XML fetch or parsing:", err.message);
+      scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
+      return;
+    }
+    
+    try {
+      const targetChannelId = tvgId; 
+
+      const channelElement = xmlDoc.querySelector(`channel[id="${targetChannelId}"]`);
+      if (!channelElement) {
+          scheduleList.innerHTML = `<p>Channel with ID '${targetChannelId}' not found in the XMLTV file.</p>`;
+          return;
+      }
+
+      const programElements = xmlDoc.querySelectorAll(`programme[channel="${targetChannelId}"]`);
+      
+      if (programElements.length === 0) {
+        scheduleList.innerHTML = `<p>No program entries found for this channel in the EPG file.</p>`;
+        return;
+      }
+
+      scheduleList.innerHTML = "";
+      const groupedByDay = {};
+      const now = new Date();
+      const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); 
+      
+      programElements.forEach(program => {
+          const startStr = program.getAttribute('start');
+          const stopStr = program.getAttribute('stop'); 
+          if (!startStr || !stopStr || startStr.length < 14 || stopStr.length < 14) return;
+          
+          const startUTC = parseXmlTvDateFix(startStr);
+          const stopUTC = parseXmlTvDateFix(stopStr);
+
+          if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
+          
+          if (stopUTC < now) return; 
+          
+          if (startUTC > threeDaysAhead) return; 
+
+          const title = program.querySelector('title')?.textContent || "Untitled Program";
+          const subtitle = program.querySelector('sub-title')?.textContent;
+          const desc = program.querySelector('desc')?.textContent || "No description available.";
+
+          const localDate = new Intl.DateTimeFormat([], {
+              timeZone: timezone,
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+          }).format(startUTC);
+          
+          if (!groupedByDay[localDate]) {
+              groupedByDay[localDate] = [];
+          }
+
+          groupedByDay[localDate].push({ startUTC, title, subtitle, desc });
+      });
+
+      if (Object.keys(groupedByDay).length === 0) {
+          scheduleList.innerHTML = `<p>No current or upcoming programs were found. The EPG data may be stale or incomplete.</p>`;
+          return;
+      }
+
+      Object.entries(groupedByDay).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB)).forEach(([dayLabel, programs]) => {
+          const dayHeader = document.createElement("div");
+          dayHeader.className = "schedule-entry";
+          dayHeader.innerHTML = `<h3 style="margin:0; color:#00ffff;">${dayLabel}</h3>`;
+          scheduleList.appendChild(dayHeader);
+
+          programs.sort((a, b) => a.startUTC - b.startUTC).forEach(item => {
+              const localStart = new Intl.DateTimeFormat([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  timeZone: timezone
+              }).format(item.startUTC);
+
+              const episode = item.subtitle ? ` — ${item.subtitle}` : "";
+
+              const entry = document.createElement("div");
+              entry.className = "schedule-entry";
+              entry.innerHTML = `
+                  <strong>${localStart}</strong> — ${item.title}${episode}
+                  <small>${item.desc}</small>
+              `;
+              scheduleList.appendChild(entry);
+          });
+      });
+
+    } catch (err) {
+      console.error("❌ Failed during XML processing/rendering:", err.message, err.stack);
+      scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_processing_xml_data</p>`;
+    }
+  }
+
+
+  $(document).ready(async function () {
+    // 1. Build the channel map
+    await buildChannelMap();
+    
+    // 2. Get tvg-id from the URL query parameter: ?id={channel-id}
+    const urlParams = new URLSearchParams(window.location.search);
+    const tvgId = urlParams.get('id') || "cartoon-network"; // Default if 'id' is missing
+
+    const channelInfo = CHANNEL_NAME_MAP[tvgId];
+    
+    let channelName = "Cartoon Network"; // Default if not found
+    
+    if (channelInfo) {
+        channelName = channelInfo.name;
+        // 3. Update the page title and header
+        document.title = `Watch ${channelName} Free Online - Free Live TV`;
+        $('main h2').text(`Now Streaming: ${channelName}`);
+    } else {
+         // If no channel info is found for the ID (even the default), it's a critical error
+         if (tvgId !== "cartoon-network") {
+             showError("channel_not_in_m3u");
+             return; 
+         }
+    }
+
+    // 4. Initialize player and schedule
+    getStreamURL(tvgId, function (streamURL) {
+      const player = jwplayer("my-video");
+
+      player.setup({
+        file: streamURL,
+        type: "application/x-mpegURL",
+        width: "100%",
+        aspectratio: "16:9",
+        autostart: true,
+        primary: "html5",
+        preload: "auto",
+        mute: false
+      });
+
+      player.on("ready", function () {
+        $("#loading-container").remove();
+        $("#my-video").show();
+      });
+
+      player.on("play", function () {
+        $("#loading-container").remove();
+        $("#my-video").show();
+        $("#player .jw-preview").css("background-image", "none");
+        player.setConfig({ image: "" });
+      });
+
+      player.on("fullscreen", function (e) {
+        const videoElement = document.getElementById("my-video");
+        videoElement.style.border = e.fullscreen ? "none" : "2px solid #00ffff";
+      });
+
+      player.on("error", function (e) {
+        console.error("Player error:", e.message || e);
+        showError(e.code || "unknown");
+      });
+
+      jwplayer_hls_provider.attach();
+    });
+
+    loadXMLTVSchedule(tvgId);
+  });
+        </script>
+</body>
+  </html>
