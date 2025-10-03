@@ -342,7 +342,7 @@
       });
     }
 
-    // --- REVISED showError function to restore old generic error behavior ---
+    // --- showError function (Unchanged from previous revision) ---
     function showError(errorCode, invalidId = null) {
       $("#loading-container").remove();
       $("#my-video").hide();
@@ -351,31 +351,23 @@
       // 1. Reset all error elements
       $("#invalid-id-text").hide();
       $("#invalid-channel-name").hide();
-      $("#error-main-text").hide(); // Hide the new generic verbose text
-      $(".error-actions").hide(); // Invalid ID actions
-      $(".error-actions-generic").hide(); // Hide the generic contact button
+      $("#error-main-text").hide();
+      $(".error-actions").hide(); 
+      $(".error-actions-generic").hide();
 
-      // 2. Handle Invalid ID Error (Priority - uses new structure)
+      // 2. Handle Invalid ID Error (Priority)
       if (errorCode === "invalid_id" && invalidId) {
           $("#invalid-channel-name").text(invalidId);
           $("#invalid-id-text").show();
           $("#invalid-channel-name").show();
           $("#error-code-text").text(`Error Code: err_invalid_tvg_id`);
-          $(".error-actions").css('display', 'flex'); // Show Invalid ID buttons
+          $(".error-actions").css('display', 'flex'); 
       } else {
-          // 3. Handle Generic Error (Player, not_found, unknown) - RESTORING OLD SYSTEM
-          
-          // Revert to a simple, non-specific message for generic errors
-          // NOTE: If you had specific HTML for the old error message, you'll need to 
-          // ensure the default content for #error-message p is the simple one, 
-          // or use the original simple paragraph tag here. I'm using #error-main-text 
-          // to show a simple message for compatibility.
-          
+          // 3. Handle Generic Error (Player, not_found, unknown)
           $("#error-main-text").show(); 
           $("#error-main-text").html("An unexpected error has occurred. Please try refreshing the page. If the issue persists, please contact us.");
           
           $("#error-code-text").text("Error Code: err_code_" + (errorCode || "unknown"));
-          // Do NOT show the error-actions or error-actions-generic for this case
       }
       
       $("#error-message").show();
@@ -393,7 +385,6 @@
             let currentName = null;
 
             for (let i = 0; i < lines.length; i++) {
-                // 1. Check for EPG URL in the header using the 'url-tvg=' format
                 if (i === 0 && lines[i].startsWith("#EXTM3U")) {
                     const epgUrlMatch = lines[i].match(/(?:url-tvg|x-tvg-url)="([^"]+)"/i);
                     if (epgUrlMatch && epgUrlMatch[1]) {
@@ -402,7 +393,6 @@
                     }
                 }
 
-                // 2. Build Channel Map
                 if (lines[i].startsWith("#EXTINF")) {
                     const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
                     currentTvgId = idMatch ? idMatch[1] : null;
@@ -603,9 +593,16 @@
       const urlParams = new URLSearchParams(window.location.search);
       const tvgId = urlParams.get('id');
       
-      const defaultTvgId = "cartoon-network";
+      // --- MODIFIED LOGIC: CHECK FOR MISSING ID AND SHOW ERROR ---
+      
+      // Check if the id parameter is completely missing or empty
+      if (!tvgId || tvgId.trim() === "") {
+          // Show the invalid ID error for a missing parameter
+          showError("invalid_id", "(No ID specified)"); 
+          return;
+      }
 
-      const targetTvgId = tvgId || defaultTvgId;
+      const targetTvgId = tvgId; // Now that we know it's present, use it directly
       const channelInfo = CHANNEL_NAME_MAP[targetTvgId];
 
       if (!channelInfo) {
