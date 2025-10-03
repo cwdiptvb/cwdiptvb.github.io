@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Live TV - Watch TV Online for Free</title>
+  <title>Free Live TV - Watch Free Online Channels</title>
   <link rel="icon" href="/fav/16.png" sizes="16x16">
   <link rel="icon" href="/fav/32.png" sizes="32x32">
   <link rel="icon" href="/fav/48.png" sizes="48x48">
@@ -389,7 +389,8 @@
 
   <script>
     const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
-    const XMLTV_URL = "https://cwdiptvb-github-io.onrender.com/m3usch";
+    // XMLTV_URL is now initialized to null and set dynamically
+    let XMLTV_URL = null; 
     
     let CHANNEL_DATA = [];
     let EPG_DATA = {}; 
@@ -403,7 +404,7 @@
       });
     }
 
-    // --- EPG and Data Fetching Functions (Unchanged) ---
+    // --- EPG Utility Functions (Unchanged) ---
     const parseXmlTvDateFix = (dateStr) => {
       const cleanDigits = dateStr.substring(0, 14);
       if (cleanDigits.length !== 14) return new Date(NaN);
@@ -417,29 +418,49 @@
       return new Date(isoString);
     };
 
+    // --- Data Fetching Functions (MODIFIED) ---
+
     async function fetchM3UData() {
         try {
             const response = await fetch(M3U_URL);
             if (!response.ok) throw new Error("Failed to fetch M3U file");
             const data = await response.text();
             const lines = data.split(/\r?\n/);
+            
             let currentChannel = {};
+
             for (let i = 0; i < lines.length; i++) {
+                // 1. DYNAMIC XMLTV URL PARSING
+                if (i === 0 && lines[i].startsWith("#EXTM3U")) {
+                    const epgUrlMatch = lines[i].match(/x-tvg-url="([^"]+)"/i);
+                    if (epgUrlMatch && epgUrlMatch[1]) {
+                        XMLTV_URL = epgUrlMatch[1];
+                        console.log(`✅ Dynamically loaded XMLTV URL: ${XMLTV_URL}`);
+                    }
+                }
+                
+                // 2. CHANNEL DATA PARSING (rest remains the same)
                 if (lines[i].startsWith("#EXTINF")) {
                     const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
                     const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/i);
                     const categoryMatch = lines[i].match(/group-title="([^"]+)"/i);
+                    
                     currentChannel.id = idMatch ? idMatch[1] : null;
                     currentChannel.logo = logoMatch ? logoMatch[1] : '';
                     currentChannel.category = categoryMatch ? categoryMatch[1].trim() : 'Uncategorized';
+                    
                     const nameMatch = lines[i].match(/,([^,]+)$/);
                     currentChannel.name = nameMatch ? nameMatch[1].trim() : 'Unknown Channel';
+
                 } else if (lines[i].startsWith("http") && currentChannel.id) {
                     currentChannel.url = lines[i].trim();
                     CHANNEL_DATA.push(currentChannel);
                     AVAILABLE_CATEGORIES.add(currentChannel.category);
                     currentChannel = {}; 
                 }
+            }
+            if (!XMLTV_URL) {
+                console.warn("⚠️ Could not find x-tvg-url in M3U header. EPG will not load.");
             }
         } catch (error) {
             console.error("❌ Error fetching M3U data:", error);
@@ -448,29 +469,44 @@
     }
 
     async function fetchXMLTVData() {
+        if (!XMLTV_URL) {
+            console.log("Skipping XMLTV fetch: URL not available.");
+            return;
+        }
+
         try {
             const res = await fetch(XMLTV_URL);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             let xmlText = await res.text();
+            
             const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
+
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
+            
             const errorNode = xmlDoc.querySelector('parsererror');
             if (errorNode) throw new Error("XML Parsing Failed");
+
             const programElements = xmlDoc.querySelectorAll('programme');
             programElements.forEach(program => {
                 const channelId = program.getAttribute('channel');
                 if (!channelId) return;
+
                 const startStr = program.getAttribute('start');
                 const stopStr = program.getAttribute('stop'); 
+                
                 const startUTC = parseXmlTvDateFix(startStr);
                 const stopUTC = parseXmlTvDateFix(stopStr);
+
                 if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
+                
                 const title = program.querySelector('title')?.textContent || "Untitled Program";
                 const subtitle = program.querySelector('sub-title')?.textContent;
+                
                 if (!EPG_DATA[channelId]) {
                     EPG_DATA[channelId] = [];
                 }
+                
                 EPG_DATA[channelId].push({
                     start: startUTC,
                     stop: stopUTC,
@@ -478,6 +514,7 @@
                     subtitle: subtitle
                 });
             });
+
             Object.values(EPG_DATA).forEach(programs => {
                 programs.sort((a, b) => a.start - b.start);
             });
@@ -488,6 +525,7 @@
     }
 
     function getCurrentProgram(tvgId) {
+        // ... (Program logic remains the same) ...
         const programs = EPG_DATA[tvgId];
         const now = new Date();
         if (!programs || programs.length === 0) {
@@ -518,17 +556,14 @@
         return { title: 'Schedule TBD.', time: '' };
     }
 
-    // --- Rendering and Filtering (Updated) ---
-
+    // --- Rendering and Filtering (Unchanged) ---
     function renderChannels() {
         const grid = $("#channel-grid");
         const selectedCategory = $("#category-filter").val();
         const searchTerm = $("#search-input").val().toLowerCase();
         
-        // Determine if the category column should be hidden
         const hideCategoryColumn = selectedCategory !== 'All';
         
-        // Apply or remove a class to the grid container
         if (hideCategoryColumn) {
             grid.addClass('hide-category');
         } else {
@@ -590,24 +625,29 @@
         $("#search-input").on('keyup', renderChannels);
     }
 
-    // --- Initialization ---
+    // --- Initialization (MODIFIED) ---
 
     $(document).ready(async function () {
-        await Promise.all([
-            fetchM3UData(),
-            fetchXMLTVData()
-        ]);
+        // 1. Fetch M3U data first to get the EPG URL
+        await fetchM3UData();
+        
+        // 2. Now fetch EPG data using the dynamically determined URL
+        await fetchXMLTVData();
 
+        // 3. Handle errors/empty list
         if (CHANNEL_DATA.length === 0) {
              $("#loading-message").text("Fatal Error: Could not load any channel data.");
              return;
         }
 
+        // 4. Populate filter and render initial grid
         populateCategoryFilter();
         renderChannels();
 
+        // 5. Remove loading message
         $("#loading-message").remove();
         
+        // 6. Re-render every minute to update the "Now Playing" status
         setInterval(renderChannels, 60000); 
     });
   </script>
