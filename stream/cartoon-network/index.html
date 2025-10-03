@@ -1,3 +1,6 @@
+script> 
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -307,6 +310,26 @@
     });
   }
 
+  function getXMLTVURLFromM3U(callback) {
+    $.get("https://cwdiptvb.github.io/tv_channels.m3u", function (data) {
+      const lines = data.split(/\r?\n/);
+      const m3uHeader = lines[0]; // Should be #EXTM3U
+      
+      // Check if the header contains the XMLTV URL attribute
+      const match = m3uHeader.match(/url-tvg="([^"]+)"/i);
+      if (match && match[1]) {
+        console.log("✅ XMLTV URL found:", match[1]);
+        callback(match[1]);
+      } else {
+        console.error("XMLTV URL not found in M3U header.");
+        callback(null); 
+      }
+    }).fail(function () {
+      console.error("Failed to load M3U file for XMLTV URL extraction.");
+      callback(null);
+    });
+  }
+
   async function getUserTimezone() {
     try {
       const res = await fetch("https://ipapi.co/timezone");
@@ -318,101 +341,148 @@
     }
   }
 
-  async function loadTVPassSchedule() {
+  // New function to load schedule from XMLTV data
+  async function loadXMLTVSchedule(tvgId) {
     const scheduleList = document.getElementById("schedule-list");
-    scheduleList.innerHTML = "<p>Loading schedule...</p>";
+    scheduleList.innerHTML = "<p>Loading EPG schedule from M3U link...</p>";
+
+    let xmltvUrl;
+    try {
+        xmltvUrl = await new Promise((resolve) => getXMLTVURLFromM3U(resolve));
+        if (!xmltvUrl) {
+            scheduleList.innerHTML = `<p>Unable to find XMLTV URL in the M3U playlist. Check the '#EXTM3U' header for 'url-tvg="..."'.</p>`;
+            return;
+        }
+    } catch (err) {
+        console.error("❌ Failed to get XMLTV URL:", err);
+        scheduleList.innerHTML = `<p>Unable to load M3U to find XMLTV URL.</p>`;
+        return;
+    }
 
     let timezone = "UTC";
     try {
       timezone = await getUserTimezone();
     } catch (err) {
-      scheduleList.innerHTML = `<p>Unable to detect timezone.<br><strong>Error Code:</strong> ${err.message}</p>`;
-      return;
+      // Display a warning but proceed, defaulting to UTC
+      scheduleList.innerHTML = `<p>⚠️ Schedule shown in UTC as timezone detection failed.<br><strong>Error:</strong> ${err.message}</p>`;
     }
-
-    let data;
+    
+    let xmlDoc;
     try {
-      const res = await fetch("https://cwdiptvb-github-io.onrender.com/?ch-id=cartoon-network-usa-eastern-feed");
-      if (!res.ok) {
-        console.error(`❌ Fetch failed: HTTP ${res.status} ${res.statusText}`);
-        scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_http_${res.status}</p>`;
-        return;
-      }
-      data = await res.json();
-      console.log("✅ Schedule data loaded:", data);
+      // Fetch the XMLTV file
+      const res = await fetch(xmltvUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const xmlText = await res.text();
+      
+      // Parse the XML string into a DOM object
+      const parser = new DOMParser();
+      xmlDoc = parser.parseFromString(xmlText, "text/xml");
+      
+      // Check for parsing errors
+      const errorNode = xmlDoc.querySelector('parsererror');
+      if (errorNode) throw new Error("XML Parsing Error");
+      
     } catch (err) {
-      console.error("❌ Network or CORS error:", err);
-      scheduleList.innerHTML = `<p>Unable to load schedule.<br><strong>Error Code:</strong> err_network_or_cors</p>`;
+      console.error("❌ Failed to load or parse XMLTV file:", err);
+      scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
       return;
     }
-
+    
     try {
-      const now = new Date();
-      now.setSeconds(0, 0); // Round to nearest minute
-      const end = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days ahead
-
-      const filtered = data.filter(item => {
-        const start = new Date(item["data-listdatetime"]);
-        const stop = new Date(start.getTime() + item["data-duration"] * 60000);
-        return stop >= now && start <= end;
+      // Find the channel element whose display-name matches the tvg-id (heuristic)
+      const channelElement = Array.from(xmlDoc.querySelectorAll('channel')).find(channel => {
+          return channel.querySelector('display-name')?.textContent.toLowerCase().includes(tvgId.replace('-', ' '));
       });
 
-      if (filtered.length === 0) {
-        scheduleList.innerHTML = `<p>No upcoming Cartoon Network programs found.<br><strong>Error Code:</strong> err_no_programs</p>`;
+      if (!channelElement) {
+           scheduleList.innerHTML = `<p>Channel with ID '${tvgId}' not found in the XMLTV file. Make sure a channel with a matching name exists.</p>`;
+           return;
+      }
+      
+      const channelId = channelElement.getAttribute('id');
+
+      // Filter the programs for the channel ID
+      const programElements = xmlDoc.querySelectorAll(`programme[channel="${channelId}"]`);
+      
+      if (programElements.length === 0) {
+        scheduleList.innerHTML = `<p>No upcoming programs found for this channel in the EPG.<br><strong>Channel ID:</strong> ${channelId}</p>`;
         return;
       }
 
       scheduleList.innerHTML = "";
-
       const groupedByDay = {};
+      const now = new Date();
+      const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+      
+      programElements.forEach(program => {
+          const startStr = program.getAttribute('start'); // Format YYYYMMDDhhmmss +Z
+          if (!startStr) return;
 
-      filtered.forEach(item => {
-        const start = new Date(item["data-listdatetime"]);
-        const localDate = new Intl.DateTimeFormat([], {
-          timeZone: timezone,
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        }).format(start);
+          // Convert XMLTV date format (e.g., 20251003180000 +0000) to Date object
+          const year = startStr.substring(0, 4);
+          const month = startStr.substring(4, 6);
+          const day = startStr.substring(6, 8);
+          const hour = startStr.substring(8, 10);
+          const minute = startStr.substring(10, 12);
+          const second = startStr.substring(12, 14);
+          const tz = startStr.substring(15);
+          
+          // Construct an ISO 8601 string for reliable Date parsing
+          const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}${tz.substring(0, 3)}:${tz.substring(3)}`;
+          const startUTC = new Date(isoString);
 
-        if (!groupedByDay[localDate]) {
-          groupedByDay[localDate] = [];
-        }
-        groupedByDay[localDate].push(item);
-      });
+          if (startUTC < now || startUTC > threeDaysAhead) return; // Filter time range
 
-      Object.entries(groupedByDay).forEach(([dayLabel, programs]) => {
-        const dayHeader = document.createElement("div");
-        dayHeader.className = "schedule-entry";
-        dayHeader.innerHTML = `<h3 style="margin:0; color:#00ffff;">${dayLabel}</h3>`;
-        scheduleList.appendChild(dayHeader);
+          const title = program.querySelector('title')?.textContent || "Untitled Program";
+          const subtitle = program.querySelector('sub-title')?.textContent;
+          const desc = program.querySelector('desc')?.textContent || "No description available.";
 
-        programs.forEach(item => {
-          const startUTC = new Date(item["data-listdatetime"]);
-          const localStart = new Intl.DateTimeFormat([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZone: timezone
+          const localDate = new Intl.DateTimeFormat([], {
+              timeZone: timezone,
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
           }).format(startUTC);
+          
+          if (!groupedByDay[localDate]) {
+              groupedByDay[localDate] = [];
+          }
 
-          const title = item["data-showname"] || "Untitled";
-          const episode = item["data-episodetitle"] ? ` — ${item["data-episodetitle"]}` : "";
-          const desc = item["data-description"] || "No description";
-
-          const entry = document.createElement("div");
-          entry.className = "schedule-entry";
-          entry.innerHTML = `
-            <strong>${localStart}</strong> — ${title}${episode}
-            <small>${desc}</small>
-          `;
-          scheduleList.appendChild(entry);
-        });
+          groupedByDay[localDate].push({ startUTC, title, subtitle, desc });
       });
+
+      // Sort and render the schedule
+      Object.entries(groupedByDay).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB)).forEach(([dayLabel, programs]) => {
+          const dayHeader = document.createElement("div");
+          dayHeader.className = "schedule-entry";
+          dayHeader.innerHTML = `<h3 style="margin:0; color:#00ffff;">${dayLabel}</h3>`;
+          scheduleList.appendChild(dayHeader);
+
+          programs.sort((a, b) => a.startUTC - b.startUTC).forEach(item => {
+              const localStart = new Intl.DateTimeFormat([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  timeZone: timezone
+              }).format(item.startUTC);
+
+              const episode = item.subtitle ? ` — ${item.subtitle}` : "";
+
+              const entry = document.createElement("div");
+              entry.className = "schedule-entry";
+              entry.innerHTML = `
+                  <strong>${localStart}</strong> — ${item.title}${episode}
+                  <small>${item.desc}</small>
+              `;
+              scheduleList.appendChild(entry);
+          });
+      });
+
     } catch (err) {
-      console.error("❌ Failed to render schedule:", err);
-      scheduleList.innerHTML = `<p>Unable to render schedule.<br><strong>Error Code:</strong> err_render_failed</p>`;
+      console.error("❌ Failed to render schedule from XMLTV:", err);
+      scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_render_failed</p>`;
     }
   }
+
 
   $(document).ready(function () {
     const tvgId = "cartoon-network";
@@ -469,7 +539,8 @@
       jwplayer_hls_provider.attach();
     });
 
-    loadTVPassSchedule();
+    // Call the new XMLTV schedule function instead of the old one
+    loadXMLTVSchedule(tvgId);
   });
   </script> 
 </body>
