@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Live TV - Watch Free Online Channels</title>
+  <title>Free Live TV - Watch TV Online for Free</title>
   <link rel="icon" href="/fav/16.png" sizes="16x16">
   <link rel="icon" href="/fav/32.png" sizes="32x32">
   <link rel="icon" href="/fav/48.png" sizes="48x48">
@@ -72,7 +72,7 @@
       text-align: center;
     }
     
-    /* NEW FILTER AND PLAYLIST LAYOUT */
+    /* FILTER AND PLAYLIST LAYOUT */
     #top-content {
       width: 100%;
       max-width: 1200px;
@@ -86,13 +86,12 @@
       grid-template-areas: 
         "category search"
         "playlist playlist";
-      grid-template-columns: 1fr 2fr; /* Category half the width of search */
+      grid-template-columns: 1fr 2fr;
       gap: 1rem;
       width: 100%;
       margin-bottom: 1rem;
     }
-    #category-filter {
-      grid-area: category;
+    #category-filter, #search-input {
       padding: 0.75rem 1rem;
       border-radius: 6px;
       border: 1px solid #333;
@@ -101,8 +100,13 @@
       font-size: 1rem;
       outline: none;
       transition: border-color 0.3s;
-      height: 44px; /* Standardize height */
+      height: 44px; 
+      box-sizing: border-box; 
+    }
+    #category-filter {
+      grid-area: category;
       appearance: none;
+      /* Category Dropdown Arrow SVG */
       background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%2300ffff"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>');
       background-repeat: no-repeat;
       background-position: right 0.75rem center;
@@ -110,23 +114,18 @@
     }
     #search-input {
       grid-area: search;
-      padding: 0.45rem 1rem; /* Reduced vertical padding */
-      border-radius: 6px;
-      border: 1px solid #333;
-      background-color: #1a1a1a;
-      color: #f2f2f2;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.3s;
-      height: 34px; /* Target half height */
-      box-sizing: border-box;
-      line-height: 1.5;
+      /* Magnifying Glass SVG for Search Bar */
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%23f2f2f2"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.314l3.753 3.754a1 1 0 01-1.414 1.414l-3.754-3.753A7 7 0 012 9z" clip-rule="evenodd" /></svg>');
+      background-repeat: no-repeat;
+      background-position: left 0.75rem center;
+      background-size: 1.25em;
+      padding-left: 2.5rem; /* Space for the magnifying glass */
     }
     #category-filter:focus, #search-input:focus {
         border-color: #00ffff;
     }
 
-    /* Playlist Card Styling (moved to grid) */
+    /* Playlist Card Styling */
     .playlist-card {
       grid-area: playlist;
       display: flex;
@@ -141,18 +140,17 @@
       width: 100%;
       box-sizing: border-box;
     }
-    /* Rest of playlist-card styles remain the same */
     .playlist-card:hover { border-color: #00ffff; }
     .playlist-card img { width: 48px; height: 48px; object-fit: contain; margin-right: 1rem; border-radius: 4px; background-color: #000; }
     .playlist-label { font-size: 1.1rem; font-weight: 600; flex-grow: 1; }
     .playlist-label small { display: block; color: #888; font-size: 0.85rem; margin-top: 0.25rem; }
     .copy-btn { margin-left: auto; background-color: #00ffff; border: none; color: #000; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
-    /* Channel Grid and Card Styling (single column) */
+    /* Channel Grid and Card Styling */
     #channel-grid {
       display: grid;
-      grid-template-columns: 1fr; /* Force single column */
-      gap: 0.75rem; /* Reduced gap between single-column cards */
+      grid-template-columns: 1fr; 
+      gap: 0.75rem; 
       width: 100%;
       max-width: 1200px;
       padding-bottom: 2rem;
@@ -165,15 +163,15 @@
       text-decoration: none;
       color: inherit;
       transition: border-color 0.3s, background-color 0.3s;
-      display: grid; /* Use grid for internal structure */
-      grid-template-columns: 1fr 3fr 2fr; /* Header, Program, Category Info */
+      grid-template-columns: 1fr 3fr 2fr; 
       align-items: center;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      display: grid; 
     }
     .channel-card:hover {
       border-color: #00ffff;
       background-color: #252525;
-      transform: none; /* No vertical transform on hover in list view */
+      transform: none; 
     }
     .channel-header {
       display: flex;
@@ -182,7 +180,7 @@
       padding-right: 1rem;
     }
     .channel-logo {
-      width: 40px; /* Slightly smaller logo for list view */
+      width: 40px; 
       height: 40px;
       object-fit: contain;
       margin-right: 1rem;
@@ -193,24 +191,17 @@
     }
     .channel-info {
         flex-grow: 1;
-        min-width: 0;
+        min-width: 0; 
         text-align: left;
     }
     .channel-name {
-      font-size: 1.1rem; /* Slightly smaller name */
+      font-size: 1.1rem; 
       font-weight: 700;
       color: #f2f2f2;
       line-height: 1.2;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-    .channel-category {
-      font-size: 0.8rem;
-      color: #888;
-      font-weight: 600;
-      margin-top: 0.25rem;
-      display: none; /* Hiding the category name here for a cleaner look */
     }
     .channel-program {
       padding: 0 1rem;
@@ -234,7 +225,7 @@
       margin-top: 0.25rem;
     }
     
-    /* Category Display Area (moved to the right) */
+    /* Category Display Area (right side) */
     .channel-category-display {
         text-align: right;
         font-size: 1rem;
@@ -242,9 +233,21 @@
         color: #888;
         padding-left: 1rem;
     }
+    
+    /* CLASS ADDED BY JS: Hides the category display element */
+    .hide-category .channel-category-display {
+        display: none;
+    }
+    /* Adjust card layout when category is hidden */
+    .hide-category.channel-card {
+        grid-template-columns: 1fr 5fr; 
+    }
+    .hide-category .channel-program {
+        border-right: none; 
+    }
 
 
-    /* Loading and Playlist Card */
+    /* Loading and No Results */
     #loading-message, #no-results {
       text-align: center;
       padding: 3rem;
@@ -266,25 +269,20 @@
       color: #888;
     }
 
-    @media (max-width: 900px) {
-        /* Adjust channel card layout for smaller screens */
-        .channel-card {
-            grid-template-columns: 1fr 2fr; /* Stack category display */
-        }
-        .channel-category-display {
-            grid-column: 1 / -1; /* Full width */
-            text-align: left;
-            padding-top: 0.5rem;
-            border-top: 1px solid #333;
-            margin-top: 0.5rem;
-            padding-left: 0;
-        }
-        .channel-program {
-            border-right: none;
+    /* MEDIA QUERIES */
+
+    /* Desktop/Tablet (>= 769px) - Search Bar beside Dropdown */
+    @media (min-width: 769px) {
+        #filter-area {
+            grid-template-areas: 
+                "category search"
+                "playlist playlist";
+            grid-template-columns: 1fr 2fr;
         }
     }
 
-    @media (max-width: 600px) {
+    /* Smaller Screens (<= 768px) - Search Bar below Dropdown */
+    @media (max-width: 768px) {
         main {
             padding: 1rem 5%;
         }
@@ -299,11 +297,37 @@
         #category-filter, #search-input {
             width: 100%;
             max-width: 100%;
-            height: 44px; /* Revert search height for small screens */
+            height: 44px;
             padding: 0.75rem 1rem;
         }
+        
+        /* Adjust padding for search bar on mobile to accommodate icon */
+        #search-input {
+            padding-left: 2.5rem; 
+        }
+
+        /* Adjust channel card layout for smaller screens */
         .channel-card {
-            grid-template-columns: 1fr; /* Full stack */
+            grid-template-columns: 1fr 2fr; 
+        }
+        .channel-category-display {
+            grid-column: 1 / -1; 
+            text-align: left;
+            padding-top: 0.5rem;
+            border-top: 1px solid #333;
+            margin-top: 0.5rem;
+            padding-left: 0;
+        }
+        .channel-program {
+            border-right: none;
+        }
+    }
+
+    /* Very Small Screens (<= 600px) - Full Stack */
+    @media (max-width: 600px) {
+        .channel-card {
+            grid-template-columns: 1fr; 
+            padding: 0.75rem;
         }
         .channel-header {
             margin-bottom: 0.75rem;
@@ -313,6 +337,12 @@
             border-left: none;
             border-top: 1px solid #333;
             padding-top: 0.75rem;
+        }
+        .channel-category-display {
+            display: none !important; 
+        }
+        .channel-card, .hide-category.channel-card {
+            grid-template-columns: 1fr; 
         }
     }
   </style>
@@ -373,8 +403,7 @@
       });
     }
 
-    // --- EPG Utility Functions (same as previous) ---
-
+    // --- EPG and Data Fetching Functions (Unchanged) ---
     const parseXmlTvDateFix = (dateStr) => {
       const cleanDigits = dateStr.substring(0, 14);
       if (cleanDigits.length !== 14) return new Date(NaN);
@@ -388,30 +417,23 @@
       return new Date(isoString);
     };
 
-    // --- Data Fetching Functions (same as previous) ---
-
     async function fetchM3UData() {
         try {
             const response = await fetch(M3U_URL);
             if (!response.ok) throw new Error("Failed to fetch M3U file");
             const data = await response.text();
             const lines = data.split(/\r?\n/);
-            
             let currentChannel = {};
-
             for (let i = 0; i < lines.length; i++) {
                 if (lines[i].startsWith("#EXTINF")) {
                     const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
                     const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/i);
                     const categoryMatch = lines[i].match(/group-title="([^"]+)"/i);
-                    
                     currentChannel.id = idMatch ? idMatch[1] : null;
                     currentChannel.logo = logoMatch ? logoMatch[1] : '';
                     currentChannel.category = categoryMatch ? categoryMatch[1].trim() : 'Uncategorized';
-                    
                     const nameMatch = lines[i].match(/,([^,]+)$/);
                     currentChannel.name = nameMatch ? nameMatch[1].trim() : 'Unknown Channel';
-
                 } else if (lines[i].startsWith("http") && currentChannel.id) {
                     currentChannel.url = lines[i].trim();
                     CHANNEL_DATA.push(currentChannel);
@@ -430,35 +452,25 @@
             const res = await fetch(XMLTV_URL);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             let xmlText = await res.text();
-            
             const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
-
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
-            
             const errorNode = xmlDoc.querySelector('parsererror');
             if (errorNode) throw new Error("XML Parsing Failed");
-
             const programElements = xmlDoc.querySelectorAll('programme');
             programElements.forEach(program => {
                 const channelId = program.getAttribute('channel');
                 if (!channelId) return;
-
                 const startStr = program.getAttribute('start');
                 const stopStr = program.getAttribute('stop'); 
-                
                 const startUTC = parseXmlTvDateFix(startStr);
                 const stopUTC = parseXmlTvDateFix(stopStr);
-
                 if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
-                
                 const title = program.querySelector('title')?.textContent || "Untitled Program";
                 const subtitle = program.querySelector('sub-title')?.textContent;
-                
                 if (!EPG_DATA[channelId]) {
                     EPG_DATA[channelId] = [];
                 }
-                
                 EPG_DATA[channelId].push({
                     start: startUTC,
                     stop: stopUTC,
@@ -466,7 +478,6 @@
                     subtitle: subtitle
                 });
             });
-
             Object.values(EPG_DATA).forEach(programs => {
                 programs.sort((a, b) => a.start - b.start);
             });
@@ -479,49 +490,50 @@
     function getCurrentProgram(tvgId) {
         const programs = EPG_DATA[tvgId];
         const now = new Date();
-
         if (!programs || programs.length === 0) {
             return { title: 'No EPG data available.', time: '' };
         }
-
         const currentProgram = programs.find(p => p.start <= now && p.stop > now);
-
         if (currentProgram) {
             const localStartTime = currentProgram.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const localStopTime = currentProgram.stop.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
             let fullTitle = currentProgram.title;
             if (currentProgram.subtitle) {
                 fullTitle += `: ${currentProgram.subtitle}`;
             }
-
             return {
                 title: fullTitle,
                 time: `${localStartTime} - ${localStopTime} (Now)`
             };
         }
-
         const nextPrograms = programs.filter(p => p.start > now);
-        
         if (nextPrograms.length > 0) {
             const nextProgram = nextPrograms[0];
             const localStartTime = nextProgram.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
             return {
                 title: nextProgram.title,
                 time: `Next at ${localStartTime}`
             };
         }
-
         return { title: 'Schedule TBD.', time: '' };
     }
 
-    // --- Rendering and Filtering ---
+    // --- Rendering and Filtering (Updated) ---
 
     function renderChannels() {
         const grid = $("#channel-grid");
         const selectedCategory = $("#category-filter").val();
         const searchTerm = $("#search-input").val().toLowerCase();
+        
+        // Determine if the category column should be hidden
+        const hideCategoryColumn = selectedCategory !== 'All';
+        
+        // Apply or remove a class to the grid container
+        if (hideCategoryColumn) {
+            grid.addClass('hide-category');
+        } else {
+            grid.removeClass('hide-category');
+        }
         
         grid.empty();
         
@@ -532,7 +544,6 @@
             return matchesCategory && matchesSearch;
         });
         
-        // Sort channels alphabetically by name
         filteredChannels.sort((a, b) => a.name.localeCompare(b.name));
 
         if (filteredChannels.length === 0) {
@@ -542,7 +553,6 @@
             $("#no-results").hide();
         }
 
-        // NO CATEGORY HEADERS - just render the filtered, sorted list
         filteredChannels.forEach(channel => {
             const program = getCurrentProgram(channel.id);
             const linkUrl = `/play?id=${channel.id}`; 
@@ -553,7 +563,7 @@
                         <img src="${channel.logo}" alt="${channel.name} Logo" class="channel-logo" onerror="this.onerror=null;this.src='/placeholder.png';">
                         <div class="channel-info">
                             <div class="channel-name">${channel.name}</div>
-                            </div>
+                        </div>
                     </div>
                     <div class="channel-program">
                         <strong>${program.title}</strong>
@@ -583,28 +593,23 @@
     // --- Initialization ---
 
     $(document).ready(async function () {
-        // 1. Fetch data concurrently
         await Promise.all([
             fetchM3UData(),
             fetchXMLTVData()
         ]);
 
-        // 2. Handle errors/empty list
         if (CHANNEL_DATA.length === 0) {
              $("#loading-message").text("Fatal Error: Could not load any channel data.");
              return;
         }
 
-        // 3. Populate filter and render initial grid
         populateCategoryFilter();
         renderChannels();
 
-        // 4. Remove loading message
         $("#loading-message").remove();
         
-        // 5. Re-render every minute to update the "Now Playing" status
         setInterval(renderChannels, 60000); 
     });
   </script>
 </body>
-  </html>
+</html>
