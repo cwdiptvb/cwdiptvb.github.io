@@ -72,17 +72,27 @@
       text-align: center;
     }
     
-    /* Filtering and Search Area */
-    #filter-area {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    /* NEW FILTER AND PLAYLIST LAYOUT */
+    #top-content {
       width: 100%;
       max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       margin-bottom: 1.5rem;
-      gap: 1rem;
     }
-    #category-filter, #search-input {
+    #filter-area {
+      display: grid;
+      grid-template-areas: 
+        "category search"
+        "playlist playlist";
+      grid-template-columns: 1fr 2fr; /* Category half the width of search */
+      gap: 1rem;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    #category-filter {
+      grid-area: category;
       padding: 0.75rem 1rem;
       border-radius: 6px;
       border: 1px solid #333;
@@ -92,28 +102,57 @@
       outline: none;
       transition: border-color 0.3s;
       height: 44px; /* Standardize height */
-    }
-    #category-filter {
-      flex: 1;
-      max-width: 300px;
-      appearance: none; /* Hide default select arrow */
+      appearance: none;
       background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%2300ffff"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>');
       background-repeat: no-repeat;
       background-position: right 0.75rem center;
       background-size: 1.5em;
     }
     #search-input {
-      flex: 2;
+      grid-area: search;
+      padding: 0.45rem 1rem; /* Reduced vertical padding */
+      border-radius: 6px;
+      border: 1px solid #333;
+      background-color: #1a1a1a;
+      color: #f2f2f2;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+      height: 34px; /* Target half height */
+      box-sizing: border-box;
+      line-height: 1.5;
     }
     #category-filter:focus, #search-input:focus {
         border-color: #00ffff;
     }
 
-    /* Channel Grid and Card Styling (restored layout) */
+    /* Playlist Card Styling (moved to grid) */
+    .playlist-card {
+      grid-area: playlist;
+      display: flex;
+      align-items: center;
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.3s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    /* Rest of playlist-card styles remain the same */
+    .playlist-card:hover { border-color: #00ffff; }
+    .playlist-card img { width: 48px; height: 48px; object-fit: contain; margin-right: 1rem; border-radius: 4px; background-color: #000; }
+    .playlist-label { font-size: 1.1rem; font-weight: 600; flex-grow: 1; }
+    .playlist-label small { display: block; color: #888; font-size: 0.85rem; margin-top: 0.25rem; }
+    .copy-btn { margin-left: auto; background-color: #00ffff; border: none; color: #000; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+    /* Channel Grid and Card Styling (single column) */
     #channel-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: 1fr; /* Force single column */
+      gap: 0.75rem; /* Reduced gap between single-column cards */
       width: 100%;
       max-width: 1200px;
       padding-bottom: 2rem;
@@ -126,23 +165,25 @@
       text-decoration: none;
       color: inherit;
       transition: border-color 0.3s, background-color 0.3s;
-      display: flex;
-      flex-direction: column;
+      display: grid; /* Use grid for internal structure */
+      grid-template-columns: 1fr 3fr 2fr; /* Header, Program, Category Info */
+      align-items: center;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     }
     .channel-card:hover {
       border-color: #00ffff;
       background-color: #252525;
-      transform: translateY(-2px);
+      transform: none; /* No vertical transform on hover in list view */
     }
     .channel-header {
       display: flex;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0;
+      padding-right: 1rem;
     }
     .channel-logo {
-      width: 48px;
-      height: 48px;
+      width: 40px; /* Slightly smaller logo for list view */
+      height: 40px;
       object-fit: contain;
       margin-right: 1rem;
       border-radius: 4px;
@@ -152,10 +193,11 @@
     }
     .channel-info {
         flex-grow: 1;
-        min-width: 0; /* Prevents overflow */
+        min-width: 0;
+        text-align: left;
     }
     .channel-name {
-      font-size: 1.25rem;
+      font-size: 1.1rem; /* Slightly smaller name */
       font-weight: 700;
       color: #f2f2f2;
       line-height: 1.2;
@@ -168,16 +210,23 @@
       color: #888;
       font-weight: 600;
       margin-top: 0.25rem;
+      display: none; /* Hiding the category name here for a cleaner look */
     }
     .channel-program {
-      padding-top: 0.75rem;
-      border-top: 1px solid #333;
-      font-size: 0.95rem;
+      padding: 0 1rem;
+      border-left: 1px solid #333;
+      border-right: 1px solid #333;
+      font-size: 1rem;
+      min-width: 0;
+      text-align: left;
     }
     .channel-program strong {
       display: block;
       color: #00ffff;
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .program-time {
       font-size: 0.85rem;
@@ -185,6 +234,16 @@
       margin-top: 0.25rem;
     }
     
+    /* Category Display Area (moved to the right) */
+    .channel-category-display {
+        text-align: right;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #888;
+        padding-left: 1rem;
+    }
+
+
     /* Loading and Playlist Card */
     #loading-message, #no-results {
       text-align: center;
@@ -197,53 +256,6 @@
         display: none;
         color: #ff3333;
     }
-    .playlist-card {
-      /* ... (styles remain the same) ... */
-      display: flex;
-      align-items: center;
-      background-color: #1a1a1a;
-      border: 2px solid #333;
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      text-decoration: none;
-      color: inherit;
-      transition: border-color 0.3s;
-      width: 100%;
-      max-width: 800px;
-      margin-top: 1rem;
-    }
-    .playlist-card:hover {
-      border-color: #00ffff;
-    }
-    .playlist-card img {
-      width: 48px;
-      height: 48px;
-      object-fit: contain;
-      margin-right: 1rem;
-      border-radius: 4px;
-      background-color: #000;
-    }
-    .playlist-label {
-      font-size: 1.1rem;
-      font-weight: 600;
-      flex-grow: 1;
-    }
-    .playlist-label small {
-      display: block;
-      color: #888;
-      font-size: 0.85rem;
-      margin-top: 0.25rem;
-    }
-    .copy-btn {
-      margin-left: auto;
-      background-color: #00ffff;
-      border: none;
-      color: #000;
-      padding: 0.4rem 0.8rem;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-    }
 
     footer {
       text-align: center;
@@ -254,21 +266,54 @@
       color: #888;
     }
 
-    @media (max-width: 768px) {
-      main {
-        padding: 1rem 5%;
-      }
-      #channel-grid {
-        grid-template-columns: 1fr;
-      }
-      #filter-area {
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      #category-filter, #search-input {
-        max-width: 100%;
-        width: 100%;
-      }
+    @media (max-width: 900px) {
+        /* Adjust channel card layout for smaller screens */
+        .channel-card {
+            grid-template-columns: 1fr 2fr; /* Stack category display */
+        }
+        .channel-category-display {
+            grid-column: 1 / -1; /* Full width */
+            text-align: left;
+            padding-top: 0.5rem;
+            border-top: 1px solid #333;
+            margin-top: 0.5rem;
+            padding-left: 0;
+        }
+        .channel-program {
+            border-right: none;
+        }
+    }
+
+    @media (max-width: 600px) {
+        main {
+            padding: 1rem 5%;
+        }
+        #filter-area {
+            grid-template-areas: 
+                "category"
+                "search"
+                "playlist";
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        #category-filter, #search-input {
+            width: 100%;
+            max-width: 100%;
+            height: 44px; /* Revert search height for small screens */
+            padding: 0.75rem 1rem;
+        }
+        .channel-card {
+            grid-template-columns: 1fr; /* Full stack */
+        }
+        .channel-header {
+            margin-bottom: 0.75rem;
+        }
+        .channel-program {
+            padding: 0;
+            border-left: none;
+            border-top: 1px solid #333;
+            padding-top: 0.75rem;
+        }
     }
   </style>
 </head>
@@ -283,12 +328,23 @@
   </header>
   <main>
     <h2>Live Channel Guide</h2>
+    
+    <div id="top-content">
+        <div id="filter-area">
+            <select id="category-filter">
+                <option value="All">All Categories</option>
+            </select>
+            <input type="text" id="search-input" placeholder="Search channels..." />
 
-    <div id="filter-area">
-        <select id="category-filter">
-            <option value="All">All Categories</option>
-        </select>
-        <input type="text" id="search-input" placeholder="Search channels..." />
+            <div class="playlist-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
+                <div class="playlist-label">
+                    Free M3U Playlist
+                    <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
+                </div>
+                <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
+            </div>
+        </div>
     </div>
 
     <div id="loading-message">Loading channel data and TV schedule...</div>
@@ -296,15 +352,6 @@
     
     <div id="channel-grid">
       </div>
-
-    <div class="playlist-card">
-      <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
-      <div class="playlist-label">
-        Free M3U Playlist
-        <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
-      </div>
-      <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
-    </div>
   </main>
   <footer>
     &copy; 2025 Free Live TV. All rights reserved.
@@ -315,7 +362,7 @@
     const XMLTV_URL = "https://cwdiptvb-github-io.onrender.com/m3usch";
     
     let CHANNEL_DATA = [];
-    let EPG_DATA = {}; // Stores all programs grouped by channel ID
+    let EPG_DATA = {}; 
     let AVAILABLE_CATEGORIES = new Set();
 
     function copyPlaylistURL() {
@@ -326,7 +373,7 @@
       });
     }
 
-    // --- EPG Utility Functions ---
+    // --- EPG Utility Functions (same as previous) ---
 
     const parseXmlTvDateFix = (dateStr) => {
       const cleanDigits = dateStr.substring(0, 14);
@@ -341,7 +388,7 @@
       return new Date(isoString);
     };
 
-    // --- Data Fetching Functions ---
+    // --- Data Fetching Functions (same as previous) ---
 
     async function fetchM3UData() {
         try {
@@ -369,10 +416,9 @@
                     currentChannel.url = lines[i].trim();
                     CHANNEL_DATA.push(currentChannel);
                     AVAILABLE_CATEGORIES.add(currentChannel.category);
-                    currentChannel = {}; // Reset for the next channel
+                    currentChannel = {}; 
                 }
             }
-            console.log(`✅ Loaded ${CHANNEL_DATA.length} channels from M3U.`);
         } catch (error) {
             console.error("❌ Error fetching M3U data:", error);
             $("#loading-message").text("Error: Failed to load channel list.");
@@ -421,12 +467,9 @@
                 });
             });
 
-            // Sort programs for easy lookup
             Object.values(EPG_DATA).forEach(programs => {
                 programs.sort((a, b) => a.start - b.start);
             });
-
-            console.log(`✅ Loaded EPG data for ${Object.keys(EPG_DATA).length} channels.`);
         } catch (error) {
             console.error("❌ Error fetching XMLTV data:", error);
             EPG_DATA.error = true;
@@ -441,7 +484,6 @@
             return { title: 'No EPG data available.', time: '' };
         }
 
-        // Find the program where start <= now < stop
         const currentProgram = programs.find(p => p.start <= now && p.stop > now);
 
         if (currentProgram) {
@@ -459,7 +501,6 @@
             };
         }
 
-        // If not running, find the next one
         const nextPrograms = programs.filter(p => p.start > now);
         
         if (nextPrograms.length > 0) {
@@ -491,6 +532,9 @@
             return matchesCategory && matchesSearch;
         });
         
+        // Sort channels alphabetically by name
+        filteredChannels.sort((a, b) => a.name.localeCompare(b.name));
+
         if (filteredChannels.length === 0) {
             $("#no-results").show();
             return;
@@ -498,73 +542,40 @@
             $("#no-results").hide();
         }
 
-        // Group channels by category for structured display
-        const categorizedChannels = filteredChannels.reduce((acc, channel) => {
-            const category = channel.category || 'Other';
-            if (!acc[category]) {
-                acc[category] = [];
-            }
-            acc[category].push(channel);
-            return acc;
-        }, {});
-        
-        // Define a sorting order for categories
-        const categoryOrder = ['News', 'Sports', 'Entertainment', 'Kids', 'Music', 'Movies', 'Lifestyle', 'General', 'Other', 'Uncategorized'];
-        const sortedCategories = Object.keys(categorizedChannels).sort((a, b) => {
-            const indexA = categoryOrder.indexOf(a);
-            const indexB = categoryOrder.indexOf(b);
-            if (indexA === -1 && indexB === -1) return a.localeCompare(b);
-            if (indexA === -1) return 1;
-            if (indexB === -1) return -1;
-            return indexA - indexB;
-        });
+        // NO CATEGORY HEADERS - just render the filtered, sorted list
+        filteredChannels.forEach(channel => {
+            const program = getCurrentProgram(channel.id);
+            const linkUrl = `/play?id=${channel.id}`; 
 
-        sortedCategories.forEach(category => {
-            // Only show category headers if 'All' is selected or if we're not filtering by a single category
-            if (selectedCategory === 'All' && category !== 'Uncategorized') {
-                const categoryHeader = $(`<h3 style="grid-column: 1 / -1; color:#f2f2f2; margin-top:1.5rem; border-bottom: 2px solid #00ffff; padding-bottom: 0.5rem;">${category}</h3>`);
-                grid.append(categoryHeader);
-            }
-            
-            // Sort channels within the category alphabetically
-            categorizedChannels[category].sort((a, b) => a.name.localeCompare(b.name));
-
-            categorizedChannels[category].forEach(channel => {
-                const program = getCurrentProgram(channel.id);
-                // URL linking to /play?id={tvg-id} for the clean appearance
-                const linkUrl = `/play?id=${channel.id}`; 
-
-                const cardHtml = `
-                    <a href="${linkUrl}" class="channel-card" data-tvg-id="${channel.id}" data-category="${channel.category}">
-                        <div class="channel-header">
-                            <img src="${channel.logo}" alt="${channel.name} Logo" class="channel-logo" onerror="this.onerror=null;this.src='/placeholder.png';">
-                            <div class="channel-info">
-                                <div class="channel-name">${channel.name}</div>
-                                <div class="channel-category">${channel.category}</div>
+            const cardHtml = `
+                <a href="${linkUrl}" class="channel-card" data-tvg-id="${channel.id}" data-category="${channel.category}">
+                    <div class="channel-header">
+                        <img src="${channel.logo}" alt="${channel.name} Logo" class="channel-logo" onerror="this.onerror=null;this.src='/placeholder.png';">
+                        <div class="channel-info">
+                            <div class="channel-name">${channel.name}</div>
                             </div>
-                        </div>
-                        <div class="channel-program">
-                            <strong>${program.title}</strong>
-                            <span class="program-time">${program.time}</span>
-                        </div>
-                    </a>
-                `;
-                grid.append(cardHtml);
-            });
+                    </div>
+                    <div class="channel-program">
+                        <strong>${program.title}</strong>
+                        <span class="program-time">${program.time}</span>
+                    </div>
+                    <div class="channel-category-display">
+                        ${channel.category}
+                    </div>
+                </a>
+            `;
+            grid.append(cardHtml);
         });
     }
     
     function populateCategoryFilter() {
         const filter = $("#category-filter");
-        
-        // Sort categories alphabetically (after converting Set to Array)
         const sortedCategories = Array.from(AVAILABLE_CATEGORIES).sort();
         
         sortedCategories.forEach(category => {
             filter.append(`<option value="${category}">${category}</option>`);
         });
 
-        // Attach event listeners for filtering
         filter.on('change', renderChannels);
         $("#search-input").on('keyup', renderChannels);
     }
@@ -591,9 +602,9 @@
         // 4. Remove loading message
         $("#loading-message").remove();
         
-        // Optional: Re-render every minute to update the "Now Playing" status
+        // 5. Re-render every minute to update the "Now Playing" status
         setInterval(renderChannels, 60000); 
     });
   </script>
 </body>
-</html>
+  </html>
