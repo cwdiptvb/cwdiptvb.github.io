@@ -387,9 +387,9 @@
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
-  <script>
+<script>
     const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
-    // XMLTV_URL is now initialized to null and set dynamically
+    // XMLTV_URL is initialized to null and set dynamically
     let XMLTV_URL = null; 
     
     let CHANNEL_DATA = [];
@@ -430,16 +430,16 @@
             let currentChannel = {};
 
             for (let i = 0; i < lines.length; i++) {
-                // 1. DYNAMIC XMLTV URL PARSING
+                // 1. DYNAMIC XMLTV URL PARSING: Check for both 'url-tvg' and 'x-tvg-url'
                 if (i === 0 && lines[i].startsWith("#EXTM3U")) {
-                    const epgUrlMatch = lines[i].match(/x-tvg-url="([^"]+)"/i);
+                    const epgUrlMatch = lines[i].match(/(?:url-tvg|x-tvg-url)="([^"]+)"/i);
                     if (epgUrlMatch && epgUrlMatch[1]) {
                         XMLTV_URL = epgUrlMatch[1];
                         console.log(`✅ Dynamically loaded XMLTV URL: ${XMLTV_URL}`);
                     }
                 }
                 
-                // 2. CHANNEL DATA PARSING (rest remains the same)
+                // 2. CHANNEL DATA PARSING 
                 if (lines[i].startsWith("#EXTINF")) {
                     const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
                     const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/i);
@@ -460,7 +460,7 @@
                 }
             }
             if (!XMLTV_URL) {
-                console.warn("⚠️ Could not find x-tvg-url in M3U header. EPG will not load.");
+                console.warn("⚠️ Could not find url-tvg or x-tvg-url in M3U header. EPG will not load.");
             }
         } catch (error) {
             console.error("❌ Error fetching M3U data:", error);
@@ -628,7 +628,7 @@
     // --- Initialization (MODIFIED) ---
 
     $(document).ready(async function () {
-        // 1. Fetch M3U data first to get the EPG URL
+        // 1. Fetch M3U data first to get the EPG URL and channel list
         await fetchM3UData();
         
         // 2. Now fetch EPG data using the dynamically determined URL
@@ -650,6 +650,6 @@
         // 6. Re-render every minute to update the "Now Playing" status
         setInterval(renderChannels, 60000); 
     });
-  </script>
+      </script>
 </body>
 </html>
