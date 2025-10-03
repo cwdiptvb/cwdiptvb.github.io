@@ -329,26 +329,36 @@
       });
     }
 
+    // --- UPDATED showError function to handle general errors with codes ---
     function showError(errorCode, invalidId = null) {
       $("#loading-container").remove();
       $("#my-video").hide();
       $("#schedule-section").hide(); 
       
+      // If a specific invalid ID is provided, use the custom message structure
       if (errorCode === "invalid_id" && invalidId) {
           $("#invalid-channel-name").text(invalidId);
           $("#invalid-channel-name").show();
           $("#error-code-text").text(`Error Code: err_invalid_tvg_id`);
+          // Show the descriptive error message and action buttons
+          $("#error-message").show(); 
           $(".error-actions").show(); 
       } else {
-          $("#invalid-channel-name").hide();
-          $("#error-code-text").text("Error Code: err_code_" + errorCode);
-          $(".error-actions").hide(); 
+          // For all other errors (player, not found, unknown, etc.)
+          $("#invalid-channel-name").hide(); // Ensure this is hidden
+          $("#error-code-text").text("Error Code: err_code_" + (errorCode || "unknown"));
+          
+          // Revert the main error message text for generic errors
+          $("#error-message p").html(
+            `A player or stream error occurred. Please try returning home. If the issue persists, contact us.`
+          );
+          
+          $("#error-message").show();
+          $(".error-actions").hide(); // Hide the action buttons for generic player errors
       }
-      
-      $("#error-message").show();
     }
 
-    // --- UPDATED buildChannelMap function to use 'url-tvg=' ---
+    // --- buildChannelMap function (Unchanged from last revision) ---
     async function buildChannelMap() {
         try {
             const response = await fetch(M3U_URL);
@@ -402,6 +412,7 @@
         if (channelInfo && channelInfo.url) {
             callback(channelInfo.url);
         } else {
+            // Note: This 'not_found' error will now use the generic error style
             showError("not_found");
         }
     }
@@ -434,7 +445,7 @@
       return new Date(isoString);
     };
 
-    // This function uses the global XMLTV_URL set by buildChannelMap
+    // This function uses the global XMLTV_URL set by buildChannelMap (Unchanged)
     async function loadXMLTVSchedule(tvgId) {
       const scheduleList = document.getElementById("schedule-list");
       scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
@@ -472,6 +483,7 @@
         
       } catch (err) {
         console.error("❌ Failed during XML fetch or parsing:", err.message);
+        // Note: This schedule fetch error will be displayed in the schedule card, not the main error overlay
         scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
         return;
       }
@@ -597,7 +609,7 @@
       loadXMLTVSchedule(targetTvgId);
     });
 
-    // Function to handle the JWPlayer initialization logic (Unchanged)
+    // Function to handle the JWPlayer initialization logic 
     function initializePlayer(streamURL) {
       const player = jwplayer("my-video");
 
@@ -631,11 +643,12 @@
 
       player.on("error", function (e) {
         console.error("Player error:", e.message || e);
-        showError(e.code || "unknown");
+        // Pass the player error code to the simplified system
+        showError(e.code || "unknown"); 
       });
 
       jwplayer_hls_provider.attach();
     }
-            </script>
+</script>
 </body>
   </html>
