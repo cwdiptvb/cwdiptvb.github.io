@@ -121,11 +121,15 @@
         word-break: break-all;
     }
     .error-actions {
-        display: flex;
+        display: flex; /* Kept for invalid_id case */
         gap: 1rem;
         margin-top: 1rem;
     }
-    .error-actions a {
+    .error-actions-generic { /* New style for the generic button container */
+        display: none; /* Initially hide the generic contact button */
+        justify-content: center;
+    }
+    .error-actions a, .error-actions-generic a {
         padding: 0.75rem 1.5rem;
         border-radius: 4px;
         text-decoration: none;
@@ -252,10 +256,11 @@
         margin-top: 0.5rem;
         align-self: flex-end;
       }
-      .error-actions {
+      .error-actions, .error-actions-generic {
         flex-direction: column;
+        width: 100%;
       }
-      .error-actions a {
+      .error-actions a, .error-actions-generic a {
         width: 100%;
         box-sizing: border-box;
       }
@@ -281,15 +286,23 @@
     <div id="my-video"></div>
 
     <div id="error-message">
-      <p>
-        <span id="invalid-channel-name"></span> is not a valid channel name. 
+      <p id="error-main-text" style="display:none;">An unexpected error has occurred. Please try refreshing the page. If the issue persists, please contact us here:</p>
+      
+      <p id="invalid-id-text">
+        <span id="invalid-channel-name" style="display:none;"></span> is not a valid channel name. 
         If you received this error and clicked on a link on our homepage, please contact us. 
         Otherwise, you can return to the homepage.
       </p>
+
       <div class="error-actions">
         <a href="/" class="btn-home">Return Home</a>
+        <a href="/contact" class="btn-contact" id="contact-btn-invalid-id">Contact us</a>
+      </div>
+      
+      <div class="error-actions-generic">
         <a href="/contact" class="btn-contact">Contact us</a>
       </div>
+
       <span id="error-code-text" style="display: block; margin-top: 1rem; color: #888; font-size: 0.9rem;"></span>
     </div>
 
@@ -313,7 +326,7 @@
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
-<script>
+  <script>
     const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
     // Global map to store tvg-id -> channel name and URL
     let CHANNEL_NAME_MAP = {};
@@ -329,36 +342,36 @@
       });
     }
 
-    // --- UPDATED showError function to handle general errors with codes ---
+    // --- UPDATED showError function to handle both error types ---
     function showError(errorCode, invalidId = null) {
       $("#loading-container").remove();
       $("#my-video").hide();
       $("#schedule-section").hide(); 
       
-      // If a specific invalid ID is provided, use the custom message structure
+      // 1. Reset all error elements
+      $("#invalid-id-text").hide();
+      $("#error-main-text").hide();
+      $(".error-actions").hide(); // Invalid ID actions
+      $(".error-actions-generic").hide(); // Generic error actions
+
+      // 2. Handle Invalid ID Error (Priority)
       if (errorCode === "invalid_id" && invalidId) {
           $("#invalid-channel-name").text(invalidId);
+          $("#invalid-id-text").show();
           $("#invalid-channel-name").show();
           $("#error-code-text").text(`Error Code: err_invalid_tvg_id`);
-          // Show the descriptive error message and action buttons
-          $("#error-message").show(); 
-          $(".error-actions").show(); 
+          $(".error-actions").css('display', 'flex'); // Show Invalid ID buttons
       } else {
-          // For all other errors (player, not found, unknown, etc.)
-          $("#invalid-channel-name").hide(); // Ensure this is hidden
+          // 3. Handle Generic Error (Player, not_found, unknown)
+          $("#error-main-text").show(); // Show the new generic message
           $("#error-code-text").text("Error Code: err_code_" + (errorCode || "unknown"));
-          
-          // Revert the main error message text for generic errors
-          $("#error-message p").html(
-            `A player or stream error occurred. Please try returning home. If the issue persists, contact us.`
-          );
-          
-          $("#error-message").show();
-          $(".error-actions").hide(); // Hide the action buttons for generic player errors
+          $(".error-actions-generic").css('display', 'flex'); // Show the generic contact button
       }
+      
+      $("#error-message").show();
     }
 
-    // --- buildChannelMap function (Unchanged from last revision) ---
+    // --- buildChannelMap function (Unchanged) ---
     async function buildChannelMap() {
         try {
             const response = await fetch(M3U_URL);
@@ -372,7 +385,6 @@
             for (let i = 0; i < lines.length; i++) {
                 // 1. Check for EPG URL in the header using the 'url-tvg=' format
                 if (i === 0 && lines[i].startsWith("#EXTM3U")) {
-                    // Regex updated to look for both 'url-tvg' and 'x-tvg-url' just in case
                     const epgUrlMatch = lines[i].match(/(?:url-tvg|x-tvg-url)="([^"]+)"/i);
                     if (epgUrlMatch && epgUrlMatch[1]) {
                         XMLTV_URL = epgUrlMatch[1];
@@ -406,13 +418,12 @@
         }
     }
 
-    // Function to get the stream URL (remains a helper wrapper)
+    // Function to get the stream URL (Unchanged)
     function getStreamURL(tvgId, callback) {
         const channelInfo = CHANNEL_NAME_MAP[tvgId];
         if (channelInfo && channelInfo.url) {
             callback(channelInfo.url);
         } else {
-            // Note: This 'not_found' error will now use the generic error style
             showError("not_found");
         }
     }
@@ -445,7 +456,6 @@
       return new Date(isoString);
     };
 
-    // This function uses the global XMLTV_URL set by buildChannelMap (Unchanged)
     async function loadXMLTVSchedule(tvgId) {
       const scheduleList = document.getElementById("schedule-list");
       scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
@@ -483,7 +493,6 @@
         
       } catch (err) {
         console.error("❌ Failed during XML fetch or parsing:", err.message);
-        // Note: This schedule fetch error will be displayed in the schedule card, not the main error overlay
         scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
         return;
       }
@@ -579,7 +588,6 @@
 
 
     $(document).ready(async function () {
-      // 1. Build the channel map AND get the XMLTV URL from the M3U header
       await buildChannelMap();
       
       const urlParams = new URLSearchParams(window.location.search);
@@ -587,17 +595,14 @@
       
       const defaultTvgId = "cartoon-network";
 
-      // 2. Determine the target ID
       const targetTvgId = tvgId || defaultTvgId;
       const channelInfo = CHANNEL_NAME_MAP[targetTvgId];
 
-      // 3. Handle invalid ID
       if (!channelInfo) {
           showError("invalid_id", targetTvgId);
           return; 
       }
       
-      // 4. Load valid channel
       const channelName = channelInfo.name;
       document.title = `Watch ${channelName} Free Online - Free Live TV`;
       $('main h2').text(`Now Streaming: ${channelName}`);
@@ -605,18 +610,16 @@
       getStreamURL(targetTvgId, function (streamURL) {
         initializePlayer(streamURL);
       });
-      // 5. Load the schedule using the dynamically set XMLTV_URL
       loadXMLTVSchedule(targetTvgId);
     });
 
-    // Function to handle the JWPlayer initialization logic 
     function initializePlayer(streamURL) {
       const player = jwplayer("my-video");
 
       player.setup({
         file: streamURL,
-        type: "application/x-mpegURL",
-        width: "100%",
+        type: "application/x-mpegURL"
+                width: "100%",
         aspectratio: "16:9",
         autostart: true,
         primary: "html5",
@@ -643,12 +646,11 @@
 
       player.on("error", function (e) {
         console.error("Player error:", e.message || e);
-        // Pass the player error code to the simplified system
         showError(e.code || "unknown"); 
       });
 
       jwplayer_hls_provider.attach();
     }
-</script>
+  </script>
 </body>
-  </html>
+</html>
