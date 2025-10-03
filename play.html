@@ -326,7 +326,7 @@
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
-  <script>
+<script>
     const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
     // Global map to store tvg-id -> channel name and URL
     let CHANNEL_NAME_MAP = {};
@@ -342,7 +342,7 @@
       });
     }
 
-    // --- UPDATED showError function to handle both error types ---
+    // --- REVISED showError function to restore old generic error behavior ---
     function showError(errorCode, invalidId = null) {
       $("#loading-container").remove();
       $("#my-video").hide();
@@ -350,11 +350,12 @@
       
       // 1. Reset all error elements
       $("#invalid-id-text").hide();
-      $("#error-main-text").hide();
+      $("#invalid-channel-name").hide();
+      $("#error-main-text").hide(); // Hide the new generic verbose text
       $(".error-actions").hide(); // Invalid ID actions
-      $(".error-actions-generic").hide(); // Generic error actions
+      $(".error-actions-generic").hide(); // Hide the generic contact button
 
-      // 2. Handle Invalid ID Error (Priority)
+      // 2. Handle Invalid ID Error (Priority - uses new structure)
       if (errorCode === "invalid_id" && invalidId) {
           $("#invalid-channel-name").text(invalidId);
           $("#invalid-id-text").show();
@@ -362,10 +363,19 @@
           $("#error-code-text").text(`Error Code: err_invalid_tvg_id`);
           $(".error-actions").css('display', 'flex'); // Show Invalid ID buttons
       } else {
-          // 3. Handle Generic Error (Player, not_found, unknown)
-          $("#error-main-text").show(); // Show the new generic message
+          // 3. Handle Generic Error (Player, not_found, unknown) - RESTORING OLD SYSTEM
+          
+          // Revert to a simple, non-specific message for generic errors
+          // NOTE: If you had specific HTML for the old error message, you'll need to 
+          // ensure the default content for #error-message p is the simple one, 
+          // or use the original simple paragraph tag here. I'm using #error-main-text 
+          // to show a simple message for compatibility.
+          
+          $("#error-main-text").show(); 
+          $("#error-main-text").html("An unexpected error has occurred. Please try refreshing the page. If the issue persists, please contact us.");
+          
           $("#error-code-text").text("Error Code: err_code_" + (errorCode || "unknown"));
-          $(".error-actions-generic").css('display', 'flex'); // Show the generic contact button
+          // Do NOT show the error-actions or error-actions-generic for this case
       }
       
       $("#error-message").show();
