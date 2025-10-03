@@ -339,7 +339,7 @@
     }
   }
 
-  // UPDATED function to load schedule from XMLTV data (includes client-side fixes)
+  // UPDATED function to load schedule from XMLTV data (includes fix for date parsing)
   async function loadXMLTVSchedule(tvgId) {
     const scheduleList = document.getElementById("schedule-list");
     scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
@@ -370,19 +370,23 @@
       
       // 4. Check for parsing errors
       const errorNode = xmlDoc.querySelector('parsererror');
-      if (errorNode) throw new Error("XML Parsing Error");
+      if (errorNode) {
+          console.error("XML Parsing Failed:", errorNode.textContent);
+          throw new Error("XML Parsing Failed (Invalid XML Structure)");
+      }
       
     } catch (err) {
-      console.error("❌ Failed to load or parse XMLTV file:", err);
+      console.error("❌ Failed during XML fetch or parsing:", err.message);
+      // Reporting failure during network/parse stage
       scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
       return;
     }
     
     try {
-      // 1. Define the Channel ID to search for (based on your server's output).
+      // 1. Define the Channel ID to search for.
       const targetChannelId = tvgId; 
 
-      // 2. Find the Channel element using an ID selector (more robust than display-name heuristic)
+      // 2. Find the Channel element
       const channelElement = xmlDoc.querySelector(`channel[id="${targetChannelId}"]`);
       if (!channelElement) {
            scheduleList.innerHTML = `<p>Channel with ID '${targetChannelId}' not found in the XMLTV file.</p>`;
@@ -403,10 +407,11 @@
       const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); 
       
       programElements.forEach(program => {
-          const startStr = program.getAttribute('start'); // Format YYYYMMDDhhmmss +Z
-          if (!startStr) return;
-
-          // Convert XMLTV date format (e.g., 20251003180000 +0000) to Date object
+          const startStr = program.getAttribute('start');
+          // Skip if the attribute is missing or does not have the expected length (17 chars + timezone like +0000)
+          if (!startStr || startStr.length < 19) return;
+          
+          // --- Robust Date Parsing ---
           const year = startStr.substring(0, 4);
           const month = startStr.substring(4, 6);
           const day = startStr.substring(6, 8);
@@ -418,8 +423,10 @@
           const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}${tz.substring(0, 3)}:${tz.substring(3)}`;
           const startUTC = new Date(isoString);
 
-          if (startUTC < now || startUTC > threeDaysAhead) return;
+          if (startUTC < now || startUTC > threeDaysAhead || isNaN(startUTC.getTime())) return;
+          // --- End Date Parsing ---
 
+          // --- Safe Data Extraction ---
           const title = program.querySelector('title')?.textContent || "Untitled Program";
           const subtitle = program.querySelector('sub-title')?.textContent;
           const desc = program.querySelector('desc')?.textContent || "No description available.";
@@ -465,8 +472,9 @@
       });
 
     } catch (err) {
-      console.error("❌ Failed to render schedule from XMLTV:", err);
-      scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_processing_xml</p>`;
+      console.error("❌ Failed during XML processing/rendering:", err.message, err.stack);
+      // Reporting failure during data processing/rendering stage
+      scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_processing_xml_data</p>`;
     }
   }
 
@@ -526,7 +534,7 @@
       jwplayer_hls_provider.attach();
     });
 
-    // Call the new XMLTV schedule function
+    // Call the XMLTV schedule function
     loadXMLTVSchedule(tvgId);
   });
   </script> 
