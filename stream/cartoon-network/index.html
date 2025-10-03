@@ -1,6 +1,3 @@
-script> 
-</body>
-</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -311,11 +308,12 @@ script>
   }
 
   function getXMLTVURLFromM3U(callback) {
+    // This function is still included but not used in the main logic, 
+    // as the XMLTV endpoint is hardcoded for reliability.
     $.get("https://cwdiptvb.github.io/tv_channels.m3u", function (data) {
       const lines = data.split(/\r?\n/);
       const m3uHeader = lines[0]; // Should be #EXTM3U
       
-      // Check if the header contains the XMLTV URL attribute
       const match = m3uHeader.match(/url-tvg="([^"]+)"/i);
       if (match && match[1]) {
         console.log("✅ XMLTV URL found:", match[1]);
@@ -341,44 +339,36 @@ script>
     }
   }
 
-  // New function to load schedule from XMLTV data
+  // UPDATED function to load schedule from XMLTV data (includes client-side fixes)
   async function loadXMLTVSchedule(tvgId) {
     const scheduleList = document.getElementById("schedule-list");
-    scheduleList.innerHTML = "<p>Loading EPG schedule from M3U link...</p>";
+    scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
 
-    let xmltvUrl;
-    try {
-        xmltvUrl = await new Promise((resolve) => getXMLTVURLFromM3U(resolve));
-        if (!xmltvUrl) {
-            scheduleList.innerHTML = `<p>Unable to find XMLTV URL in the M3U playlist. Check the '#EXTM3U' header for 'url-tvg="..."'.</p>`;
-            return;
-        }
-    } catch (err) {
-        console.error("❌ Failed to get XMLTV URL:", err);
-        scheduleList.innerHTML = `<p>Unable to load M3U to find XMLTV URL.</p>`;
-        return;
-    }
-
+    // Use the known, working XMLTV endpoint
+    const xmltvUrl = "https://cwdiptvb-github-io.onrender.com/m3usch";
+    
     let timezone = "UTC";
     try {
       timezone = await getUserTimezone();
     } catch (err) {
-      // Display a warning but proceed, defaulting to UTC
       scheduleList.innerHTML = `<p>⚠️ Schedule shown in UTC as timezone detection failed.<br><strong>Error:</strong> ${err.message}</p>`;
     }
     
     let xmlDoc;
     try {
-      // Fetch the XMLTV file
+      // 1. Fetch the XMLTV file
       const res = await fetch(xmltvUrl);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const xmlText = await res.text();
+      let xmlText = await res.text();
       
-      // Parse the XML string into a DOM object
+      // 2. Client-side sanitization as a fallback for XML entities
+      const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
+
+      // 3. Parse the XML string into a DOM object
       const parser = new DOMParser();
-      xmlDoc = parser.parseFromString(xmlText, "text/xml");
+      xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
       
-      // Check for parsing errors
+      // 4. Check for parsing errors
       const errorNode = xmlDoc.querySelector('parsererror');
       if (errorNode) throw new Error("XML Parsing Error");
       
@@ -389,30 +379,28 @@ script>
     }
     
     try {
-      // Find the channel element whose display-name matches the tvg-id (heuristic)
-      const channelElement = Array.from(xmlDoc.querySelectorAll('channel')).find(channel => {
-          return channel.querySelector('display-name')?.textContent.toLowerCase().includes(tvgId.replace('-', ' '));
-      });
+      // 1. Define the Channel ID to search for (based on your server's output).
+      const targetChannelId = tvgId; 
 
+      // 2. Find the Channel element using an ID selector (more robust than display-name heuristic)
+      const channelElement = xmlDoc.querySelector(`channel[id="${targetChannelId}"]`);
       if (!channelElement) {
-           scheduleList.innerHTML = `<p>Channel with ID '${tvgId}' not found in the XMLTV file. Make sure a channel with a matching name exists.</p>`;
+           scheduleList.innerHTML = `<p>Channel with ID '${targetChannelId}' not found in the XMLTV file.</p>`;
            return;
       }
-      
-      const channelId = channelElement.getAttribute('id');
 
-      // Filter the programs for the channel ID
-      const programElements = xmlDoc.querySelectorAll(`programme[channel="${channelId}"]`);
+      // 3. Filter the programs for the channel ID
+      const programElements = xmlDoc.querySelectorAll(`programme[channel="${targetChannelId}"]`);
       
       if (programElements.length === 0) {
-        scheduleList.innerHTML = `<p>No upcoming programs found for this channel in the EPG.<br><strong>Channel ID:</strong> ${channelId}</p>`;
+        scheduleList.innerHTML = `<p>No upcoming programs found for this channel in the EPG.<br><strong>Channel ID:</strong> ${targetChannelId}</p>`;
         return;
       }
 
       scheduleList.innerHTML = "";
       const groupedByDay = {};
       const now = new Date();
-      const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+      const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); 
       
       programElements.forEach(program => {
           const startStr = program.getAttribute('start'); // Format YYYYMMDDhhmmss +Z
@@ -427,11 +415,10 @@ script>
           const second = startStr.substring(12, 14);
           const tz = startStr.substring(15);
           
-          // Construct an ISO 8601 string for reliable Date parsing
           const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}${tz.substring(0, 3)}:${tz.substring(3)}`;
           const startUTC = new Date(isoString);
 
-          if (startUTC < now || startUTC > threeDaysAhead) return; // Filter time range
+          if (startUTC < now || startUTC > threeDaysAhead) return;
 
           const title = program.querySelector('title')?.textContent || "Untitled Program";
           const subtitle = program.querySelector('sub-title')?.textContent;
@@ -479,7 +466,7 @@ script>
 
     } catch (err) {
       console.error("❌ Failed to render schedule from XMLTV:", err);
-      scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_render_failed</p>`;
+      scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_processing_xml</p>`;
     }
   }
 
@@ -539,7 +526,7 @@ script>
       jwplayer_hls_provider.attach();
     });
 
-    // Call the new XMLTV schedule function instead of the old one
+    // Call the new XMLTV schedule function
     loadXMLTVSchedule(tvgId);
   });
   </script> 
