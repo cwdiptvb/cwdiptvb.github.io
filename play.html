@@ -102,7 +102,7 @@
       background-color: #000;
       color: #f2f2f2;
       display: none;
-      flex-direction: column; /* Use flex to center content vertically */
+      flex-direction: column; 
       justify-content: center;
       align-items: center;
       text-align: center;
@@ -116,7 +116,7 @@
     }
     #invalid-channel-name {
         font-weight: bold;
-        color: #ff3333; /* Slightly more vibrant red */
+        color: #ff3333; 
         display: none;
         word-break: break-all;
     }
@@ -314,8 +314,11 @@
   </footer>
 
   <script>
+    const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
     // Global map to store tvg-id -> channel name and URL
     let CHANNEL_NAME_MAP = {};
+    // Global variable to store the EPG URL found in the M3U header
+    let XMLTV_URL = null; 
 
     function copyPlaylistURL() {
       const url = "https://cwdiptvb.github.io/tv_channels.m3u";
@@ -326,31 +329,29 @@
       });
     }
 
-    // UPDATED: Function to handle errors and potentially display the invalid ID
     function showError(errorCode, invalidId = null) {
       $("#loading-container").remove();
       $("#my-video").hide();
-      $("#schedule-section").hide(); // Hide the schedule section on critical error
+      $("#schedule-section").hide(); 
       
-      // Customize message for invalid ID error
       if (errorCode === "invalid_id" && invalidId) {
           $("#invalid-channel-name").text(invalidId);
           $("#invalid-channel-name").show();
           $("#error-code-text").text(`Error Code: err_invalid_tvg_id`);
-          $(".error-actions").show(); // Show navigation buttons
+          $(".error-actions").show(); 
       } else {
           $("#invalid-channel-name").hide();
           $("#error-code-text").text("Error Code: err_code_" + errorCode);
-          $(".error-actions").hide(); // Hide navigation buttons for standard player errors
+          $(".error-actions").hide(); 
       }
       
       $("#error-message").show();
     }
 
-    // NEW FUNCTION: Fetches the M3U and builds a map of tvg-id to Channel Name and Stream URL
+    // UPDATED: Function now also parses the M3U header for x-tvg-url
     async function buildChannelMap() {
         try {
-            const response = await fetch("https://cwdiptvb.github.io/tv_channels.m3u");
+            const response = await fetch(M3U_URL);
             if (!response.ok) throw new Error("Failed to fetch M3U file");
             const data = await response.text();
             const lines = data.split(/\r?\n/);
@@ -359,6 +360,16 @@
             let currentName = null;
 
             for (let i = 0; i < lines.length; i++) {
+                // 1. Check for EPG URL in the header
+                if (i === 0 && lines[i].startsWith("#EXTM3U")) {
+                    const epgUrlMatch = lines[i].match(/x-tvg-url="([^"]+)"/i);
+                    if (epgUrlMatch && epgUrlMatch[1]) {
+                        XMLTV_URL = epgUrlMatch[1];
+                        console.log(`✅ Dynamically loaded XMLTV URL: ${XMLTV_URL}`);
+                    }
+                }
+
+                // 2. Build Channel Map
                 if (lines[i].startsWith("#EXTINF")) {
                     const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
                     currentTvgId = idMatch ? idMatch[1] : null;
@@ -375,23 +386,26 @@
                     currentName = null;
                 }
             }
+            if (!XMLTV_URL) {
+                console.warn("⚠️ Could not find x-tvg-url in M3U header. Schedule may not load.");
+            }
             console.log("✅ Channel Map built successfully.");
         } catch (error) {
             console.error("❌ Error building channel map:", error);
         }
     }
 
-    // UPDATED: Uses the global map to get the stream URL
+    // Function to get the stream URL (remains a helper wrapper)
     function getStreamURL(tvgId, callback) {
         const channelInfo = CHANNEL_NAME_MAP[tvgId];
         if (channelInfo && channelInfo.url) {
             callback(channelInfo.url);
         } else {
-            // This path should not be hit if we check for channelInfo before calling
             showError("not_found");
         }
     }
 
+    // --- EPG Utility Functions (Unchanged) ---
     async function getUserTimezone() {
       try {
         const res = await fetch("https://ipapi.co/timezone");
@@ -403,7 +417,6 @@
       }
     }
 
-    // Function to handle the *incorrectly formatted* XMLTV date string
     const parseXmlTvDateFix = (dateStr) => {
       const cleanDigits = dateStr.substring(0, 14);
 
@@ -420,12 +433,17 @@
       return new Date(isoString);
     };
 
-
+    // UPDATED: This function now uses the global XMLTV_URL
     async function loadXMLTVSchedule(tvgId) {
       const scheduleList = document.getElementById("schedule-list");
       scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
 
-      const xmltvUrl = "https://cwdiptvb-github-io.onrender.com/m3usch";
+      if (!XMLTV_URL) {
+          scheduleList.innerHTML = `<p>⚠️ Cannot load schedule. XMLTV URL not found in M3U header (x-tvg-url).</p>`;
+          return;
+      }
+      
+      const xmltvUrl = XMLTV_URL;
       
       let timezone = "UTC";
       try {
@@ -548,48 +566,37 @@
 
 
     $(document).ready(async function () {
-      // 1. Build the channel map
+      // 1. Build the channel map AND get the XMLTV URL from the M3U header
       await buildChannelMap();
       
-      // 2. Get tvg-id from the URL query parameter: ?id={channel-id}
       const urlParams = new URLSearchParams(window.location.search);
       const tvgId = urlParams.get('id');
       
-      // 3. Handle missing ID (default to Cartoon Network)
-      if (!tvgId) {
-          const defaultTvgId = "cartoon-network";
-          const defaultChannelInfo = CHANNEL_NAME_MAP[defaultTvgId];
-          
-          document.title = `Watch ${defaultChannelInfo.name} Free Online - Free Live TV`;
-          $('main h2').text(`Now Streaming: ${defaultChannelInfo.name}`);
-          
-          getStreamURL(defaultTvgId, function (streamURL) {
-            initializePlayer(streamURL);
-          });
-          loadXMLTVSchedule(defaultTvgId);
-          return;
-      }
-      
-      const channelInfo = CHANNEL_NAME_MAP[tvgId];
-      
-      // 4. Handle invalid ID (display custom error)
+      const defaultTvgId = "cartoon-network";
+
+      // 2. Determine the target ID
+      const targetTvgId = tvgId || defaultTvgId;
+      const channelInfo = CHANNEL_NAME_MAP[targetTvgId];
+
+      // 3. Handle invalid ID
       if (!channelInfo) {
-          showError("invalid_id", tvgId);
+          showError("invalid_id", targetTvgId);
           return; 
       }
       
-      // 5. Load valid channel
+      // 4. Load valid channel
       const channelName = channelInfo.name;
       document.title = `Watch ${channelName} Free Online - Free Live TV`;
       $('main h2').text(`Now Streaming: ${channelName}`);
 
-      getStreamURL(tvgId, function (streamURL) {
+      getStreamURL(targetTvgId, function (streamURL) {
         initializePlayer(streamURL);
       });
-      loadXMLTVSchedule(tvgId);
+      // 5. Load the schedule using the dynamically set XMLTV_URL
+      loadXMLTVSchedule(targetTvgId);
     });
 
-    // Function to handle the JWPlayer initialization logic
+    // Function to handle the JWPlayer initialization logic (Unchanged)
     function initializePlayer(streamURL) {
       const player = jwplayer("my-video");
 
