@@ -62,7 +62,7 @@
     }
     main {
       flex: 1;
-      padding: 2rem 10%;
+      padding: 2rem 10%; /* Desktop padding */
     }
     
     /* Search and Filter Styles */
@@ -92,7 +92,7 @@
       color: #f2f2f2;
       font-size: 1rem;
       cursor: pointer;
-      min-width: 150px;
+      min-width: 150px; 
     }
     
     /* Channel Grid Styles */
@@ -267,50 +267,58 @@
         }
 
         /* 2. Controls, Playlist, and Grid Alignment Fix */
+        /* CRUCIAL FIX: Re-apply consistent padding to MAIN element (1rem) */
         main {
-            padding: 1rem; /* Consistent padding on mobile (e.g., 1rem top/bottom/sides) */
+            padding: 1rem; 
         }
         
-        /* FIX: Reset margins and padding on inner containers, and explicitly set width to 100% 
-           to ensure they use the space available within the 'main' padding. */
+        /* Ensure all containers fill the padded space and reset margins/internal padding */
         #controls-container, .playlist-card, #channel-grid {
             max-width: 100%; 
             width: 100%; 
-            margin-left: 0; 
-            margin-right: 0;
-            padding-left: 0; 
-            padding-right: 0;
+            margin: 0 0 1.5rem 0; /* Reset margins and ensure spacing below */
+            padding: 0; /* Remove internal padding on containers */
             box-sizing: border-box;
         }
         
-        /* 3. Controls Layout on Mobile */
+        /* 3. Search and Filter Styles on Mobile */
         #controls-container {
-            flex-direction: column;
+            display: flex; 
+            flex-direction: column; 
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
+        
+        /* Ensure inputs/selects include padding/border in width calculation for 100% width */
         #search-input, #category-filter {
             width: 100%;
+            min-width: 0;
+            box-sizing: border-box; 
         }
-        
-        /* 4. Channel Grid Layout FIX */
+
+        /* 4. Channel Grid Layout FIXES */
         #channel-grid {
-            /* Revert to single-column grid for proper card width */
+            margin-top: 0;
+            margin-bottom: 0;
             display: grid; 
             grid-template-columns: 1fr; 
             gap: 1rem;
-            margin: 0; 
+            box-sizing: border-box; 
         }
         .channel-card {
-            width: 100%; /* Channel cards now fill the single grid column */
+            /* The card naturally fills the 1fr column width, which is already constrained by the main padding */
+            box-sizing: border-box; 
+            width: 100%; /* Explicitly set to ensure it fills the grid cell */
         }
         
-        /* 5. Playlist Card Layout on Mobile */
+        /* 5. Playlist Card Layout REVERTED/FIXED */
         .playlist-card {
+            display: flex; /* Revert to flex to control children */
             flex-direction: column;
             align-items: flex-start;
-            padding: 1rem;
+            padding: 0.75rem 1rem; /* Restore internal padding for content spacing */
             margin-bottom: 1.5rem;
+            width: 100%; /* Crucial to respect the main padding */
         }
         .playlist-card img {
             margin-right: 0;
