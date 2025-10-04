@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Live TV - Watch Free Online Channels</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Live TV</title>
   <link rel="icon" href="/fav/16.png" sizes="16x16">
   <link rel="icon" href="/fav/32.png" sizes="32x32">
   <link rel="icon" href="/fav/48.png" sizes="48x48">
@@ -12,8 +12,8 @@
   <link rel="apple-touch-icon" href="fav/180.png" sizes="/180x180">
   <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700&display=swap" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-  
   <style>
+    /* Global Styles */
     html, body {
       margin: 0;
       height: 100%;
@@ -25,12 +25,18 @@
     }
     header {
       background-color: #1a1a1a;
-      padding: 1rem 2rem;
+      padding: 1rem 10%; /* Matches main padding for consistency */
       border-bottom: 2px solid #333;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
+      flex-wrap: wrap; /* Allows wrapping on small screens */
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%; /* Important for mobile wrap */
     }
     header a {
       text-decoration: none;
@@ -57,77 +63,123 @@
     main {
       flex: 1;
       padding: 2rem 10%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      box-sizing: border-box;
     }
-    h2 {
-      font-size: 1.8rem;
-      color: #00ffff;
+    
+    /* Search and Filter Styles */
+    #controls-container {
+      display: flex;
+      gap: 1rem;
       margin-bottom: 2rem;
       width: 100%;
       max-width: 1200px;
-      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
     }
-    
-    /* FILTER AND PLAYLIST LAYOUT */
-    #top-content {
-      width: 100%;
-      max-width: 1200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    #filter-area {
-      display: grid;
-      grid-template-areas: 
-        "category search"
-        "playlist playlist";
-      grid-template-columns: 1fr 2fr;
-      gap: 1rem;
-      width: 100%;
-      margin-bottom: 1rem;
-    }
-    #category-filter, #search-input {
+    #search-input {
+      flex-grow: 1;
       padding: 0.75rem 1rem;
+      border: 2px solid #333;
       border-radius: 6px;
-      border: 1px solid #333;
       background-color: #1a1a1a;
       color: #f2f2f2;
       font-size: 1rem;
-      outline: none;
-      transition: border-color 0.3s;
-      height: 44px; 
-      box-sizing: border-box; 
     }
     #category-filter {
-      grid-area: category;
-      appearance: none;
-      /* Category Dropdown Arrow SVG */
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%2300ffff"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>');
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
-      background-size: 1.5em;
+      padding: 0.75rem 1rem;
+      border: 2px solid #333;
+      border-radius: 6px;
+      background-color: #1a1a1a;
+      color: #f2f2f2;
+      font-size: 1rem;
+      cursor: pointer;
+      min-width: 150px;
     }
-    #search-input {
-      grid-area: search;
-      /* Magnifying Glass SVG for Search Bar */
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%23f2f2f2"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.314l3.753 3.754a1 1 0 01-1.414 1.414l-3.754-3.753A7 7 0 012 9z" clip-rule="evenodd" /></svg>');
-      background-repeat: no-repeat;
-      background-position: left 0.75rem center;
-      background-size: 1.25em;
-      padding-left: 2.5rem; /* Space for the magnifying glass */
+    
+    /* Channel Grid Styles */
+    #channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 1200px; /* Aligns with controls-container */
+      margin: 0 auto;
     }
-    #category-filter:focus, #search-input:focus {
-        border-color: #00ffff;
+    .channel-card {
+      background-color: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 1rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-
-    /* Playlist Card Styling */
+    .channel-card:hover {
+      border-color: #00ffff;
+      box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+    }
+    .channel-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .channel-logo {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin-right: 1rem;
+      border-radius: 4px;
+      background-color: #000;
+      flex-shrink: 0;
+    }
+    .channel-info {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .channel-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #f2f2f2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .channel-program {
+      font-size: 0.95rem;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+    }
+    .channel-program strong {
+      color: #00ffff;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .program-time {
+      display: block;
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .channel-category-display {
+        font-size: 0.8rem;
+        color: #888;
+        padding-top: 0.5rem;
+        border-top: 1px solid #333;
+        align-self: flex-end;
+        width: 100%;
+        text-align: right;
+    }
+    .channel-card.hide-category .channel-category-display {
+        display: none;
+    }
+    
+    /* Playlist Card Styles */
     .playlist-card {
-      grid-area: playlist;
       display: flex;
       align-items: center;
       background-color: #1a1a1a;
@@ -138,128 +190,52 @@
       color: inherit;
       transition: border-color 0.3s;
       width: 100%;
+      max-width: 1200px; /* Match channel grid width */
+      margin: 0 auto 2rem auto;
       box-sizing: border-box;
     }
-    .playlist-card:hover { border-color: #00ffff; }
-    .playlist-card img { width: 48px; height: 48px; object-fit: contain; margin-right: 1rem; border-radius: 4px; background-color: #000; }
-    .playlist-label { font-size: 1.1rem; font-weight: 600; flex-grow: 1; }
-    .playlist-label small { display: block; color: #888; font-size: 0.85rem; margin-top: 0.25rem; }
-    .copy-btn { margin-left: auto; background-color: #00ffff; border: none; color: #000; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
-
-    /* Channel Grid and Card Styling */
-    #channel-grid {
-      display: grid;
-      grid-template-columns: 1fr; 
-      gap: 0.75rem; 
-      width: 100%;
-      max-width: 1200px;
-      padding-bottom: 2rem;
-    }
-    .channel-card {
-      background-color: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 1rem;
-      text-decoration: none;
-      color: inherit;
-      transition: border-color 0.3s, background-color 0.3s;
-      grid-template-columns: 1fr 3fr 2fr; 
-      align-items: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      display: grid; 
-    }
-    .channel-card:hover {
+    .playlist-card:hover {
       border-color: #00ffff;
-      background-color: #252525;
-      transform: none; 
     }
-    .channel-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0;
-      padding-right: 1rem;
-    }
-    .channel-logo {
-      width: 40px; 
-      height: 40px;
+    .playlist-card img {
+      width: 48px;
+      height: 48px;
       object-fit: contain;
       margin-right: 1rem;
       border-radius: 4px;
       background-color: #000;
-      border: 1px solid #444;
       flex-shrink: 0;
     }
-    .channel-info {
-        flex-grow: 1;
-        min-width: 0; 
-        text-align: left;
-    }
-    .channel-name {
-      font-size: 1.1rem; 
-      font-weight: 700;
-      color: #f2f2f2;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .channel-program {
-      padding: 0 1rem;
-      border-left: 1px solid #333;
-      border-right: 1px solid #333;
-      font-size: 1rem;
-      min-width: 0;
-      text-align: left;
-    }
-    .channel-program strong {
-      display: block;
-      color: #00ffff;
+    .playlist-label {
+      font-size: 1.1rem;
       font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex-grow: 1;
+      min-width: 0; /* Ensures content inside can shrink */
     }
-    .program-time {
+    .playlist-label small {
+      display: block; /* Forces URL onto new line */
+      color: #888;
       font-size: 0.85rem;
-      color: #aaa;
       margin-top: 0.25rem;
+      word-break: break-all; /* Prevents URL overflow */
     }
-    
-    /* Category Display Area (right side) */
-    .channel-category-display {
-        text-align: right;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #888;
-        padding-left: 1rem;
+    .copy-btn {
+      margin-left: auto;
+      background-color: #00ffff;
+      border: none;
+      color: #0d0d0d;
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.2s;
     }
-    
-    /* CLASS ADDED BY JS: Hides the category display element */
-    .hide-category .channel-category-display {
-        display: none;
-    }
-    /* Adjust card layout when category is hidden */
-    .hide-category.channel-card {
-        grid-template-columns: 1fr 5fr; 
-    }
-    .hide-category .channel-program {
-        border-right: none; 
+    .copy-btn:hover {
+        background-color: #00dddd;
     }
 
-
-    /* Loading and No Results */
-    #loading-message, #no-results {
-      text-align: center;
-      padding: 3rem;
-      font-size: 1.2rem;
-      color: #00ffff;
-      width: 100%;
-    }
-    #no-results {
-        display: none;
-        color: #ff3333;
-    }
-
+    /* Footer */
     footer {
       text-align: center;
       padding: 1rem;
@@ -269,117 +245,108 @@
       color: #888;
     }
 
-    /* MEDIA QUERIES */
-
-    /* Desktop/Tablet (>= 769px) - Search Bar beside Dropdown */
-    @media (min-width: 769px) {
-        #filter-area {
-            grid-template-areas: 
-                "category search"
-                "playlist playlist";
-            grid-template-columns: 1fr 2fr;
-        }
-    }
-
-    /* Smaller Screens (<= 768px) - Search Bar below Dropdown */
+    /* --- Mobile Responsiveness --- */
     @media (max-width: 768px) {
-        main {
-            padding: 1rem 5%;
+        /* 1. Header Changes */
+        header {
+            padding: 1rem; /* Adjust padding for smaller screens */
         }
-        #filter-area {
-            grid-template-areas: 
-                "category"
-                "search"
-                "playlist";
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
         }
-        #category-filter, #search-input {
+        header h1 {
+            margin-bottom: 0.5rem;
             width: 100%;
+        }
+        nav {
+            width: 100%;
+            justify-content: flex-start;
+            margin-top: 0.5rem;
+        }
+
+        /* 2. Controls and Channel Grid Width */
+        main {
+            padding: 1rem; /* Increase available space */
+        }
+        #controls-container, .playlist-card {
+            max-width: 100%; /* Take full width of main content area */
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        #channel-grid {
+            grid-template-columns: 1fr; /* Single column on small screens */
             max-width: 100%;
-            height: 44px;
-            padding: 0.75rem 1rem;
+            gap: 1rem;
         }
         
-        /* Adjust padding for search bar on mobile to accommodate icon */
-        #search-input {
-            padding-left: 2.5rem; 
+        /* 3. Controls Layout on Mobile */
+        #controls-container {
+            flex-direction: column;
         }
-
-        /* Adjust channel card layout for smaller screens */
-        .channel-card {
-            grid-template-columns: 1fr 2fr; 
+        #search-input, #category-filter {
+            width: 100%;
+            box-sizing: border-box; /* Include padding/border in width */
         }
-        .channel-category-display {
-            grid-column: 1 / -1; 
-            text-align: left;
-            padding-top: 0.5rem;
-            border-top: 1px solid #333;
-            margin-top: 0.5rem;
-            padding-left: 0;
+        
+        /* 4. Playlist Card Layout on Mobile (New Line System) */
+        .playlist-card {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem;
         }
-        .channel-program {
-            border-right: none;
+        .playlist-card img {
+            margin-right: 0;
+            margin-bottom: 0.5rem;
         }
-    }
-
-    /* Very Small Screens (<= 600px) - Full Stack */
-    @media (max-width: 600px) {
-        .channel-card {
-            grid-template-columns: 1fr; 
-            padding: 0.75rem;
-        }
-        .channel-header {
+        .playlist-label {
             margin-bottom: 0.75rem;
+            width: 100%;
+            word-break: break-all;
         }
-        .channel-program {
-            padding: 0;
-            border-left: none;
-            border-top: 1px solid #333;
-            padding-top: 0.75rem;
-        }
-        .channel-category-display {
-            display: none !important; 
-        }
-        .channel-card, .hide-category.channel-card {
-            grid-template-columns: 1fr; 
+        .copy-btn {
+            margin-left: 0;
+            align-self: stretch; /* Make copy button full width */
         }
     }
   </style>
 </head>
 <body>
   <header>
-    <a href="/"><h1>Free Live TV</h1></a>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/contact">Contact</a>
-      <a href="/about">About</a>
-    </nav>
+    <div class="header-content">
+      <a href="/"><h1>Free Live TV</h1></a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/contact">Contact</a>
+        <a href="/about">About</a>
+      </nav>
+    </div>
   </header>
   <main>
-    <h2>Live Channel Guide</h2>
+    <p id="loading-message">Loading channel list...</p>
     
-    <div id="top-content">
-        <div id="filter-area">
-            <select id="category-filter">
-                <option value="All">All Categories</option>
-            </select>
-            <input type="text" id="search-input" placeholder="Search channels..." />
-
-            <div class="playlist-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
-                <div class="playlist-label">
-                    Free M3U Playlist
-                    <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
-                </div>
-                <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
-            </div>
-        </div>
+    <div id="controls-container">
+      <input type="text" id="search-input" placeholder="Search channels by name or ID...">
+      <select id="category-filter">
+        <option value="All">All Categories</option>
+        </select>
+    </div>
+    
+    <div class="playlist-card">
+      <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
+      <div class="playlist-label">
+        Free M3U Playlist
+        <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
+      </div>
+      <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
     </div>
 
-    <div id="loading-message">Loading channel data and TV schedule...</div>
-    <div id="no-results" style="display: none;">No channels found matching your filters.</div>
-    
+    <div id="no-results" style="display: none; text-align: center; color: #888; margin-top: 3rem;">
+        No channels found matching your search criteria.
+    </div>
+
     <div id="channel-grid">
       </div>
   </main>
@@ -387,7 +354,7 @@
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 
-<script>
+  <script>
     const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
     // XMLTV_URL is initialized to null and set dynamically
     let XMLTV_URL = null; 
@@ -418,8 +385,7 @@
       return new Date(isoString);
     };
 
-    // --- Data Fetching Functions (MODIFIED) ---
-
+    // --- Data Fetching Functions (Unchanged) ---
     async function fetchM3UData() {
         try {
             const response = await fetch(M3U_URL);
@@ -430,7 +396,7 @@
             let currentChannel = {};
 
             for (let i = 0; i < lines.length; i++) {
-                // 1. DYNAMIC XMLTV URL PARSING: Check for both 'url-tvg' and 'x-tvg-url'
+                // 1. DYNAMIC XMLTV URL PARSING
                 if (i === 0 && lines[i].startsWith("#EXTM3U")) {
                     const epgUrlMatch = lines[i].match(/(?:url-tvg|x-tvg-url)="([^"]+)"/i);
                     if (epgUrlMatch && epgUrlMatch[1]) {
@@ -482,7 +448,7 @@
             const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
 
             const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
+            const xmlDoc = parser.parseFromString(safeXmlXmlText, "text/xml");
             
             const errorNode = xmlDoc.querySelector('parsererror');
             if (errorNode) throw new Error("XML Parsing Failed");
@@ -525,7 +491,6 @@
     }
 
     function getCurrentProgram(tvgId) {
-        // ... (Program logic remains the same) ...
         const programs = EPG_DATA[tvgId];
         const now = new Date();
         if (!programs || programs.length === 0) {
@@ -625,8 +590,7 @@
         $("#search-input").on('keyup', renderChannels);
     }
 
-    // --- Initialization (MODIFIED) ---
-
+    // --- Initialization (Unchanged) ---
     $(document).ready(async function () {
         // 1. Fetch M3U data first to get the EPG URL and channel list
         await fetchM3UData();
@@ -650,6 +614,6 @@
         // 6. Re-render every minute to update the "Now Playing" status
         setInterval(renderChannels, 60000); 
     });
-      </script>
+  </script>
 </body>
 </html>
