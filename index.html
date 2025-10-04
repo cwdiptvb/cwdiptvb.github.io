@@ -25,18 +25,18 @@
     }
     header {
       background-color: #1a1a1a;
-      padding: 1rem 10%; /* Matches main padding for consistency */
+      padding: 1rem 10%;
       border-bottom: 2px solid #333;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap; /* Allows wrapping on small screens */
+      flex-wrap: wrap;
     }
     .header-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 100%; /* Important for mobile wrap */
+      width: 100%;
     }
     header a {
       text-decoration: none;
@@ -101,7 +101,7 @@
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.5rem;
       width: 100%;
-      max-width: 1200px; /* Aligns with controls-container */
+      max-width: 1200px;
       margin: 0 auto;
     }
     .channel-card {
@@ -190,7 +190,7 @@
       color: inherit;
       transition: border-color 0.3s;
       width: 100%;
-      max-width: 1200px; /* Match channel grid width */
+      max-width: 1200px;
       margin: 0 auto 2rem auto;
       box-sizing: border-box;
     }
@@ -210,14 +210,14 @@
       font-size: 1.1rem;
       font-weight: 600;
       flex-grow: 1;
-      min-width: 0; /* Ensures content inside can shrink */
+      min-width: 0;
     }
     .playlist-label small {
-      display: block; /* Forces URL onto new line */
+      display: block;
       color: #888;
       font-size: 0.85rem;
       margin-top: 0.25rem;
-      word-break: break-all; /* Prevents URL overflow */
+      word-break: break-all;
     }
     .copy-btn {
       margin-left: auto;
@@ -247,55 +247,70 @@
 
     /* --- Mobile Responsiveness --- */
     @media (max-width: 768px) {
-        /* 1. Header Changes */
+        /* 1. Header Changes: Centering Logo and Nav */
         header {
-            padding: 1rem; /* Adjust padding for smaller screens */
+            padding: 1rem;
         }
         .header-content {
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
         }
         header h1 {
             margin-bottom: 0.5rem;
             width: 100%;
+            text-align: center;
         }
         nav {
             width: 100%;
-            justify-content: flex-start;
+            justify-content: center;
             margin-top: 0.5rem;
         }
 
-        /* 2. Controls and Channel Grid Width */
+        /* 2. Controls, Playlist, and Grid Alignment Fix */
         main {
-            padding: 1rem; /* Increase available space */
+            padding: 1rem; /* Consistent padding on mobile (e.g., 1rem top/bottom/sides) */
         }
-        #controls-container, .playlist-card {
-            max-width: 100%; /* Take full width of main content area */
-            margin-left: 0;
+        
+        /* FIX: Reset margins and padding on inner containers, and explicitly set width to 100% 
+           to ensure they use the space available within the 'main' padding. */
+        #controls-container, .playlist-card, #channel-grid {
+            max-width: 100%; 
+            width: 100%; 
+            margin-left: 0; 
             margin-right: 0;
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-        }
-        #channel-grid {
-            grid-template-columns: 1fr; /* Single column on small screens */
-            max-width: 100%;
-            gap: 1rem;
+            padding-left: 0; 
+            padding-right: 0;
+            box-sizing: border-box;
         }
         
         /* 3. Controls Layout on Mobile */
         #controls-container {
             flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
         #search-input, #category-filter {
             width: 100%;
-            box-sizing: border-box; /* Include padding/border in width */
         }
         
-        /* 4. Playlist Card Layout on Mobile (New Line System) */
+        /* 4. Channel Grid Layout FIX */
+        #channel-grid {
+            /* Revert to single-column grid for proper card width */
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 1rem;
+            margin: 0; 
+        }
+        .channel-card {
+            width: 100%; /* Channel cards now fill the single grid column */
+        }
+        
+        /* 5. Playlist Card Layout on Mobile */
         .playlist-card {
             flex-direction: column;
             align-items: flex-start;
             padding: 1rem;
+            margin-bottom: 1.5rem;
         }
         .playlist-card img {
             margin-right: 0;
@@ -308,7 +323,7 @@
         }
         .copy-btn {
             margin-left: 0;
-            align-self: stretch; /* Make copy button full width */
+            align-self: stretch;
         }
     }
   </style>
@@ -356,7 +371,6 @@
 
   <script>
     const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
-    // XMLTV_URL is initialized to null and set dynamically
     let XMLTV_URL = null; 
     
     let CHANNEL_DATA = [];
@@ -371,7 +385,6 @@
       });
     }
 
-    // --- EPG Utility Functions (Unchanged) ---
     const parseXmlTvDateFix = (dateStr) => {
       const cleanDigits = dateStr.substring(0, 14);
       if (cleanDigits.length !== 14) return new Date(NaN);
@@ -385,7 +398,6 @@
       return new Date(isoString);
     };
 
-    // --- Data Fetching Functions (Unchanged) ---
     async function fetchM3UData() {
         try {
             const response = await fetch(M3U_URL);
@@ -396,7 +408,6 @@
             let currentChannel = {};
 
             for (let i = 0; i < lines.length; i++) {
-                // 1. DYNAMIC XMLTV URL PARSING
                 if (i === 0 && lines[i].startsWith("#EXTM3U")) {
                     const epgUrlMatch = lines[i].match(/(?:url-tvg|x-tvg-url)="([^"]+)"/i);
                     if (epgUrlMatch && epgUrlMatch[1]) {
@@ -405,7 +416,6 @@
                     }
                 }
                 
-                // 2. CHANNEL DATA PARSING 
                 if (lines[i].startsWith("#EXTINF")) {
                     const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
                     const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/i);
@@ -448,7 +458,7 @@
             const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
 
             const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(safeXmlXmlText, "text/xml");
+            const xmlDoc = parser.parseFromString(safeXmlText, "text/xml"); 
             
             const errorNode = xmlDoc.querySelector('parsererror');
             if (errorNode) throw new Error("XML Parsing Failed");
@@ -521,7 +531,6 @@
         return { title: 'Schedule TBD.', time: '' };
     }
 
-    // --- Rendering and Filtering (Unchanged) ---
     function renderChannels() {
         const grid = $("#channel-grid");
         const selectedCategory = $("#category-filter").val();
@@ -590,28 +599,20 @@
         $("#search-input").on('keyup', renderChannels);
     }
 
-    // --- Initialization (Unchanged) ---
     $(document).ready(async function () {
-        // 1. Fetch M3U data first to get the EPG URL and channel list
         await fetchM3UData();
-        
-        // 2. Now fetch EPG data using the dynamically determined URL
         await fetchXMLTVData();
 
-        // 3. Handle errors/empty list
         if (CHANNEL_DATA.length === 0) {
              $("#loading-message").text("Fatal Error: Could not load any channel data.");
              return;
         }
 
-        // 4. Populate filter and render initial grid
         populateCategoryFilter();
         renderChannels();
 
-        // 5. Remove loading message
         $("#loading-message").remove();
         
-        // 6. Re-render every minute to update the "Now Playing" status
         setInterval(renderChannels, 60000); 
     });
   </script>
