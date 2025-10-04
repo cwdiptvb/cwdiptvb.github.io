@@ -623,7 +623,7 @@ https://fl51.moveonjoy.com/TBS/index.m3u8
 #EXTINF:-1 group-title="Movies" tvg-id="Turner.Classic.Movies.USA.us" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s12852_dark_360w_270h.png" tvg-name="TCM",TCM
 https://fl51.moveonjoy.com/TCM/index.m3u8
 
-#EXTINF:-1 group-title="Kids" tvg-id="teennick" tvg-logo="https://static.wikia.nocookie.net/nickelodeon/images/d/da/TeenNick_Splat_2023.svg/revision/latest/scale-to-width-down/1200?cb=20240904132305" tvg-name="",TeenNick
+#EXTINF:-1 group-title="Kids" tvg-id="teennick" tvg-logo="http://static.wikia.nocookie.net/nickelodeon/images/d/da/TeenNick_Splat_2023.svg/revision/latest/scale-to-width-down/1200?cb=20240904132305" tvg-name="",TeenNick
 https://fl51.moveonjoy.com/Teen_Nick/index.m3u8
 
 #EXTINF:-1 group-title="Sports" tvg-id="The.Tennis.Channel.us" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s33395_dark_360w_270h.png" tvg-name="Tennis Channel",Tennis Channel
