@@ -446,151 +446,263 @@
     &copy; 2025 Free Live TV. All rights reserved.
   </footer>
 <script>
-  const m3uUrl = 'playlist.m3u';   // your playlist file
-  const epgUrl = 'guide.xml';      // your EPG file (XMLTV format)
-  let channels = [];
-  let epgData = null;
+  const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
+  let XMLTV_URL = null; 
 
-  // --- Stage 1: Load the channel list first ---
-  async function loadM3U() {
-    const loadingMsg = document.getElementById('loading-message');
-    try {
-      loadingMsg.textContent = 'Loading channel list...';
-      const res = await fetch(m3uUrl);
-      const text = await res.text();
-      channels = parseM3U(text);
-      displayChannels(channels);
-      loadingMsg.textContent = 'Loading EPG data...';
-      // After showing channels, load EPG in the background
-      loadEPG();
-    } catch (err) {
-      console.error('Failed to load M3U:', err);
-      loadingMsg.textContent = 'Failed to load channel list.';
-    }
+  let CHANNEL_DATA = [];
+  let EPG_DATA = {}; 
+  let AVAILABLE_CATEGORIES = new Set();
+  let EPG_LOADED = false;
+
+  function copyPlaylistURL() {
+    navigator.clipboard.writeText(M3U_URL).then(() => {
+      alert("Playlist URL copied to clipboard!");
+    }).catch(err => {
+      alert("Failed to copy URL.");
+    });
   }
 
-  // --- Parse M3U format ---
-  function parseM3U(text) {
-    const lines = text.split('\n');
-    const chs = [];
-    let current = {};
-    for (const line of lines) {
-      if (line.startsWith('#EXTINF:')) {
-        const nameMatch = line.match(/,(.*)$/);
-        const logoMatch = line.match(/tvg-logo="(.*?)"/);
-        const groupMatch = line.match(/group-title="(.*?)"/);
-        const idMatch = line.match(/tvg-id="(.*?)"/);
-        current = {
-          name: nameMatch ? nameMatch[1].trim() : 'Unknown Channel',
-          logo: logoMatch ? logoMatch[1] : '',
-          group: groupMatch ? groupMatch[1] : 'Uncategorized',
-          tvgId: idMatch ? idMatch[1] : '',
-        };
-      } else if (line && !line.startsWith('#')) {
-        current.url = line.trim();
-        chs.push(current);
+  const parseXmlTvDateFix = (dateStr) => {
+    const cleanDigits = dateStr.substring(0, 14);
+    if (cleanDigits.length !== 14) return new Date(NaN);
+    const year = cleanDigits.substring(0, 4);
+    const month = cleanDigits.substring(4, 6);
+    const day = cleanDigits.substring(6, 8);
+    const hour = cleanDigits.substring(8, 10);
+    const minute = cleanDigits.substring(10, 12);
+    const second = cleanDigits.substring(12, 14);
+    const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}.000Z`;
+    return new Date(isoString);
+  };
+
+  async function fetchM3UData() {
+    try {
+      const response = await fetch(M3U_URL);
+      if (!response.ok) throw new Error("Failed to fetch M3U file");
+      const data = await response.text();
+      const lines = data.split(/\r?\n/);
+
+      let currentChannel = {};
+
+      for (let i = 0; i < lines.length; i++) {
+        if (i === 0 && lines[i].startsWith("#EXTM3U")) {
+          const epgUrlMatch = lines[i].match(/(?:url-tvg|x-tvg-url)="([^"]+)"/i);
+          if (epgUrlMatch && epgUrlMatch[1]) {
+            XMLTV_URL = epgUrlMatch[1];
+            console.log(`✅ Dynamically loaded XMLTV URL: ${XMLTV_URL}`);
+          }
+        }
+
+        if (lines[i].startsWith("#EXTINF")) {
+          const idMatch = lines[i].match(/tvg-id="([^"]+)"/i);
+          const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/i);
+          const categoryMatch = lines[i].match(/group-title="([^"]+)"/i);
+
+          currentChannel.id = idMatch ? idMatch[1] : null;
+          currentChannel.logo = logoMatch ? logoMatch[1] : '';
+          currentChannel.category = categoryMatch ? categoryMatch[1].trim() : 'Uncategorized';
+
+          const nameMatch = lines[i].match(/,([^,]+)$/);
+          currentChannel.name = nameMatch ? nameMatch[1].trim() : 'Unknown Channel';
+
+        } else if (lines[i].startsWith("http") && currentChannel.id) {
+          currentChannel.url = lines[i].trim();
+          CHANNEL_DATA.push(currentChannel);
+          AVAILABLE_CATEGORIES.add(currentChannel.category);
+          currentChannel = {};
+        }
       }
+      if (!XMLTV_URL) {
+        console.warn("⚠️ Could not find url-tvg or x-tvg-url in M3U header. EPG will not load.");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching M3U data:", error);
+      $("#loading-message").text("Error: Failed to load channel list.");
     }
-    return chs;
   }
 
-  // --- Stage 2: Load EPG data in the background ---
-  async function loadEPG() {
+  async function fetchXMLTVData() {
+    if (!XMLTV_URL) {
+      console.log("Skipping XMLTV fetch: URL not available.");
+      return;
+    }
+
     try {
-      const res = await fetch(epgUrl);
-      const text = await res.text();
-      epgData = parseEPG(text);
-      updateEPGOnCards();
-      document.getElementById('loading-message').textContent = '';
-    } catch (err) {
-      console.error('Failed to load EPG:', err);
-      document.getElementById('loading-message').textContent = 'EPG data unavailable.';
+      const res = await fetch(XMLTV_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      let xmlText = await res.text();
+
+      const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(safeXmlText, "text/xml");
+
+      const errorNode = xmlDoc.querySelector('parsererror');
+      if (errorNode) throw new Error("XML Parsing Failed");
+
+      const programElements = xmlDoc.querySelectorAll('programme');
+      programElements.forEach(program => {
+        const channelId = program.getAttribute('channel');
+        if (!channelId) return;
+
+        const startStr = program.getAttribute('start');
+        const stopStr = program.getAttribute('stop');
+
+        const startUTC = parseXmlTvDateFix(startStr);
+        const stopUTC = parseXmlTvDateFix(stopStr);
+
+        if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
+
+        const title = program.querySelector('title')?.textContent || "Untitled Program";
+        const subtitle = program.querySelector('sub-title')?.textContent;
+
+        if (!EPG_DATA[channelId]) {
+          EPG_DATA[channelId] = [];
+        }
+
+        EPG_DATA[channelId].push({
+          start: startUTC,
+          stop: stopUTC,
+          title: title,
+          subtitle: subtitle
+        });
+      });
+
+      Object.values(EPG_DATA).forEach(programs => {
+        programs.sort((a, b) => a.start - b.start);
+      });
+
+      EPG_LOADED = true;
+      console.log("✅ EPG data loaded successfully.");
+      renderChannels();
+
+    } catch (error) {
+      console.error("❌ Error fetching XMLTV data:", error);
+      EPG_DATA.error = true;
     }
   }
 
-  // --- Parse EPG XMLTV ---
-  function parseEPG(xmlString) {
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(xmlString, 'application/xml');
-    const programs = {};
+  function getCurrentProgram(tvgId) {
+    if (!EPG_LOADED) {
+      return { title: "Loading EPG…", time: "" };
+    }
 
-    xml.querySelectorAll('programme').forEach(p => {
-      const channelId = p.getAttribute('channel');
-      const title = p.querySelector('title')?.textContent || '';
-      const start = p.getAttribute('start');
-      const stop = p.getAttribute('stop');
+    const programs = EPG_DATA[tvgId];
+    const now = new Date();
+    if (!programs || programs.length === 0) {
+      return { title: 'No EPG data available.', time: '' };
+    }
+    const currentProgram = programs.find(p => p.start <= now && p.stop > now);
+    if (currentProgram) {
+      const localStartTime = currentProgram.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const localStopTime = currentProgram.stop.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      let fullTitle = currentProgram.title;
+      if (currentProgram.subtitle) {
+        fullTitle += `: ${currentProgram.subtitle}`;
+      }
+      return {
+        title: fullTitle,
+        time: `${localStartTime} - ${localStopTime} (Now)`
+      };
+    }
+    const nextPrograms = programs.filter(p => p.start > now);
+    if (nextPrograms.length > 0) {
+      const nextProgram = nextPrograms[0];
+      const localStartTime = nextProgram.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return {
+        title: nextProgram.title,
+        time: `Next at ${localStartTime}`
+      };
+    }
+    return { title: 'Schedule TBD.', time: '' };
+  }
 
-      if (!programs[channelId]) programs[channelId] = [];
-      programs[channelId].push({ title, start, stop });
+  function renderChannels() {
+    const grid = $("#channel-grid");
+    const selectedCategory = $("#category-filter").val();
+    const searchTerm = $("#search-input").val().toLowerCase();
+
+    const hideCategoryColumn = selectedCategory !== 'All';
+
+    if (hideCategoryColumn) {
+      grid.addClass('hide-category');
+    } else {
+      grid.removeClass('hide-category');
+    }
+
+    grid.empty();
+
+    let filteredChannels = CHANNEL_DATA.filter(channel => {
+      const matchesCategory = selectedCategory === 'All' || channel.category === selectedCategory;
+      const matchesSearch = channel.name.toLowerCase().includes(searchTerm) ||
+                            channel.id.toLowerCase().includes(searchTerm);
+      return matchesCategory && matchesSearch;
     });
 
-    return programs;
-  }
+    filteredChannels.sort((a, b) => a.name.localeCompare(b.name));
 
-  // --- Display the initial channel cards ---
-  function displayChannels(channels) {
-    const grid = document.getElementById('channel-grid');
-    grid.innerHTML = ''; // clear old cards
+    if (filteredChannels.length === 0) {
+      $("#no-results").show();
+      return;
+    } else {
+      $("#no-results").hide();
+    }
 
-    channels.forEach(ch => {
-      const card = document.createElement('div');
-      card.className = 'channel-card';
+    filteredChannels.forEach(channel => {
+      const program = getCurrentProgram(channel.id);
+      const linkUrl = `/play?id=${channel.id}`; 
 
-      card.innerHTML = `
-        <div class="channel-header">
-          <img src="${ch.logo}" alt="${ch.name}" class="channel-logo">
-          <div class="channel-info">
-            <div class="channel-name">${ch.name}</div>
-            <div class="channel-program"><strong>Loading EPG…</strong></div>
-            <div class="program-time"></div>
+      const cardHtml = `
+        <a href="${linkUrl}" class="channel-card" data-tvg-id="${channel.id}" data-category="${channel.category}">
+          <div class="channel-header">
+            <img src="${channel.logo}" alt="${channel.name} Logo" class="channel-logo" onerror="this.onerror=null;this.src='/placeholder.png';">
+            <div class="channel-info">
+              <div class="channel-name">${channel.name}</div>
+            </div>
           </div>
-        </div>
-        <div class="channel-category-display">${ch.group}</div>
+          <div class="channel-program">
+            <strong>${program.title}</strong>
+            <span class="program-time">${program.time}</span>
+          </div>
+          <div class="channel-category-display">
+            ${channel.category}
+          </div>
+        </a>
       `;
-
-      grid.appendChild(card);
+      grid.append(cardHtml);
     });
   }
 
-  // --- Once EPG loads, update each card ---
-  function updateEPGOnCards() {
-    if (!epgData) return;
-    const cards = document.querySelectorAll('.channel-card');
+  function populateCategoryFilter() {
+    const filter = $("#category-filter");
+    const sortedCategories = Array.from(AVAILABLE_CATEGORIES).sort();
 
-    channels.forEach((ch, i) => {
-      const card = cards[i];
-      const programs =
-        epgData[ch.tvgId] ||
-        epgData[ch.name] ||
-        [];
-
-      if (programs.length > 0) {
-        const now = programs[0];
-        card.querySelector('.channel-program').innerHTML =
-          `<strong>${now.title}</strong>`;
-        card.querySelector('.program-time').textContent =
-          `${formatEPGTime(now.start)} - ${formatEPGTime(now.stop)}`;
-      } else {
-        card.querySelector('.channel-program').innerHTML =
-          `<strong>No EPG data</strong>`;
-        card.querySelector('.program-time').textContent = '';
-      }
+    sortedCategories.forEach(category => {
+      filter.append(`<option value="${category}">${category}</option>`);
     });
+
+    filter.on('change', renderChannels);
+    $("#search-input").on('keyup', renderChannels);
   }
 
-  // --- Helper: Format XMLTV time (YYYYMMDDHHMMSS ±0000) ---
-  function formatEPGTime(timeStr) {
-    if (!timeStr) return '';
-    const year = timeStr.slice(0, 4);
-    const month = timeStr.slice(4, 6);
-    const day = timeStr.slice(6, 8);
-    const hour = timeStr.slice(8, 10);
-    const min = timeStr.slice(10, 12);
-    return `${month}/${day} ${hour}:${min}`;
-  }
+  $(document).ready(async function () {
+    $("#loading-message").text("Loading channel list...");
+    await fetchM3UData();
 
-  // --- Start app ---
-  loadM3U();
+    if (CHANNEL_DATA.length === 0) {
+      $("#loading-message").text("Fatal Error: Could not load any channel data.");
+      return;
+    }
+
+    populateCategoryFilter();
+    renderChannels();
+    $("#loading-message").text("Loading EPG data...");
+
+    await fetchXMLTVData();
+
+    $("#loading-message").remove();
+
+    setInterval(renderChannels, 60000);
+  });
 </script>
 </body>
 </html>
