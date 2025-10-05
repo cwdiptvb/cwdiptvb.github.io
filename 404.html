@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found | Free Live TV</title>
+  <link rel="icon" href="/fav/32.png">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: 'Lato', 'Segoe UI', sans-serif;
+      background-color: #0d0d0d;
+      color: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #1a1a1a;
+      padding: 1rem 10%;
+      border-bottom: 2px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    header a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #00ffff;
+      font-weight: 700;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    nav a {
+      color: #f2f2f2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    nav a:hover {
+      color: #00ffff;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h2 {
+      font-size: 3rem;
+      color: #00ffff;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #ccc;
+      max-width: 500px;
+      margin-bottom: 2rem;
+    }
+
+    a.home-btn {
+      background-color: #00ffff;
+      color: #0d0d0d;
+      padding: 0.75rem 1.5rem;
+      font-weight: 700;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+
+    a.home-btn:hover {
+      background-color: #00dddd;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border-top: 2px solid #333;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    /* --- Mobile Fix --- */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem;
+      }
+
+      .header-content {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      header h1 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.75rem;
+      }
+
+      nav {
+        justify-content: center;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      h2 {
+        font-size: 2.2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/"><h1>Free Live TV</h1></a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/contact">Contact</a>
+        <a href="/about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h2>404</h2>
+    <p>Oops! The page you're looking for doesn’t exist or may have been moved.</p>
+    <a class="home-btn" href="/">Go Back Home</a>
+  </main>
+
+  <footer>
+    &copy; 2025 Free Live TV. All rights reserved.
+  </footer>
+</body>
+</html>
