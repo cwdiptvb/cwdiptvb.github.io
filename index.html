@@ -624,12 +624,6 @@
 
     const hideCategoryColumn = selectedCategory !== 'All';
 
-    if (hideCategoryColumn) {
-      grid.addClass('hide-category');
-    } else {
-      grid.removeClass('hide-category');
-    }
-
     grid.empty();
 
     let filteredChannels = CHANNEL_DATA.filter(channel => {
