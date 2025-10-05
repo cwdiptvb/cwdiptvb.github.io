@@ -681,6 +681,22 @@
       filter.append(`<option value="${category}">${category}</option>`);
     });
 
+    // Check for category parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    
+    if (categoryParam) {
+      // Check if the category exists in our available categories
+      if (AVAILABLE_CATEGORIES.has(categoryParam)) {
+        filter.val(categoryParam);
+      } else {
+        // Invalid category - remove the parameter from URL
+        urlParams.delete('category');
+        const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+
     filter.on('change', renderChannels);
     $("#search-input").on('keyup', renderChannels);
   }
