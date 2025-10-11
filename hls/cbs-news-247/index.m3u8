@@ -1,0 +1,17 @@
+#EXTM3U
+#EXT-X-VERSION:3
+
+#EXT-X-STREAM-INF:BANDWIDTH=3000000,RESOLUTION=auto
+https://dai.google.com/linear/hls/event/Sid4xiTQTkCT1SLu6rjUSQ/master.m3u8?CMCD=ot%3Dm%2Csf%3Dh%2Csid%3D%22276761fd-5b0f-4783-b53b-01ef19644a3f%22%2Csu
+
+#EXT-X-STREAM-INF:BANDWIDTH=2488996,RESOLUTION=1280x720
+https://dai.google.com/linear/hls/pa/event/Sid4xiTQTkCT1SLu6rjUSQ/stream/69ffae58-e4a7-4a35-b2b9-d2f8dc8e67e8:CBF2/variant/6a59ccda82b3abca12e290e7ab99c8d7/bandwidth/2488996.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=1696996,RESOLUTION=960x540
+https://dai.google.com/linear/hls/pa/event/Sid4xiTQTkCT1SLu6rjUSQ/stream/69ffae58-e4a7-4a35-b2b9-d2f8dc8e67e8:CBF2/variant/c5978f1497cc006085b1a374230e90d9/bandwidth/1696996.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=1036970,RESOLUTION=640x360
+https://dai.google.com/linear/hls/pa/event/Sid4xiTQTkCT1SLu6rjUSQ/stream/69ffae58-e4a7-4a35-b2b9-d2f8dc8e67e8:CBF2/variant/5f1231dfb94f19add3308a6eecf4a5ec/bandwidth/1036970.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=273249,RESOLUTION=320x180
+https://dai.google.com/linear/hls/pa/event/Sid4xiTQTkCT1SLu6rjUSQ/stream/69ffae58-e4a7-4a35-b2b9-d2f8dc8e67e8:CBF2/variant/cdd90446ee9f709158c636691ce72a2c/bandwidth/273249.m3u8
