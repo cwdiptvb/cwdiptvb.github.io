@@ -148,7 +148,7 @@ https://fl51.moveonjoy.com/DISCOVERY_LIFE/index.m3u8
 https://fl51.moveonjoy.com/Discovery_Science/index.m3u8
 
 #EXTINF:-1 group-title="Kids" tvg-id="disney-channel" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10171_dark_360w_270h.png" tvg-name="Disney Channel",Disney Channel
-https://cdndd.site/?url=https%3A//zekonew.newkso.ru/zeko/premium312/mono.m3u8&data=UmVmZXJlcj1odHRwczovL2p4b3BsYXkueHl6L3xPcmlnaW49aHR0cHM6Ly9qeG9wbGF5Lnh5eg==
+https://fl51.moveonjoy.com/DISNEY/index.m3u8
 
 #EXTINF:-1 group-title="Kids" tvg-id="disney-jr" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s74796_dark_360w_270h.png" tvg-name="Disney Jr.",Disney Jr.
 https://fl51.moveonjoy.com/DISNEY_JR/index.m3u8
