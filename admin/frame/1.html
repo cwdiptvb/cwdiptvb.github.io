@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Checker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.20.3/video-js.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            margin-right: 10px;
+        }
+        button:hover:not(:disabled) {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .load-btn {
+            background: #28a745;
+        }
+        .load-btn:hover:not(:disabled) {
+            background: #218838;
+        }
+        .select-all-btn {
+            background: #6c757d;
+        }
+        .select-all-btn:hover {
+            background: #5a6268;
+        }
+        .dropdown-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .dropdown-header h3 {
+            margin: 0;
+            color: #495057;
+        }
+        .checkbox-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            background: white;
+        }
+        .checkbox-item {
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item:hover {
+            background: #f8f9fa;
+        }
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .checkbox-item label {
+            cursor: pointer;
+            flex-grow: 1;
+            font-size: 14px;
+        }
+        .queue-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .queue-container h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .queue-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .queue-item.testing {
+            background: #fff3cd;
+            border-color: #ffc107;
+            font-weight: bold;
+        }
+        .queue-item.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .queue-item.failed {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .queue-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+        .queue-status.pending {
+            background: #e9ecef;
+            color: #495057;
+        }
+        .queue-status.testing {
+            background: #ffc107;
+            color: #000;
+        }
+        .queue-status.success {
+            background: #28a745;
+            color: white;
+        }
+        .queue-status.failed {
+            background: #dc3545;
+            color: white;
+        }
+        .video-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .video-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        .video-js {
+            width: 100%;
+            height: 360px;
+        }
+        .results {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+        .results-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #28a745;
+        }
+        .stream-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stream-item a {
+            color: #155724;
+            text-decoration: none;
+            word-break: break-all;
+            flex-grow: 1;
+        }
+        .stream-item a:hover {
+            text-decoration: underline;
+        }
+        .stream-name {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 120px;
+        }
+        .testing-indicator {
+            display: inline-block;
+            color: #ffc107;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stream URL Checker</h1>
+        <p>Load moveonjoy.com streams from M3U playlist and test them</p>
+        
+        <button class="load-btn" id="loadBtn" onclick="loadM3U()">Load M3U Playlist</button>
+        
+        <div id="dropdownSection" style="display:none;">
+            <div class="dropdown-container">
+                <div class="dropdown-header">
+                    <h3>Select Streams to Test (<span id="selectedCount">0</span> selected)</h3>
+                    <button class="select-all-btn" id="selectAllBtn" onclick="toggleSelectAll()">Select All</button>
+                </div>
+                <div class="checkbox-list" id="checkboxList"></div>
+            </div>
+            
+            <button id="startBtn" onclick="checkStreams()" style="display:none;">Start Scanning Selected</button>
+            <button id="stopBtn" onclick="stopChecking()" style="display:none;">Stop</button>
+        </div>
+
+        <div id="queueSection" style="display:none;">
+            <div class="queue-container">
+                <h3>Streams to Test</h3>
+                <div id="queueList"></div>
+            </div>
+        </div>
+        
+        <div id="videoSections"></div>
+        
+        <div class="results" id="resultsContainer" style="display:none;">
+            <div class="results-header">✓ Working Streams Found:</div>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.20.3/video.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.15.0/videojs-contrib-hls.min.js"></script>
+    <script>
+        let isChecking = false;
+        let workingStreams = [];
+        let allStreams = [];
+        let allSelected = false;
+        let currentPlayer = null;
+        let videoSectionCount = 0;
+        
+        async function loadM3U() {
+            const loadBtn = document.getElementById('loadBtn');
+            loadBtn.disabled = true;
+            loadBtn.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch('https://cwdiptvb.github.io/tv_channels.m3u');
+                const text = await response.text();
+                
+                // Parse M3U and extract moveonjoy URLs
+                const lines = text.split('\n');
+                const streams = [];
+                let currentName = '';
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    // Check if it's an EXTINF line (contains stream name)
+                    if (line.startsWith('#EXTINF:')) {
+                        // Extract tvg-name or the name after the comma
+                        const tvgNameMatch = line.match(/tvg-name="([^"]+)"/);
+                        if (tvgNameMatch) {
+                            currentName = tvgNameMatch[1];
+                        } else {
+                            // Fallback to name after comma
+                            const parts = line.split(',');
+                            if (parts.length > 1) {
+                                currentName = parts[parts.length - 1].trim();
+                            }
+                        }
+                    }
+                    // Check if it's a moveonjoy URL
+                    else if (line.includes('moveonjoy.com')) {
+                        let url = line;
+                        const match = url.match(/fl\d+\.moveonjoy\.com/);
+                        if (match) {
+                            // Extract the channel name from URL path if no name was found
+                            const pathMatch = url.match(/\.com\/([^\/]+)\//);
+                            const channelFromPath = pathMatch ? pathMatch[1] : 'Unknown';
+                            
+                            streams.push({
+                                name: currentName || channelFromPath,
+                                url: url,
+                                channel: channelFromPath
+                            });
+                        }
+                        currentName = '';
+                    }
+                }
+                
+                allStreams = streams;
+                
+                if (streams.length === 0) {
+                    alert('No moveonjoy.com streams found in the M3U file');
+                    loadBtn.disabled = false;
+                    loadBtn.textContent = 'Load M3U Playlist';
+                    return;
+                }
+                
+                // Populate checkbox list
+                const checkboxList = document.getElementById('checkboxList');
+                checkboxList.innerHTML = '';
+                
+                streams.forEach((stream, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'checkbox-item';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `stream_${index}`;
+                    checkbox.value = index;
+                    checkbox.onchange = updateSelectedCount;
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = `stream_${index}`;
+                    label.textContent = `${stream.name} - ${stream.url}`;
+                    
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+                    checkboxList.appendChild(div);
+                });
+                
+                document.getElementById('dropdownSection').style.display = 'block';
+                loadBtn.textContent = `Loaded ${streams.length} streams`;
+                updateSelectedCount();
+                
+            } catch (error) {
+                console.error('Error loading M3U:', error);
+                alert('Failed to load M3U file: ' + error.message);
+                loadBtn.disabled = false;
+                loadBtn.textContent = 'Load M3U Playlist';
+            }
+        }
+        
+        function toggleSelectAll() {
+            const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]');
+            allSelected = !allSelected;
+            
+            checkboxes.forEach(cb => {
+                cb.checked = allSelected;
+            });
+            
+            updateSelectedCount();
+        }
+        
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            document.getElementById('selectedCount').textContent = checkedCount;
+            
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const startBtn = document.getElementById('startBtn');
+            
+            // Show start button only if at least one is selected
+            if (checkedCount > 0) {
+                startBtn.style.display = 'inline-block';
+            } else {
+                startBtn.style.display = 'none';
+            }
+            
+            if (checkedCount === checkboxes.length && checkboxes.length > 0) {
+                selectAllBtn.textContent = 'Deselect All';
+                allSelected = true;
+            } else {
+                selectAllBtn.textContent = 'Select All';
+                allSelected = false;
+            }
+        }
+        
+        function createVideoSection(streamName) {
+            videoSectionCount++;
+            const sectionsContainer = document.getElementById('videoSections');
+            
+            const section = document.createElement('div');
+            section.className = 'video-section';
+            section.id = `video-section-${videoSectionCount}`;
+            
+            const title = document.createElement('h3');
+            title.innerHTML = `Testing: ${streamName} <span class="testing-indicator">● Testing...</span>`;
+            
+            const video = document.createElement('video');
+            video.id = `player-${videoSectionCount}`;
+            video.className = 'video-js vjs-default-skin';
+            video.setAttribute('controls', '');
+            video.setAttribute('preload', 'auto');
+            video.setAttribute('autoplay', '');
+            video.setAttribute('muted', '');
+            
+            section.appendChild(title);
+            section.appendChild(video);
+            sectionsContainer.appendChild(section);
+            
+            return { section, videoId: `player-${videoSectionCount}`, title };
+        }
+        
+        function updateVideoSectionResult(section, title, success) {
+            const indicator = title.querySelector('.testing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+            
+            if (success) {
+                title.innerHTML += ' <span style="color: #28a745; font-weight: bold;">✓ Working</span>';
+                section.style.borderColor = '#28a745';
+            } else {
+                title.innerHTML += ' <span style="color: #dc3545; font-weight: bold;">✗ Failed</span>';
+                section.style.borderColor = '#dc3545';
+            }
+        }
+
+        async function testStream(url, name, queueItemId) {
+            return new Promise(async (resolve) => {
+                console.log(`Testing ${name}...`);
+                
+                // Update queue status
+                const queueItem = document.getElementById(queueItemId);
+                if (queueItem) {
+                    queueItem.className = 'queue-item testing';
+                    const statusSpan = queueItem.querySelector('.queue-status');
+                    statusSpan.className = 'queue-status testing';
+                    statusSpan.textContent = 'Testing...';
+                }
+                
+                // Create new video section
+                const { section, videoId, title } = createVideoSection(name);
+                
+                // Try the original URL first
+                const originalResult = await testSingleURL(url, name, videoId);
+                
+                if (originalResult.success) {
+                    updateVideoSectionResult(section, title, true, originalResult.url);
+                    if (queueItem) {
+                        queueItem.className = 'queue-item success';
+                        const statusSpan = queueItem.querySelector('.queue-status');
+                        statusSpan.className = 'queue-status success';
+                        statusSpan.textContent = 'Success';
+                    }
+                    resolve({ success: true, url: originalResult.url });
+                } else {
+                    // Original failed, scan fl1-99
+                    console.log(`${name} - Original failed, scanning fl1-99...`);
+                    title.innerHTML = `Testing: ${name} - Scanning alternatives... <span class="testing-indicator">● Testing...</span>`;
+                    
+                    if (queueItem) {
+                        const statusSpan = queueItem.querySelector('.queue-status');
+                        statusSpan.textContent = 'Scanning fl1-99...';
+                    }
+                    
+                    // Extract base URL pattern
+                    const baseUrl = url.replace(/fl\d+\.moveonjoy\.com/, 'fl{N}.moveonjoy.com');
+                    let foundWorking = null;
+                    
+                    for (let i = 1; i <= 99 && !foundWorking; i++) {
+                        const testUrl = baseUrl.replace('fl{N}', `fl${i}`);
+                        console.log(`  Trying fl${i}...`);
+                        
+                        const result = await testSingleURL(testUrl, `${name} (fl${i})`, videoId);
+                        if (result.success) {
+                            foundWorking = testUrl;
+                            break;
+                        }
+                    }
+                    
+                    if (foundWorking) {
+                        updateVideoSectionResult(section, title, true, foundWorking);
+                        if (queueItem) {
+                            queueItem.className = 'queue-item success';
+                            const statusSpan = queueItem.querySelector('.queue-status');
+                            statusSpan.className = 'queue-status success';
+                            statusSpan.textContent = 'Success (alternative found)';
+                        }
+                        resolve({ success: true, url: foundWorking });
+                    } else {
+                        updateVideoSectionResult(section, title, false, null);
+                        if (queueItem) {
+                            queueItem.className = 'queue-item failed';
+                            const statusSpan = queueItem.querySelector('.queue-status');
+                            statusSpan.className = 'queue-status failed';
+                            statusSpan.textContent = 'Failed (no alternatives)';
+                        }
+                        resolve({ success: false, url: null });
+                    }
+                }
+            });
+        }
+        
+        async function testSingleURL(url, name, videoId) {
+            return new Promise((resolve) => {
+                // Get or create player
+                let player = videojs.getPlayer(videoId);
+                if (!player) {
+                    player = videojs(videoId, {
+                        autoplay: true,
+                        muted: true,
+                        preload: 'auto',
+                        html5: {
+                            vhs: {
+                                overrideNative: true
+                            },
+                            nativeAudioTracks: false,
+                            nativeVideoTracks: false
+                        }
+                    });
+                }
+                
+                let resolved = false;
+                let hasPlayed = false;
+                
+                const timeout = setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        cleanup();
+                        resolve({ success: false, url: null });
+                    }
+                }, 8000); // 8 second timeout per URL
+                
+                const cleanup = () => {
+                    clearTimeout(timeout);
+                    player.off('playing');
+                    player.off('error');
+                    player.off('loadedmetadata');
+                };
+                
+                player.on('playing', () => {
+                    if (!resolved && !hasPlayed) {
+                        hasPlayed = true;
+                        console.log(`  ${name} - PLAYING! ✓`);
+                        resolved = true;
+                        cleanup();
+                        setTimeout(() => {
+                            player.pause();
+                            resolve({ success: true, url: url });
+                        }, 500);
+                    }
+                });
+                
+                player.on('error', (e) => {
+                    if (!resolved) {
+                        resolved = true;
+                        cleanup();
+                        resolve({ success: false, url: null });
+                    }
+                });
+                
+                // Load the source
+                player.src({
+                    src: url,
+                    type: 'application/x-mpegURL'
+                });
+                
+                player.load();
+            });
+        }
+        
+        async function checkStreams() {
+            // Get selected streams
+            const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]:checked');
+            const selectedStreams = Array.from(checkboxes).map(cb => {
+                return allStreams[parseInt(cb.value)];
+            });
+            
+            if (selectedStreams.length === 0) {
+                alert('Please select at least one stream to test');
+                return;
+            }
+            
+            isChecking = true;
+            workingStreams = [];
+            videoSectionCount = 0;
+            
+            // Hide checkbox section and show queue
+            document.getElementById('dropdownSection').style.display = 'none';
+            document.getElementById('queueSection').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'inline-block';
+            document.getElementById('videoSections').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('resultsContainer').style.display = 'none';
+            
+            // Populate queue list
+            const queueList = document.getElementById('queueList');
+            queueList.innerHTML = '';
+            
+            selectedStreams.forEach((stream, index) => {
+                const queueItem = document.createElement('div');
+                queueItem.className = 'queue-item';
+                queueItem.id = `queue-item-${index}`;
+                queueItem.innerHTML = `
+                    <span>${stream.name}</span>
+                    <span class="queue-status pending">Pending</span>
+                `;
+                queueList.appendChild(queueItem);
+            });
+            
+            // Test each stream
+            for (let i = 0; i < selectedStreams.length && isChecking; i++) {
+                const stream = selectedStreams[i];
+                
+                const isWorking = await testStream(stream.url, stream.name, `queue-item-${i}`);
+                
+                if (isWorking && isChecking) {
+                    workingStreams.push(stream);
+                    addWorkingStream(stream.url, stream.name);
+                }
+                
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            if (isChecking) {
+                alert(`Scanning complete! Found ${workingStreams.length} working stream(s)`);
+            }
+            
+            document.getElementById('stopBtn').style.display = 'none';
+            isChecking = false;
+        }
+        
+        function addWorkingStream(url, name) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.style.display = 'block';
+            
+            const resultsDiv = document.getElementById('results');
+            const streamDiv = document.createElement('div');
+            streamDiv.className = 'stream-item';
+            streamDiv.innerHTML = `
+                <span class="stream-name">${name}</span>
+                <a href="${url}" target="_blank">${url}</a>
+            `;
+            resultsDiv.appendChild(streamDiv);
+        }
+        
+        function stopChecking() {
+            isChecking = false;
+        }
+    </script>
+</body>
+</html>
