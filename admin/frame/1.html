@@ -418,18 +418,28 @@
             return { section, videoId: `player-${videoSectionCount}`, title };
         }
         
-        function updateVideoSectionResult(section, title, success) {
+        function updateVideoSectionResult(section, title, success, workingUrl) {
             const indicator = title.querySelector('.testing-indicator');
             if (indicator) {
                 indicator.remove();
             }
             
             if (success) {
-                title.innerHTML += ' <span style="color: #28a745; font-weight: bold;">✓ Working</span>';
+                title.innerHTML += ` <span style="color: #28a745; font-weight: bold;">✓ Working</span>`;
+                if (workingUrl) {
+                    const urlSpan = document.createElement('div');
+                    urlSpan.style.fontSize = '14px';
+                    urlSpan.style.color = '#155724';
+                    urlSpan.style.marginTop = '5px';
+                    urlSpan.textContent = `Working URL: ${workingUrl}`;
+                    title.appendChild(urlSpan);
+                }
                 section.style.borderColor = '#28a745';
+                section.style.background = '#d4edda';
             } else {
-                title.innerHTML += ' <span style="color: #dc3545; font-weight: bold;">✗ Failed</span>';
+                title.innerHTML += ' <span style="color: #dc3545; font-weight: bold;">✗ No working stream found</span>';
                 section.style.borderColor = '#dc3545';
+                section.style.background = '#f8d7da';
             }
         }
 
@@ -464,11 +474,10 @@
                 } else {
                     // Original failed, scan fl1-99
                     console.log(`${name} - Original failed, scanning fl1-99...`);
-                    title.innerHTML = `Testing: ${name} - Scanning alternatives... <span class="testing-indicator">● Testing...</span>`;
                     
                     if (queueItem) {
                         const statusSpan = queueItem.querySelector('.queue-status');
-                        statusSpan.textContent = 'Scanning fl1-99...';
+                        statusSpan.textContent = 'Scanning fl1...';
                     }
                     
                     // Extract base URL pattern
@@ -478,6 +487,13 @@
                     for (let i = 1; i <= 99 && !foundWorking; i++) {
                         const testUrl = baseUrl.replace('fl{N}', `fl${i}`);
                         console.log(`  Trying fl${i}...`);
+                        
+                        // Update status to show current fl number
+                        title.innerHTML = `Testing: ${name} - Scanning fl${i}... <span class="testing-indicator">● Testing...</span>`;
+                        if (queueItem) {
+                            const statusSpan = queueItem.querySelector('.queue-status');
+                            statusSpan.textContent = `Scanning fl${i}...`;
+                        }
                         
                         const result = await testSingleURL(testUrl, `${name} (fl${i})`, videoId);
                         if (result.success) {
@@ -620,19 +636,35 @@
             for (let i = 0; i < selectedStreams.length && isChecking; i++) {
                 const stream = selectedStreams[i];
                 
-                const isWorking = await testStream(stream.url, stream.name, `queue-item-${i}`);
+                const result = await testStream(stream.url, stream.name, `queue-item-${i}`);
                 
-                if (isWorking && isChecking) {
-                    workingStreams.push(stream);
-                    addWorkingStream(stream.url, stream.name);
+                if (result.success && isChecking) {
+                    workingStreams.push({ ...stream, url: result.url });
+                    addWorkingStream(result.url, stream.name);
                 }
                 
                 // Small delay between tests
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
             
+            // Hide video sections after completion
+            const videoSections = document.getElementById('videoSections');
+            const allSections = videoSections.querySelectorAll('.video-section');
+            
+            if (workingStreams.length > 0) {
+                // Hide all video sections if we found working streams
+                videoSections.style.display = 'none';
+            } else {
+                // Keep them visible if no working streams were found
+                console.log('No working streams found, keeping video sections visible');
+            }
+            
             if (isChecking) {
-                alert(`Scanning complete! Found ${workingStreams.length} working stream(s)`);
+                if (workingStreams.length > 0) {
+                    alert(`Scanning complete! Found ${workingStreams.length} working stream(s)`);
+                } else {
+                    alert('Scanning complete. No working streams found.');
+                }
             }
             
             document.getElementById('stopBtn').style.display = 'none';
