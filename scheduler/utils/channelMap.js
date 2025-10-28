@@ -13,4 +13,6 @@ export const CHANNEL_MAP = {
   "bravo": "bravo-usa-eastern-feed",
   "cspan": "cspan",
   "cartoon-network": "cartoon-network-usa-eastern-feed",
+  "cbs-sports-network": "cbs-sports-network-usa",
+  "cinemax": "cinemax-eastern-feed",
 };
