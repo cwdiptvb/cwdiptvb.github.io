@@ -22,5 +22,6 @@ export const CHANNEL_MAP = {
   "crime-investigation": "crime-investigation-network-usa-hd",
   "destination-america": "destination-america",
   "discovery-channel": "discovery-channel-us-eastern-feed",
-  
+  "discovery-family": "discovery-family-channel",
+  "discovery-life": "discovery-life-channel",
 };
