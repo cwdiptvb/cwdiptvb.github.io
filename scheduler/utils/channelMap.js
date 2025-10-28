@@ -15,4 +15,12 @@ export const CHANNEL_MAP = {
   "cartoon-network": "cartoon-network-usa-eastern-feed",
   "cbs-sports-network": "cbs-sports-network-usa",
   "cinemax": "cinemax-eastern-feed",
+  "cmt": "cmt-usa-eastern-feed",
+  "cnbc": "cnbc-usa",
+  "cnn": "cnn-us",
+  "comedy-central": "comedy-central-us-eastern-feed",
+  "crime-investigation": "crime-investigation-usa-hd",
+  "destination-america": "destination-america",
+  "discovery-channel": "discovery-channel-us-eastern-feed",
+  
 };
