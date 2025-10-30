@@ -33,8 +33,8 @@ app.get('/:channelId/tracks-v1a1/mono.m3u8', (req, res) => {
       '-c:v', 'libx264',
       '-c:a', 'aac',
       '-f', 'hls',
-      '-hls_time', '4',
-      '-hls_list_size', '5',
+      '-hls_time', '2',
+      '-hls_list_size', '3',
       '-hls_flags', 'delete_segments',
       '-method', 'PUT',
       'pipe:1'
