@@ -1,27 +1,37 @@
 const express = require('express');
 const { spawn } = require('child_process');
-const { exec } = require('child_process');
+const https = require('https');
+const http = require('http');
+const { URL } = require('url');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+function resolveRedirect(url, callback) {
+  const client = url.startsWith('https') ? https : http;
+  const req = client.get(url, { method: 'HEAD' }, res => {
+    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+      const redirectUrl = new URL(res.headers.location, url).href;
+      resolveRedirect(redirectUrl, callback);
+    } else {
+      callback(url);
+    }
+  });
+  req.on('error', () => callback(url));
+}
 
 app.get('/:channelId/tracks-v1a1/mono.m3u8', (req, res) => {
   const { channelId } = req.params;
   const sourceUrl = `http://fl1.moveonjoy.com/${channelId}/tracks-v1a1/mono.m3u8`;
 
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
 
-  // Step 1: Probe audio channels
-  exec(`ffprobe -v error -select_streams a:0 -show_entries stream=channels -of default=noprint_wrappers=1:nokey=1 "${sourceUrl}"`, (err, stdout) => {
-    let channels = parseInt(stdout.trim()) || 2; // Default to stereo if unknown
-    let ac = channels >= 6 ? 6 : 2; // Use 6 for surround, 2 for stereo
-
-    // Step 2: Spawn FFmpeg with appropriate audio channel config
+  resolveRedirect(sourceUrl, finalUrl => {
     const ffmpeg = spawn('ffmpeg', [
-      '-i', sourceUrl,
+      '-i', finalUrl,
       '-c:v', 'libx264',
       '-c:a', 'aac',
-      '-ac', ac.toString(),
       '-f', 'hls',
       '-hls_time', '4',
       '-hls_list_size', '5',
@@ -37,5 +47,5 @@ app.get('/:channelId/tracks-v1a1/mono.m3u8', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Proxy server running on port ${PORT}`);
 });
