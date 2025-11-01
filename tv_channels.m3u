@@ -151,7 +151,7 @@ https://fl1.moveonjoy.com/DISCOVERY_LIFE/index.m3u8
 https://fl1.moveonjoy.com/Discovery_Science/index.m3u8
 
 #EXTINF:-1 group-title="Kids" tvg-id="disney-channel" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10171_dark_360w_270h.png" tvg-name="Disney Channel",Disney Channel
-https://fl1.moveonjoy.com/DISNEY/index.m3u8
+https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/DISNEY/index.m3u8
 
 #EXTINF:-1 group-title="Kids" tvg-id="disney-jr" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s74796_dark_360w_270h.png" tvg-name="Disney Jr.",Disney Jr.
 https://fl1.moveonjoy.com/DISNEY_JR/index.m3u8
