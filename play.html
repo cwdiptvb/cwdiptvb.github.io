@@ -259,12 +259,13 @@
   }
 
   .schedule-card h2 {
-    display: inline-block;
-    margin: 0 0 1rem 0;
+    display: block;
+    margin: 0 auto 1rem auto;
     max-width: calc(100% - 100px);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: center;
   }
 
   .schedule-clock {
@@ -410,6 +411,7 @@
       display: block;
       text-align: center;
       margin-bottom: 0.5rem;
+      max-width: 100%;
     }
   }
 </style>
@@ -469,7 +471,7 @@
 
     <div id="schedule-section">
       <div class="schedule-card">
-        <h2>TV Schedule</h2>
+        <h2 id="schedule-title">TV Schedule</h2>
         <div class="schedule-clock" id="schedule-clock">--:--:--</div>
         <div id="schedule-list"></div>
       </div>
@@ -907,6 +909,7 @@
       const channelName = channelInfo.name;
       document.title = `Watch ${channelName} Free Online - Free Live TV`;
       $('main h2').text(`Now Streaming: ${channelName}`);
+      $('#schedule-title').text(`${channelName} Schedule`);
 
       getStreamURL(targetTvgId, function (streamURL) {
         initializePlayer(streamURL);
