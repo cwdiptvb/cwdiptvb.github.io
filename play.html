@@ -70,7 +70,6 @@
     align-items: center;
   }
 
-  /* ✅ New wrapper for consistent width */
   .content-wrapper {
     width: 100%;
     max-width: 800px;
@@ -262,6 +261,13 @@
     margin-top: 0.25rem;
   }
 
+  .schedule-entry.current-program {
+    background-color: rgba(0, 255, 255, 0.1);
+    padding: 0.75rem;
+    margin: 0 -0.75rem;
+    border-radius: 4px;
+  }
+
   footer {
     text-align: center;
     padding: 1rem;
@@ -379,10 +385,14 @@
 
 <script>
     const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
-    // Global map to store tvg-id -> channel name and URL
     let CHANNEL_NAME_MAP = {};
-    // Global variable to store the EPG URL found in the M3U header
-    let XMLTV_URL = null; 
+    let XMLTV_URL = null;
+    let CURRENT_TVG_ID = null;
+    let SCHEDULE_DATA = [];
+
+    // Time synchronization variables
+    let TIME_OFFSET = 0;
+    let LAST_TIME_SYNC = null;
 
     function copyPlaylistURL() {
       const url = "https://cwdiptvb.github.io/tv_channels.m3u";
@@ -393,20 +403,51 @@
       });
     }
 
-    // --- showError function (Unchanged from previous revision) ---
+    // Get accurate current time using time offset
+    function getAccurateTime() {
+      return new Date(Date.now() + TIME_OFFSET);
+    }
+
+    // Sync time with WorldTimeAPI
+    async function syncTime() {
+      try {
+        const before = Date.now();
+        const response = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC');
+        const after = Date.now();
+        
+        if (!response.ok) throw new Error('Time sync failed');
+        
+        const data = await response.json();
+        const serverTime = new Date(data.utc_datetime).getTime();
+        const latency = (after - before) / 2;
+        const adjustedServerTime = serverTime + latency;
+        
+        TIME_OFFSET = adjustedServerTime - after;
+        LAST_TIME_SYNC = Date.now();
+        
+        console.log(`✅ Time synchronized. Offset: ${TIME_OFFSET}ms`);
+        
+        // Update schedule display after time sync
+        if (SCHEDULE_DATA.length > 0) {
+          renderSchedule();
+        }
+      } catch (error) {
+        console.warn('⚠️ Time sync failed, using local time:', error);
+        TIME_OFFSET = 0;
+      }
+    }
+
     function showError(errorCode, invalidId = null) {
       $("#loading-container").remove();
       $("#my-video").hide();
       $("#schedule-section").hide(); 
       
-      // 1. Reset all error elements
       $("#invalid-id-text").hide();
       $("#invalid-channel-name").hide();
       $("#error-main-text").hide();
       $(".error-actions").hide(); 
       $(".error-actions-generic").hide();
 
-      // 2. Handle Invalid ID Error (Priority)
       if (errorCode === "invalid_id" && invalidId) {
           $("#invalid-channel-name").text(invalidId);
           $("#invalid-id-text").show();
@@ -414,17 +455,14 @@
           $("#error-code-text").text(`Error Code: err_invalid_tvg_id`);
           $(".error-actions").css('display', 'flex'); 
       } else {
-          // 3. Handle Generic Error (Player, not_found, unknown)
           $("#error-main-text").show(); 
           $("#error-main-text").html("An unexpected error has occurred. Please try refreshing the page. If the issue persists, please contact us.");
-          
           $("#error-code-text").text("Error Code: err_code_" + (errorCode || "unknown"));
       }
       
       $("#error-message").show();
     }
 
-    // --- buildChannelMap function (Unchanged) ---
     async function buildChannelMap() {
         try {
             const response = await fetch(M3U_URL);
@@ -469,7 +507,6 @@
         }
     }
 
-    // Function to get the stream URL (Unchanged)
     function getStreamURL(tvgId, callback) {
         const channelInfo = CHANNEL_NAME_MAP[tvgId];
         if (channelInfo && channelInfo.url) {
@@ -479,7 +516,6 @@
         }
     }
 
-    // --- EPG Utility Functions (Unchanged) ---
     async function getUserTimezone() {
       try {
         const res = await fetch("https://ipapi.co/timezone");
@@ -507,13 +543,83 @@
       return new Date(isoString);
     };
 
-    async function loadXMLTVSchedule(tvgId) {
+    function renderSchedule() {
       const scheduleList = document.getElementById("schedule-list");
-      scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
+      
+      if (SCHEDULE_DATA.length === 0) {
+        return; // Don't re-render if no data
+      }
+
+      scheduleList.innerHTML = "";
+      const groupedByDay = {};
+      const now = getAccurateTime(); // Use synchronized time
+      const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+      let timezone = "UTC";
+      try {
+        timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      } catch (e) {}
+
+      SCHEDULE_DATA.forEach(item => {
+        if (item.stopUTC < now) return;
+        if (item.startUTC > threeDaysAhead) return;
+
+        const localDate = new Intl.DateTimeFormat([], {
+          timeZone: timezone,
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }).format(item.startUTC);
+        
+        if (!groupedByDay[localDate]) {
+          groupedByDay[localDate] = [];
+        }
+
+        groupedByDay[localDate].push(item);
+      });
+
+      if (Object.keys(groupedByDay).length === 0) {
+        scheduleList.innerHTML = `<p>No current or upcoming programs were found. The EPG data may be stale or incomplete.</p>`;
+        return;
+      }
+
+      Object.entries(groupedByDay).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB)).forEach(([dayLabel, programs]) => {
+        const dayHeader = document.createElement("div");
+        dayHeader.className = "schedule-entry";
+        dayHeader.innerHTML = `<h3 style="margin:0; color:#00ffff;">${dayLabel}</h3>`;
+        scheduleList.appendChild(dayHeader);
+
+        programs.sort((a, b) => a.startUTC - b.startUTC).forEach(item => {
+          const localStart = new Intl.DateTimeFormat([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: timezone
+          }).format(item.startUTC);
+
+          const episode = item.subtitle ? ` — ${item.subtitle}` : "";
+          const isCurrent = item.startUTC <= now && item.stopUTC > now;
+
+          const entry = document.createElement("div");
+          entry.className = isCurrent ? "schedule-entry current-program" : "schedule-entry";
+          entry.innerHTML = `
+            <strong>${localStart}${isCurrent ? ' (NOW PLAYING)' : ''}</strong> — ${item.title}${episode}
+            <small>${item.desc}</small>
+          `;
+          scheduleList.appendChild(entry);
+        });
+      });
+    }
+
+    async function loadXMLTVSchedule(tvgId, silent = false) {
+      const scheduleList = document.getElementById("schedule-list");
+      
+      if (!silent) {
+        scheduleList.innerHTML = "<p>Loading EPG schedule...</p>";
+      }
 
       if (!XMLTV_URL) {
-          scheduleList.innerHTML = `<p>⚠️ Cannot load schedule. XMLTV URL not found in M3U header (url-tvg or x-tvg-url).</p>`;
-          return;
+        scheduleList.innerHTML = `<p>⚠️ Cannot load schedule. XMLTV URL not found in M3U header (url-tvg or x-tvg-url).</p>`;
+        return;
       }
       
       const xmltvUrl = XMLTV_URL;
@@ -522,7 +628,9 @@
       try {
         timezone = await getUserTimezone();
       } catch (err) {
-        scheduleList.innerHTML = `<p>⚠️ Schedule shown in UTC as timezone detection failed.<br><strong>Error:</strong> ${err.message}</p>`;
+        if (!silent) {
+          scheduleList.innerHTML = `<p>⚠️ Schedule shown in UTC as timezone detection failed.<br><strong>Error:</strong> ${err.message}</p>`;
+        }
       }
       
       let xmlDoc;
@@ -538,127 +646,98 @@
         
         const errorNode = xmlDoc.querySelector('parsererror');
         if (errorNode) {
-            console.error("XML Parsing Failed:", errorNode.textContent);
-            throw new Error("XML Parsing Failed (Invalid XML Structure)");
+          console.error("XML Parsing Failed:", errorNode.textContent);
+          throw new Error("XML Parsing Failed (Invalid XML Structure)");
         }
         
       } catch (err) {
         console.error("❌ Failed during XML fetch or parsing:", err.message);
-        scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
+        if (!silent) {
+          scheduleList.innerHTML = `<p>Unable to load or parse the XMLTV data from: ${xmltvUrl}<br><strong>Error:</strong> err_xml_fetch</p>`;
+        }
         return;
       }
       
       try {
-        const targetChannelId = tvgId; 
+        const targetChannelId = tvgId;
 
         const channelElement = xmlDoc.querySelector(`channel[id="${targetChannelId}"]`);
         if (!channelElement) {
+          if (!silent) {
             scheduleList.innerHTML = `<p>Channel with ID '${targetChannelId}' not found in the XMLTV file.</p>`;
-            return;
+          }
+          return;
         }
 
         const programElements = xmlDoc.querySelectorAll(`programme[channel="${targetChannelId}"]`);
         
         if (programElements.length === 0) {
-          scheduleList.innerHTML = `<p>No program entries found for this channel in the EPG file.</p>`;
+          if (!silent) {
+            scheduleList.innerHTML = `<p>No program entries found for this channel in the EPG file.</p>`;
+          }
           return;
         }
 
-        scheduleList.innerHTML = "";
-        const groupedByDay = {};
-        const now = new Date();
-        const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); 
+        SCHEDULE_DATA = [];
+        const now = getAccurateTime();
+        const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
         
         programElements.forEach(program => {
-            const startStr = program.getAttribute('start');
-            const stopStr = program.getAttribute('stop'); 
-            if (!startStr || !stopStr || startStr.length < 14 || stopStr.length < 14) return;
-            
-            const startUTC = parseXmlTvDateFix(startStr);
-            const stopUTC = parseXmlTvDateFix(stopStr);
+          const startStr = program.getAttribute('start');
+          const stopStr = program.getAttribute('stop');
+          if (!startStr || !stopStr || startStr.length < 14 || stopStr.length < 14) return;
+          
+          const startUTC = parseXmlTvDateFix(startStr);
+          const stopUTC = parseXmlTvDateFix(stopStr);
 
-            if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
-            
-            if (stopUTC < now) return; 
-            
-            if (startUTC > threeDaysAhead) return; 
+          if (isNaN(startUTC.getTime()) || isNaN(stopUTC.getTime())) return;
+          if (stopUTC < now) return;
+          if (startUTC > threeDaysAhead) return;
 
-            const title = program.querySelector('title')?.textContent || "Untitled Program";
-            const subtitle = program.querySelector('sub-title')?.textContent;
-            const desc = program.querySelector('desc')?.textContent || "No description available.";
+          const title = program.querySelector('title')?.textContent || "Untitled Program";
+          const subtitle = program.querySelector('sub-title')?.textContent;
+          const desc = program.querySelector('desc')?.textContent || "No description available.";
 
-            const localDate = new Intl.DateTimeFormat([], {
-                timeZone: timezone,
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            }).format(startUTC);
-            
-            if (!groupedByDay[localDate]) {
-                groupedByDay[localDate] = [];
-            }
-
-            groupedByDay[localDate].push({ startUTC, title, subtitle, desc });
+          SCHEDULE_DATA.push({ startUTC, stopUTC, title, subtitle, desc });
         });
 
-        if (Object.keys(groupedByDay).length === 0) {
-            scheduleList.innerHTML = `<p>No current or upcoming programs were found. The EPG data may be stale or incomplete.</p>`;
-            return;
+        if (!silent) {
+          console.log("✅ Schedule data loaded successfully.");
+        } else {
+          console.log("✅ Schedule data refreshed in background.");
         }
-
-        Object.entries(groupedByDay).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB)).forEach(([dayLabel, programs]) => {
-            const dayHeader = document.createElement("div");
-            dayHeader.className = "schedule-entry";
-            dayHeader.innerHTML = `<h3 style="margin:0; color:#00ffff;">${dayLabel}</h3>`;
-            scheduleList.appendChild(dayHeader);
-
-            programs.sort((a, b) => a.startUTC - b.startUTC).forEach(item => {
-                const localStart = new Intl.DateTimeFormat([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    timeZone: timezone
-                }).format(item.startUTC);
-
-                const episode = item.subtitle ? ` — ${item.subtitle}` : "";
-
-                const entry = document.createElement("div");
-                entry.className = "schedule-entry";
-                entry.innerHTML = `
-                    <strong>${localStart}</strong> — ${item.title}${episode}
-                    <small>${item.desc}</small>
-                `;
-                scheduleList.appendChild(entry);
-            });
-        });
+        
+        renderSchedule();
 
       } catch (err) {
         console.error("❌ Failed during XML processing/rendering:", err.message, err.stack);
-        scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_processing_xml_data</p>`;
+        if (!silent) {
+          scheduleList.innerHTML = `<p>Unable to process or display the XMLTV data.<br><strong>Error Code:</strong> err_processing_xml_data</p>`;
+        }
       }
     }
 
-
     $(document).ready(async function () {
+      // Sync time first
+      await syncTime();
+      
       await buildChannelMap();
       
       const urlParams = new URLSearchParams(window.location.search);
       const tvgId = urlParams.get('id');
       
-      // --- MODIFIED LOGIC: CHECK FOR MISSING ID AND SHOW ERROR ---
-      
-      // Check if the id parameter is completely missing or empty
       if (!tvgId || tvgId.trim() === "") {
-          // Show the invalid ID error for a missing parameter
-          showError("invalid_id", "(No ID specified)"); 
-          return;
+        showError("invalid_id", "(No ID specified)"); 
+        return;
       }
 
-      const targetTvgId = tvgId; // Now that we know it's present, use it directly
+      const targetTvgId = tvgId;
+      CURRENT_TVG_ID = targetTvgId;
       const channelInfo = CHANNEL_NAME_MAP[targetTvgId];
 
       if (!channelInfo) {
-          showError("invalid_id", targetTvgId);
-          return; 
+        showError("invalid_id", targetTvgId);
+        return; 
       }
       
       const channelName = channelInfo.name;
@@ -668,7 +747,21 @@
       getStreamURL(targetTvgId, function (streamURL) {
         initializePlayer(streamURL);
       });
-      loadXMLTVSchedule(targetTvgId);
+      
+      await loadXMLTVSchedule(targetTvgId);
+
+      // Update schedule display every 60 seconds
+      setInterval(() => {
+        renderSchedule();
+      }, 60000);
+
+      // Refresh EPG data in background every 30 minutes
+      setInterval(() => {
+        loadXMLTVSchedule(CURRENT_TVG_ID, true);
+      }, 30 * 60 * 1000);
+
+      // Re-sync time every 10 minutes
+      setInterval(syncTime, 10 * 60 * 1000);
     });
 
     function initializePlayer(streamURL) {
@@ -709,6 +802,6 @@
 
       jwplayer_hls_provider.attach();
     }
-  </script>
+</script>
 </body>
 </html>
