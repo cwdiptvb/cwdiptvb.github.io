@@ -1,6 +1,5 @@
 // api/index.js
 import fetch from 'node-fetch';
-import { parseStringPromise } from 'xml2js';
 import { CHANNEL_MAP } from '../utils/channelMap.js';
 
 /**
@@ -53,12 +52,17 @@ async function fetchChannelEPG(tvgId, epgId) {
   const url = `https://epg.pw/api/epg.xml?channel_id=${epgId}`;
   
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; EPG-Aggregator/1.0)',
       },
-      timeout: 10000, // 10 second timeout
+      signal: controller.signal,
     });
+    
+    clearTimeout(timeout);
     
     if (!response.ok) {
       console.warn(`⚠️ Failed to fetch EPG for ${tvgId} (${epgId}): ${response.statusText}`);
@@ -75,13 +79,17 @@ async function fetchChannelEPG(tvgId, epgId) {
     
     return { id: tvgId, xml };
   } catch (fetchError) {
-    console.warn(`⚠️ Error fetching ${tvgId} (${epgId}):`, fetchError.message);
+    if (fetchError.name === 'AbortError') {
+      console.warn(`⚠️ Timeout fetching ${tvgId} (${epgId})`);
+    } else {
+      console.warn(`⚠️ Error fetching ${tvgId} (${epgId}):`, fetchError.message);
+    }
     return { id: tvgId, xml: null };
   }
 }
 
 /**
- * Main handler function
+ * Main handler function for Vercel serverless
  */
 export default async function handler(req, res) {
   // Set CORS and content type headers
@@ -107,7 +115,8 @@ export default async function handler(req, res) {
     console.log(`📡 Fetching EPG data for ${channelsToFetch.length} channels...`);
     
     // Fetch all EPG data in parallel with a concurrency limit
-    const BATCH_SIZE = 10; // Process 10 channels at a time to avoid overwhelming the server
+    // Reduced batch size for Vercel serverless constraints
+    const BATCH_SIZE = 5; // Process 5 channels at a time
     const epgData = [];
     
     for (let i = 0; i < channelsToFetch.length; i += BATCH_SIZE) {
@@ -117,8 +126,10 @@ export default async function handler(req, res) {
       );
       epgData.push(...batchResults);
       
-      // Log progress
-      console.log(`✓ Processed ${Math.min(i + BATCH_SIZE, channelsToFetch.length)}/${channelsToFetch.length} channels`);
+      // Log progress every 20 channels
+      if ((i + BATCH_SIZE) % 20 === 0 || i + BATCH_SIZE >= channelsToFetch.length) {
+        console.log(`✓ Processed ${Math.min(i + BATCH_SIZE, channelsToFetch.length)}/${channelsToFetch.length} channels`);
+      }
     }
     
     // Filter out channels that failed to fetch
