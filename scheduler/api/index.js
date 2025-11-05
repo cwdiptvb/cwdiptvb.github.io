@@ -55,9 +55,8 @@ function buildChannelIdMap() {
   
   for (const [tvgId, epgId] of Object.entries(CHANNEL_MAP)) {
     if (epgId !== null) {
-      // EPG.PW channel IDs in XML are formatted as: epg.pw/CHANNEL_ID
-      const xmlChannelId = `epg.pw/${epgId}`;
-      map.set(xmlChannelId, tvgId);
+      // EPG.PW uses just the numerical ID in their XML
+      map.set(epgId, tvgId);
     }
   }
   
