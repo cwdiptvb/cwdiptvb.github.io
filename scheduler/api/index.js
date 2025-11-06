@@ -146,6 +146,36 @@ export default async function handler(req, res) {
     return res.status(200).send('Service is healthy and serving XMLTV schedule at /');
   }
   
+  // Handle debug endpoint to see channel IDs
+  if (req.url === '/debug') {
+    res.setHeader('Content-Type', 'application/json');
+    try {
+      const channelIdMap = buildChannelIdMap();
+      const epgChannelIds = Array.from(new Set(channelIdMap.keys()));
+      
+      // Fetch a small sample from US EPG
+      const usResponse = await fetch('https://epg.pw/xmltv/epg_US.xml');
+      const usXml = await usResponse.text();
+      
+      // Extract first 10 channel IDs from the XML
+      const sampleChannelIds = [];
+      const matches = usXml.matchAll(/<channel[^>]*id="([^"]*)"/g);
+      let count = 0;
+      for (const match of matches) {
+        if (count++ < 10) sampleChannelIds.push(match[1]);
+        else break;
+      }
+      
+      return res.status(200).json({
+        ourChannelIds: epgChannelIds.slice(0, 10),
+        sampleEPGChannelIds: sampleChannelIds,
+        totalInMap: channelIdMap.size
+      });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+  
   // Main XMLTV generation route
   try {
     console.log('🔄 Starting EPG fetch from epg.pw...');
@@ -219,6 +249,12 @@ export default async function handler(req, res) {
     const { channels: updatedChannels, programmes: updatedProgrammes } = 
       updateChannelIds(allChannels, allProgrammes, channelIdMap);
     
+    // Debug: Log first few channel IDs
+    if (updatedChannels.length > 0) {
+      const firstChannelId = updatedChannels[0].match(/id="([^"]*)"/)?.[1];
+      console.log(`📝 Sample channel ID: ${firstChannelId}`);
+    }
+    
     // Build final XMLTV document
     console.log('🔄 Building final XMLTV document...');
     const finalXMLTV = buildXMLTV(updatedChannels, updatedProgrammes);
@@ -227,6 +263,13 @@ export default async function handler(req, res) {
     console.log(`✅ XMLTV generation complete in ${duration}s`);
     console.log(`📊 Final: ${updatedChannels.length} channels, ${updatedProgrammes.length} programmes`);
     console.log(`📊 Document size: ${(finalXMLTV.length / 1024 / 1024).toFixed(2)} MB`);
+    
+    // Debug: Show channel list
+    const channelIds = updatedChannels
+      .map(ch => ch.match(/id="([^"]*)"/)?.[1])
+      .filter(Boolean)
+      .slice(0, 10);
+    console.log(`📋 First 10 channel IDs: ${channelIds.join(', ')}`);
     
     res.status(200).send(finalXMLTV);
   } catch (err) {
