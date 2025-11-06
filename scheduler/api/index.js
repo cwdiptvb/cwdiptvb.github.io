@@ -20,9 +20,13 @@ function filterXMLTV(xmlContent, channelIds) {
       const channelId = match[1];
       const fullChannelElement = match[0];
       
+      // EPG.PW may use formats like "epg.pw/403793" or just "403793"
+      // Extract the numerical ID
+      const numericId = channelId.includes('/') ? channelId.split('/').pop() : channelId;
+      
       // Check if this channel ID is in our map
-      if (channelIds.has(channelId)) {
-        channels.push(fullChannelElement);
+      if (channelIds.has(numericId)) {
+        channels.push({ id: numericId, xml: fullChannelElement });
       }
     }
     
@@ -33,9 +37,12 @@ function filterXMLTV(xmlContent, channelIds) {
       const channelId = match[1];
       const fullProgrammeElement = match[0];
       
+      // Extract the numerical ID
+      const numericId = channelId.includes('/') ? channelId.split('/').pop() : channelId;
+      
       // Only include programmes for our channels
-      if (channelIds.has(channelId)) {
-        programmes.push(fullProgrammeElement);
+      if (channelIds.has(numericId)) {
+        programmes.push({ id: numericId, xml: fullProgrammeElement });
       }
     }
     
@@ -65,30 +72,28 @@ function buildChannelIdMap() {
 
 /**
  * Updates channel IDs in XMLTV to use tvg-ids from M3U
- * @param {Array<string>} channels - Array of channel XML strings
- * @param {Array<string>} programmes - Array of programme XML strings
+ * @param {Array<Object>} channels - Array of channel objects with id and xml
+ * @param {Array<Object>} programmes - Array of programme objects with id and xml
  * @param {Map} channelIdMap - Map of EPG.PW IDs to tvg-ids
  * @returns {Object} - Updated channels and programmes
  */
 function updateChannelIds(channels, programmes, channelIdMap) {
-  const updatedChannels = channels.map(channel => {
-    // Find the channel ID
-    const idMatch = channel.match(/id="([^"]*)"/);
-    if (idMatch && channelIdMap.has(idMatch[1])) {
-      const newId = channelIdMap.get(idMatch[1]);
-      return channel.replace(/id="[^"]*"/, `id="${newId}"`);
+  const updatedChannels = channels.map(({ id, xml }) => {
+    const tvgId = channelIdMap.get(id);
+    if (tvgId) {
+      // Replace the channel ID with the tvg-id
+      return xml.replace(/id="[^"]*"/, `id="${tvgId}"`);
     }
-    return channel;
+    return xml;
   });
   
-  const updatedProgrammes = programmes.map(programme => {
-    // Find the channel attribute
-    const channelMatch = programme.match(/channel="([^"]*)"/);
-    if (channelMatch && channelIdMap.has(channelMatch[1])) {
-      const newId = channelIdMap.get(channelMatch[1]);
-      return programme.replace(/channel="[^"]*"/, `channel="${newId}"`);
+  const updatedProgrammes = programmes.map(({ id, xml }) => {
+    const tvgId = channelIdMap.get(id);
+    if (tvgId) {
+      // Replace the channel attribute with the tvg-id
+      return xml.replace(/channel="[^"]*"/, `channel="${tvgId}"`);
     }
-    return programme;
+    return xml;
   });
   
   return { channels: updatedChannels, programmes: updatedProgrammes };
@@ -102,11 +107,26 @@ function updateChannelIds(channels, programmes, channelIdMap) {
  */
 function buildXMLTV(channels, programmes) {
   const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  const tvOpen = '<tv generator-info-name="EPG.PW Aggregator" generator-info-url="https://epg.pw">\n';
+  const tvOpen = '<tv source-info-name="EPG.PW" source-info-url="https://epg.pw" generator-info-name="EPG Aggregator" generator-info-url="https://github.com">\n';
   const tvClose = '</tv>';
   
+  // Add display-name elements to channels if missing
+  const enhancedChannels = channels.map(channel => {
+    // Check if channel already has display-name
+    if (!channel.includes('<display-name>')) {
+      // Extract channel id
+      const idMatch = channel.match(/id="([^"]*)"/);
+      if (idMatch) {
+        const channelId = idMatch[1];
+        // Insert display-name before closing tag
+        return channel.replace('</channel>', `  <display-name>${channelId}</display-name>\n</channel>`);
+      }
+    }
+    return channel;
+  });
+  
   return xmlHeader + tvOpen + 
-         channels.join('\n') + '\n' +
+         enhancedChannels.join('\n') + '\n' +
          programmes.join('\n') + '\n' +
          tvClose;
 }
@@ -169,6 +189,8 @@ export default async function handler(req, res) {
       console.log(`📺 Found ${usFiltered.channels.length} US channels, ${usFiltered.programmes.length} programmes`);
       allChannels.push(...usFiltered.channels);
       allProgrammes.push(...usFiltered.programmes);
+    } else {
+      console.warn('⚠️ Failed to fetch US XMLTV');
     }
     
     // Process Canadian XMLTV
@@ -178,6 +200,8 @@ export default async function handler(req, res) {
       console.log(`📺 Found ${caFiltered.channels.length} Canadian channels, ${caFiltered.programmes.length} programmes`);
       allChannels.push(...caFiltered.channels);
       allProgrammes.push(...caFiltered.programmes);
+    } else {
+      console.warn('⚠️ Failed to fetch Canadian XMLTV');
     }
     
     if (allChannels.length === 0) {
