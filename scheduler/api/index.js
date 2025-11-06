@@ -3,154 +3,79 @@ import fetch from 'node-fetch';
 import { CHANNEL_MAP } from '../utils/channelMap.js';
 
 /**
- * Filters XMLTV to only include channels from our channel map
- * @param {string} xmlContent - Raw XMLTV content
- * @param {Set<string>} channelIds - Set of EPG.PW channel IDs to include
- * @returns {Object} - Object with channels and programmes arrays
+ * Fetches EPG data from epg.pw for a specific channel
+ * @param {string} tvgId - The M3U tvg-id
+ * @param {string} epgId - The epg.pw channel ID
+ * @returns {Promise<{id: string, xml: string}>}
  */
-function filterXMLTV(xmlContent, channelIds, source = 'unknown') {
-  const channels = [];
-  const programmes = [];
-  
-  // Debug: Log first few channel IDs found in the XML
-  const sampleMatches = xmlContent.match(/<channel[^>]*id="([^"]*)"[^>]*>/g);
-  if (sampleMatches && sampleMatches.length > 0) {
-    console.log(`📝 ${source} sample channel IDs:`, sampleMatches.slice(0, 3).map(m => m.match(/id="([^"]*)"/)[1]));
-  }
+async function fetchChannelEPG(tvgId, epgId) {
+  const url = `https://epg.pw/api/epg.xml?channel_id=${epgId}`;
   
   try {
-    // Extract all channel elements
-    const channelMatches = xmlContent.matchAll(/<channel[^>]*id="([^"]*)"[^>]*>([\s\S]*?)<\/channel>/g);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
-    for (const match of channelMatches) {
-      const channelId = match[1];
-      const fullChannelElement = match[0];
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; EPG-Aggregator/1.0)',
+      },
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeout);
+    
+    if (!response.ok) {
+      return { id: tvgId, xml: null };
+    }
+    
+    const xml = await response.text();
+    
+    // Basic validation
+    if (!xml.includes('<tv') || !xml.includes('</tv>')) {
+      return { id: tvgId, xml: null };
+    }
+    
+    return { id: tvgId, xml };
+  } catch (fetchError) {
+    return { id: tvgId, xml: null };
+  }
+}
+
+/**
+ * Extracts and updates channel and programme elements from XML
+ * @param {string} xml - Raw XML content
+ * @param {string} tvgId - The tvg-id to use
+ * @returns {Object} - Object with channel and programmes
+ */
+function extractAndUpdateElements(xml, tvgId) {
+  try {
+    // Extract channel element and update its ID
+    const channelMatch = xml.match(/<channel[^>]*id="([^"]*)"[^>]*>([\s\S]*?)<\/channel>/);
+    let channel = null;
+    
+    if (channelMatch) {
+      channel = channelMatch[0].replace(/id="[^"]*"/, `id="${tvgId}"`);
       
-      // Try multiple formats:
-      // 1. Direct numerical ID: "403793"
-      // 2. With prefix: "epg.pw/403793" or "epg.pw-403793"
-      // 3. URL format: "https://epg.pw/last/403793.html"
-      let numericId = channelId;
-      
-      if (channelId.includes('epg.pw')) {
-        numericId = channelId.split('/').pop().split('.')[0].replace('epg.pw-', '');
-      } else if (channelId.includes('/')) {
-        numericId = channelId.split('/').pop().split('.')[0];
-      }
-      
-      // Check if this channel ID is in our map
-      if (channelIds.has(numericId)) {
-        channels.push({ id: numericId, xml: fullChannelElement });
+      // Ensure display-name exists
+      if (!channel.includes('<display-name>')) {
+        channel = channel.replace('</channel>', `  <display-name>${tvgId}</display-name>\n</channel>`);
       }
     }
     
-    // Extract all programme elements for our channels
-    const programmeMatches = xmlContent.matchAll(/<programme[^>]*channel="([^"]*)"[^>]*>([\s\S]*?)<\/programme>/g);
+    // Extract all programme elements and update their channel attributes
+    const programmes = [];
+    const programmeMatches = xml.matchAll(/<programme[^>]*>([\s\S]*?)<\/programme>/g);
     
     for (const match of programmeMatches) {
-      const channelId = match[1];
-      const fullProgrammeElement = match[0];
-      
-      // Extract the numerical ID using same logic
-      let numericId = channelId;
-      
-      if (channelId.includes('epg.pw')) {
-        numericId = channelId.split('/').pop().split('.')[0].replace('epg.pw-', '');
-      } else if (channelId.includes('/')) {
-        numericId = channelId.split('/').pop().split('.')[0];
-      }
-      
-      // Only include programmes for our channels
-      if (channelIds.has(numericId)) {
-        programmes.push({ id: numericId, xml: fullProgrammeElement });
-      }
+      const programme = match[0].replace(/channel="[^"]*"/, `channel="${tvgId}"`);
+      programmes.push(programme);
     }
     
-    console.log(`✅ ${source} matched: ${channels.length} channels, ${programmes.length} programmes`);
-    
-  } catch (parseError) {
-    console.error(`❌ Error filtering ${source} XMLTV:`, parseError.message);
+    return { channel, programmes };
+  } catch (error) {
+    console.warn(`⚠️ Error extracting elements for ${tvgId}:`, error.message);
+    return { channel: null, programmes: [] };
   }
-  
-  return { channels, programmes };
-}
-
-/**
- * Builds the channel ID to tvg-id mapping
- * @returns {Map} - Map of EPG.PW channel IDs to tvg-ids
- */
-function buildChannelIdMap() {
-  const map = new Map();
-  
-  for (const [tvgId, epgId] of Object.entries(CHANNEL_MAP)) {
-    if (epgId !== null) {
-      // EPG.PW uses just the numerical ID in their XML
-      map.set(epgId, tvgId);
-    }
-  }
-  
-  return map;
-}
-
-/**
- * Updates channel IDs in XMLTV to use tvg-ids from M3U
- * @param {Array<Object>} channels - Array of channel objects with id and xml
- * @param {Array<Object>} programmes - Array of programme objects with id and xml
- * @param {Map} channelIdMap - Map of EPG.PW IDs to tvg-ids
- * @returns {Object} - Updated channels and programmes
- */
-function updateChannelIds(channels, programmes, channelIdMap) {
-  const updatedChannels = channels.map(({ id, xml }) => {
-    const tvgId = channelIdMap.get(id);
-    if (tvgId) {
-      // Replace the channel ID with the tvg-id
-      return xml.replace(/id="[^"]*"/, `id="${tvgId}"`);
-    }
-    return xml;
-  });
-  
-  const updatedProgrammes = programmes.map(({ id, xml }) => {
-    const tvgId = channelIdMap.get(id);
-    if (tvgId) {
-      // Replace the channel attribute with the tvg-id
-      return xml.replace(/channel="[^"]*"/, `channel="${tvgId}"`);
-    }
-    return xml;
-  });
-  
-  return { channels: updatedChannels, programmes: updatedProgrammes };
-}
-
-/**
- * Builds final XMLTV document
- * @param {Array<string>} channels - Array of channel XML strings
- * @param {Array<string>} programmes - Array of programme XML strings
- * @returns {string} - Complete XMLTV document
- */
-function buildXMLTV(channels, programmes) {
-  const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  const tvOpen = '<tv source-info-name="EPG.PW" source-info-url="https://epg.pw" generator-info-name="EPG Aggregator" generator-info-url="https://github.com">\n';
-  const tvClose = '</tv>';
-  
-  // Add display-name elements to channels if missing
-  const enhancedChannels = channels.map(channel => {
-    // Check if channel already has display-name
-    if (!channel.includes('<display-name>')) {
-      // Extract channel id
-      const idMatch = channel.match(/id="([^"]*)"/);
-      if (idMatch) {
-        const channelId = idMatch[1];
-        // Insert display-name before closing tag
-        return channel.replace('</channel>', `  <display-name>${channelId}</display-name>\n</channel>`);
-      }
-    }
-    return channel;
-  });
-  
-  return xmlHeader + tvOpen + 
-         enhancedChannels.join('\n') + '\n' +
-         programmes.join('\n') + '\n' +
-         tvClose;
 }
 
 /**
@@ -168,34 +93,17 @@ export default async function handler(req, res) {
     return res.status(200).send('Service is healthy and serving XMLTV schedule at /');
   }
   
-  // Handle debug endpoint to see channel IDs
+  // Handle debug endpoint
   if (req.url === '/debug') {
     res.setHeader('Content-Type', 'application/json');
-    try {
-      const channelIdMap = buildChannelIdMap();
-      const epgChannelIds = Array.from(new Set(channelIdMap.keys()));
-      
-      // Fetch a small sample from US EPG
-      const usResponse = await fetch('https://epg.pw/xmltv/epg_US.xml');
-      const usXml = await usResponse.text();
-      
-      // Extract first 10 channel IDs from the XML
-      const sampleChannelIds = [];
-      const matches = usXml.matchAll(/<channel[^>]*id="([^"]*)"/g);
-      let count = 0;
-      for (const match of matches) {
-        if (count++ < 10) sampleChannelIds.push(match[1]);
-        else break;
-      }
-      
-      return res.status(200).json({
-        ourChannelIds: epgChannelIds.slice(0, 10),
-        sampleEPGChannelIds: sampleChannelIds,
-        totalInMap: channelIdMap.size
-      });
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
+    const channelsToFetch = Object.entries(CHANNEL_MAP)
+      .filter(([_, epgId]) => epgId !== null);
+    
+    return res.status(200).json({
+      totalChannels: channelsToFetch.length,
+      sampleChannels: channelsToFetch.slice(0, 5).map(([tvgId, epgId]) => ({ tvgId, epgId })),
+      apiExample: `https://epg.pw/api/epg.xml?channel_id=${channelsToFetch[0][1]}`
+    });
   }
   
   // Main XMLTV generation route
@@ -203,95 +111,70 @@ export default async function handler(req, res) {
     console.log('🔄 Starting EPG fetch from epg.pw...');
     const startTime = Date.now();
     
-    // Build channel ID mapping (EPG.PW ID -> tvg-id)
-    const channelIdMap = buildChannelIdMap();
-    const epgChannelIds = new Set(channelIdMap.keys());
+    // Filter out null channel IDs
+    const channelsToFetch = Object.entries(CHANNEL_MAP)
+      .filter(([_, epgId]) => epgId !== null);
     
-    console.log(`📡 Loading XMLTV files for ${channelIdMap.size} channels...`);
+    console.log(`📡 Fetching EPG data for ${channelsToFetch.length} channels...`);
     
-    // Fetch both US and Canadian XMLTV files in parallel
-    const [usResponse, caResponse] = await Promise.all([
-      fetch('https://epg.pw/xmltv/epg_US.xml', {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EPG-Aggregator/1.0)' }
-      }),
-      fetch('https://epg.pw/xmltv/epg_CA.xml', {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EPG-Aggregator/1.0)' }
-      })
-    ]);
+    // Fetch in smaller batches to avoid timeout (Vercel has 10s limit on Hobby plan)
+    const BATCH_SIZE = 20; // Fetch 20 channels at a time
+    const allChannels = [];
+    const allProgrammes = [];
+    let successCount = 0;
     
-    if (!usResponse.ok && !caResponse.ok) {
-      console.error('❌ Failed to fetch both XMLTV files');
-      return res.status(503).send(
-        '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        '<tv>\n' +
-        '  <e>Failed to fetch EPG data from epg.pw</e>\n' +
-        '</tv>'
+    for (let i = 0; i < channelsToFetch.length; i += BATCH_SIZE) {
+      const batch = channelsToFetch.slice(i, i + BATCH_SIZE);
+      
+      const batchResults = await Promise.all(
+        batch.map(([tvgId, epgId]) => fetchChannelEPG(tvgId, epgId))
       );
+      
+      // Process results
+      for (const result of batchResults) {
+        if (result.xml) {
+          const { channel, programmes } = extractAndUpdateElements(result.xml, result.id);
+          
+          if (channel) {
+            allChannels.push(channel);
+            allProgrammes.push(...programmes);
+            successCount++;
+          }
+        }
+      }
+      
+      // Log progress every 40 channels
+      if ((i + BATCH_SIZE) % 40 === 0 || i + BATCH_SIZE >= channelsToFetch.length) {
+        console.log(`✓ Processed ${Math.min(i + BATCH_SIZE, channelsToFetch.length)}/${channelsToFetch.length} channels (${successCount} successful)`);
+      }
     }
     
-    console.log('✅ XMLTV files downloaded, filtering channels...');
-    
-    let allChannels = [];
-    let allProgrammes = [];
-    
-    // Process US XMLTV
-    if (usResponse.ok) {
-      const usXml = await usResponse.text();
-      const usFiltered = filterXMLTV(usXml, epgChannelIds, 'US');
-      console.log(`📺 Found ${usFiltered.channels.length} US channels, ${usFiltered.programmes.length} programmes`);
-      allChannels.push(...usFiltered.channels);
-      allProgrammes.push(...usFiltered.programmes);
-    } else {
-      console.warn('⚠️ Failed to fetch US XMLTV');
-    }
-    
-    // Process Canadian XMLTV
-    if (caResponse.ok) {
-      const caXml = await caResponse.text();
-      const caFiltered = filterXMLTV(caXml, epgChannelIds, 'CA');
-      console.log(`📺 Found ${caFiltered.channels.length} Canadian channels, ${caFiltered.programmes.length} programmes`);
-      allChannels.push(...caFiltered.channels);
-      allProgrammes.push(...caFiltered.programmes);
-    } else {
-      console.warn('⚠️ Failed to fetch Canadian XMLTV');
-    }
+    console.log(`✅ Successfully fetched ${successCount}/${channelsToFetch.length} channels`);
     
     if (allChannels.length === 0) {
-      console.error('❌ No matching channels found in EPG data');
+      console.error('❌ No EPG data available from any channel');
       return res.status(503).send(
         '<?xml version="1.0" encoding="UTF-8"?>\n' +
         '<tv>\n' +
-        '  <e>No matching channels found in EPG data</e>\n' +
+        '  <error>No schedule data available from epg.pw</error>\n' +
         '</tv>'
       );
-    }
-    
-    // Update channel IDs to use tvg-ids from M3U
-    console.log('🔄 Updating channel IDs to match M3U tvg-ids...');
-    const { channels: updatedChannels, programmes: updatedProgrammes } = 
-      updateChannelIds(allChannels, allProgrammes, channelIdMap);
-    
-    // Debug: Log first few channel IDs
-    if (updatedChannels.length > 0) {
-      const firstChannelId = updatedChannels[0].match(/id="([^"]*)"/)?.[1];
-      console.log(`📝 Sample channel ID: ${firstChannelId}`);
     }
     
     // Build final XMLTV document
-    console.log('🔄 Building final XMLTV document...');
-    const finalXMLTV = buildXMLTV(updatedChannels, updatedProgrammes);
+    const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    const tvOpen = '<tv source-info-name="EPG.PW" source-info-url="https://epg.pw" generator-info-name="EPG Aggregator">\n';
+    const tvClose = '</tv>';
+    
+    const finalXMLTV = xmlHeader + tvOpen + 
+                      allChannels.join('\n') + '\n' +
+                      allProgrammes.join('\n') + '\n' +
+                      tvClose;
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(`✅ XMLTV generation complete in ${duration}s`);
-    console.log(`📊 Final: ${updatedChannels.length} channels, ${updatedProgrammes.length} programmes`);
+    console.log(`📊 Final: ${allChannels.length} channels, ${allProgrammes.length} programmes`);
     console.log(`📊 Document size: ${(finalXMLTV.length / 1024 / 1024).toFixed(2)} MB`);
-    
-    // Debug: Show channel list
-    const channelIds = updatedChannels
-      .map(ch => ch.match(/id="([^"]*)"/)?.[1])
-      .filter(Boolean)
-      .slice(0, 10);
-    console.log(`📋 First 10 channel IDs: ${channelIds.join(', ')}`);
     
     res.status(200).send(finalXMLTV);
   } catch (err) {
@@ -299,7 +182,7 @@ export default async function handler(req, res) {
     res.status(500).send(
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
       '<tv>\n' +
-      '  <e>Failed to generate XMLTV schedule: ' + err.message + '</e>\n' +
+      '  <error>Failed to generate XMLTV schedule: ' + err.message + '</error>\n' +
       '</tv>'
     );
   }
