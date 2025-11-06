@@ -8,9 +8,15 @@ import { CHANNEL_MAP } from '../utils/channelMap.js';
  * @param {Set<string>} channelIds - Set of EPG.PW channel IDs to include
  * @returns {Object} - Object with channels and programmes arrays
  */
-function filterXMLTV(xmlContent, channelIds) {
+function filterXMLTV(xmlContent, channelIds, source = 'unknown') {
   const channels = [];
   const programmes = [];
+  
+  // Debug: Log first few channel IDs found in the XML
+  const sampleMatches = xmlContent.match(/<channel[^>]*id="([^"]*)"[^>]*>/g);
+  if (sampleMatches && sampleMatches.length > 0) {
+    console.log(`📝 ${source} sample channel IDs:`, sampleMatches.slice(0, 3).map(m => m.match(/id="([^"]*)"/)[1]));
+  }
   
   try {
     // Extract all channel elements
@@ -20,9 +26,17 @@ function filterXMLTV(xmlContent, channelIds) {
       const channelId = match[1];
       const fullChannelElement = match[0];
       
-      // EPG.PW may use formats like "epg.pw/403793" or just "403793"
-      // Extract the numerical ID
-      const numericId = channelId.includes('/') ? channelId.split('/').pop() : channelId;
+      // Try multiple formats:
+      // 1. Direct numerical ID: "403793"
+      // 2. With prefix: "epg.pw/403793" or "epg.pw-403793"
+      // 3. URL format: "https://epg.pw/last/403793.html"
+      let numericId = channelId;
+      
+      if (channelId.includes('epg.pw')) {
+        numericId = channelId.split('/').pop().split('.')[0].replace('epg.pw-', '');
+      } else if (channelId.includes('/')) {
+        numericId = channelId.split('/').pop().split('.')[0];
+      }
       
       // Check if this channel ID is in our map
       if (channelIds.has(numericId)) {
@@ -37,8 +51,14 @@ function filterXMLTV(xmlContent, channelIds) {
       const channelId = match[1];
       const fullProgrammeElement = match[0];
       
-      // Extract the numerical ID
-      const numericId = channelId.includes('/') ? channelId.split('/').pop() : channelId;
+      // Extract the numerical ID using same logic
+      let numericId = channelId;
+      
+      if (channelId.includes('epg.pw')) {
+        numericId = channelId.split('/').pop().split('.')[0].replace('epg.pw-', '');
+      } else if (channelId.includes('/')) {
+        numericId = channelId.split('/').pop().split('.')[0];
+      }
       
       // Only include programmes for our channels
       if (channelIds.has(numericId)) {
@@ -46,8 +66,10 @@ function filterXMLTV(xmlContent, channelIds) {
       }
     }
     
+    console.log(`✅ ${source} matched: ${channels.length} channels, ${programmes.length} programmes`);
+    
   } catch (parseError) {
-    console.error('❌ Error filtering XMLTV:', parseError.message);
+    console.error(`❌ Error filtering ${source} XMLTV:`, parseError.message);
   }
   
   return { channels, programmes };
@@ -215,7 +237,7 @@ export default async function handler(req, res) {
     // Process US XMLTV
     if (usResponse.ok) {
       const usXml = await usResponse.text();
-      const usFiltered = filterXMLTV(usXml, epgChannelIds);
+      const usFiltered = filterXMLTV(usXml, epgChannelIds, 'US');
       console.log(`📺 Found ${usFiltered.channels.length} US channels, ${usFiltered.programmes.length} programmes`);
       allChannels.push(...usFiltered.channels);
       allProgrammes.push(...usFiltered.programmes);
@@ -226,7 +248,7 @@ export default async function handler(req, res) {
     // Process Canadian XMLTV
     if (caResponse.ok) {
       const caXml = await caResponse.text();
-      const caFiltered = filterXMLTV(caXml, epgChannelIds);
+      const caFiltered = filterXMLTV(caXml, epgChannelIds, 'CA');
       console.log(`📺 Found ${caFiltered.channels.length} Canadian channels, ${caFiltered.programmes.length} programmes`);
       allChannels.push(...caFiltered.channels);
       allProgrammes.push(...caFiltered.programmes);
