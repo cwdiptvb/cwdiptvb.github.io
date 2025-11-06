@@ -4,7 +4,7 @@
 
 export const CHANNEL_MAP = {
     // News Channels
-    "abc-east": "399930",
+    "abc-east": "465150",
     "abc-mn": null, // Local station - no EPG.PW listing
     "bbc-world": "405729",
     "bloomberg": "403726",
