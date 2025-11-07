@@ -1,16 +1,11 @@
-// EPG.PW Channel ID Mapping for M3U Playlist
-// Generated: November 5, 2025
-// Source: https://epg.pw
-
 export const CHANNEL_MAP = {
-    // News Channels
+    // News
     "abc-east": "465150",
-    "abc-mn": null, // Local station - no EPG.PW listing
-    "bbc-world": "405729",
-    "bloomberg": "403726",
-    "cbs-247": null, // Check CBS listings
-    "cnbc": "403527",
-    "cnn": "403819",
+    "bbc-news-america": "465025",
+    "bloomberg": "465324",
+    "cbs-247": "464994",
+    "cnbc": "464791",
+    "cnn": "464897",
     "cnn-international": "418066",
     "cspan": "403594",
     "fox-news": "403903",
