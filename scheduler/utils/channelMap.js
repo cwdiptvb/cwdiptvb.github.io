@@ -15,7 +15,7 @@ export const CHANNEL_MAP = {
     "NewsNation.-.Eastern.Feed.us": "465039",
     "The.Weather.Channel.us": "465272",
 
-    // Sports Channels
+    // Sports
     "acc": "464879",
     "bein": "464754",
     "big-ten": "465073",
@@ -29,31 +29,28 @@ export const CHANNEL_MAP = {
     "Golf.Channel.USA.us": "464783",
     "marquee": "403956",
     "MavTV.USA.us": null, // MAVTV - check listings
-    "mlb-network": "403836",
-    "NBA.TV.USA.us": "403676",
-    "NBA.Basketball.Dummy.us": null, // Event channels - no persistent EPG
-    "NFL.Network.us": "403667",
-    "NFL.RedZone.us": "403787",
-    "NFL.Dummy.us": null, // Event channels - no persistent EPG
-    "NHL.Network.USA.us": "403443",
-    "NHL.Hockey.Dummy.us": null, // Event channels - no persistent EPG
-    "Outdoor.Channel.US.us": "403523",
+    "mlb-network": "465239",
+    "NBA.TV.USA.us": "464912",
+    "NFL.Network.us": "465311",
+    "NFL.RedZone.us": "465402",
+    "NHL.Network.USA.us": "465348",
+    "Outdoor.Channel.US.us": "465393",
     "plex.tv.Outside.plex": null, // Outside TV
     "Pursuit.Channel.us": "403580",
-    "SNY:.SportsNet.New.York.(Comcast).us": "403447",
-    "Sportsman.Channel.us": "403703",
-    "The.Tennis.Channel.us": "403834",
+    "SNY:.SportsNet.New.York.(Comcast).us": "464777",
+    "Sportsman.Channel.us": "465264",
+    "The.Tennis.Channel.us": "465236",
     "TSN1.ca": "470446",
     "TSN2.ca": "470550",
     "TSN3.ca": "470888",
     "TSN4.ca": "470730",
     "TSN5.ca": "470390",
-    "YES.Network.us": "403670",
+    "YES.Network.us": "465052",
 
-    // Entertainment Channels
-    "amc": "403838",
-    "american-heroes": "403724",
-    "antenna": null, // Local/syndication
+    // Entertainment
+    "amc": "465032",
+    "american-heroes": "464895",
+    "antenna": "465202", // Local/syndication
     "aspire": "403648",
     "bbc-america": "403895",
     "bet-east": "403923",
