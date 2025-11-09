@@ -70,7 +70,7 @@ https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/C-SPAN/index.m3u
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/CARTOON_NETWORK/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="cbs-247" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/CBS_News_247_logo.svg/2560px-CBS_News_247_logo.svg.png" tvg-name="CBS News 24/7",CBS News 24/7
-https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/CBS_News/index.m3u8
+https://hlsr.vercel.app/api/proxy?url=https://cbsn-us.cbsnstream.cbsnews.com/out/v1/55a8648e8f134e82a470f83d562deeca/master.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="Sports" tvg-id="cbs-sports" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/1/13/CBS_Sports_%282021%29.svg" tvg-name="CBS Sports",CBS Sports
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/CBSEAST/index.m3u8
