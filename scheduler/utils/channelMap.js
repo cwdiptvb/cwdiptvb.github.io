@@ -58,7 +58,7 @@ export const CHANNEL_MAP = {
     "bet-her": "403495",
     "bet-jams": "8895",
     "bet-soul": "405733",
-    "boomerang": "403576",
+    "boomerang": "464755",
     "bounce": null, // Local/syndication
     "bravo": "403897",
     "buzzr": null, // Local/syndication
@@ -172,7 +172,7 @@ export const CHANNEL_MAP = {
     "TLC.USA.-.Eastern.us": "403827",
     "Travel.US.-.East.us": "403702",
     "World.Fishing.Network.(US).(WFN).us": "8928",
-    "cartoon-network": "403461",
+    "cartoon-network": "465267",
     "disney-channel": "403788",
     "disney-jr": "403674",
     "disney-xd": "403837",
