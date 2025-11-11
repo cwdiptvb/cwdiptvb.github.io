@@ -47,18 +47,14 @@ export function buildProgramme(programme) {
   let xml = `  <programme start="${start}" stop="${stop}" channel="${escapeXml(channelId)}">\n`;
   
   // Check if this is an enriched series episode
-  if (tmdb && tmdb.season && tmdb.episode) {
-    // Enhanced series episode
-    const fullTitle = tmdb.episodeName 
-      ? `${tmdb.showName} - ${tmdb.episodeName}`
-      : tmdb.showName || title;
+  if (tmdb && tmdb.season && tmdb.episode && tmdb.episodeName) {
+    // Enhanced series episode with full metadata
+    const fullTitle = `${tmdb.showName} - ${tmdb.episodeName}`;
     
     xml += `    <title>${escapeXml(fullTitle)}</title>\n`;
     
     // Sub-title (episode name)
-    if (tmdb.episodeName) {
-      xml += `    <sub-title>${escapeXml(tmdb.episodeName)}</sub-title>\n`;
-    }
+    xml += `    <sub-title>${escapeXml(tmdb.episodeName)}</sub-title>\n`;
     
     // Enhanced description with season/episode info
     if (tmdb.overview) {
@@ -94,17 +90,41 @@ export function buildProgramme(programme) {
       xml += `    <category>tmdb:tv:${tmdb.showId}</category>\n`;
     }
     
+  } else if (tmdb && tmdb.showName) {
+    // Series identified but no episode details
+    xml += `    <title>${escapeXml(tmdb.showName)}</title>\n`;
+    
+    if (description) {
+      xml += `    <desc>${escapeXml(description)}</desc>\n`;
+    }
+    
+    // Add series poster if available
+    if (tmdb.seriesPoster) {
+      xml += `    <image src="${escapeXml(tmdb.seriesPoster)}" />\n`;
+    }
+    
+    xml += `    <category>series</category>\n`;
+    
   } else {
-    // Standard programme without enrichment
+    // Standard programme without enrichment (news, sports, movies, etc)
     xml += `    <title>${escapeXml(title)}</title>\n`;
     
     if (description) {
       xml += `    <desc>${escapeXml(description)}</desc>\n`;
     }
     
-    // Add series poster if available but no episode info
-    if (tmdb && tmdb.seriesPoster) {
-      xml += `    <image src="${escapeXml(tmdb.seriesPoster)}" />\n`;
+    // Try to categorize based on title/description
+    const titleLower = title.toLowerCase();
+    const descLower = (description || '').toLowerCase();
+    
+    if (titleLower.includes('news') || descLower.includes('news')) {
+      xml += `    <category>news</category>\n`;
+    } else if (titleLower.includes('sport') || descLower.includes('sport') || 
+               titleLower.includes('nfl') || titleLower.includes('nba') || 
+               titleLower.includes('mlb') || titleLower.includes('nhl')) {
+      xml += `    <category>sports</category>\n`;
+    } else if (titleLower.includes('movie') || descLower.includes('film')) {
+      xml += `    <category>movie</category>\n`;
     }
   }
   
