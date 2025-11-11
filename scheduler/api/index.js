@@ -3,8 +3,8 @@ import fetch from 'node-fetch';
 import { CHANNEL_MAP } from '../utils/channelMap.js';
 
 // Configuration
-const TMDB_API_KEY = process.env.TMDB_API_KEY || 'dea6ce3893227222ef38c383336d893f';
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || 'FCKGW-RHQQ2-YXRKT-8T46W-28798';
+const TMDB_API_KEY = process.env.TMDB_API_KEY || 'dea6ce3893227222ef38c383336d893f'
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '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'; // Free and fast!
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 // In-memory cache
@@ -69,7 +69,7 @@ function extractProgrammes(xml) {
  * Uses Claude AI to analyze programme and extract episode information
  */
 async function enrichWithAI(programmes) {
-  if (!ANTHROPIC_API_KEY || programmes.length === 0) return programmes;
+  if (!GROQ_API_KEY || programmes.length === 0) return programmes;
   
   try {
     // Prepare batch of programmes for AI analysis (max 50 at a time)
@@ -227,6 +227,19 @@ function buildProgrammeXML(programme, channelId) {
     // OnScreen format (S01E05)
     const onScreen = `S${String(enriched.season).padStart(2, '0')}E${String(enriched.episode).padStart(2, '0')}`;
     xml += `    <episode-num system="onscreen">${onScreen}</episode-num>\n`;
+    
+    // Episode thumbnail (still image from the episode)
+    if (enriched.episodeThumbnail) {
+      xml += `    <icon src="${enriched.episodeThumbnail}" />\n`;
+    }
+    
+    // Series poster/thumbnail
+    if (enriched.seriesPoster) {
+      xml += `    <image src="${enriched.seriesPoster}" />\n`;
+    }
+    
+    // Category
+    xml += `    <category>series</category>\n`;
   } else {
     // Standard programme without enrichment
     xml += `    <title>${escapeXml(title)}</title>\n`;
