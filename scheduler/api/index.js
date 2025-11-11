@@ -83,27 +83,29 @@ async function analyzeWithAI(programmes) {
       desc: p.description.substring(0, 200)
     }));
     
-    const prompt = `You are analyzing TV listings to identify series episodes. For each listing, determine if it's a TV series episode and extract details.
+    const prompt = `Analyze these TV programme listings and identify TV SERIES episodes (scripted shows like dramas, comedies, etc).
 
 TV Listings:
 ${JSON.stringify(programmeSummary, null, 2)}
 
-For EACH listing, respond with a JSON array where each object has:
+For EACH listing (all ${programmeSummary.length}), respond with:
 {
   "index": <number>,
-  "isSeries": <boolean>,
-  "showName": "<clean show name without episode info>",
+  "isSeries": <boolean - true ONLY for scripted TV series, NOT for news/sports/talk shows>,
+  "showName": "<clean show name>",
   "season": <number or null>,
   "episode": <number or null>
 }
 
-Rules:
-- Look for patterns like "S1E5", "Season 1 Episode 5", "1x05" in title or description
-- Clean show names (remove episode info, years, etc)
-- Return null for season/episode if you can't determine them
-- Include ALL ${programmeSummary.length} entries in order
+Examples:
+- "Breaking Bad" or "Breaking Bad S01E05" → isSeries: true
+- "Friends - The One With..." → isSeries: true
+- "CNN Tonight" or "NBC Nightly News" → isSeries: false (news)
+- "SportsCenter" or "NFL Football" → isSeries: false (sports)
+- "The Tonight Show" → isSeries: false (talk show)
 
-Respond with ONLY the JSON array, no other text.`;
+Look for S##E## patterns, "Season X Episode Y", or episode titles in descriptions.
+Respond with ONLY a JSON array, no other text.`;
 
     console.log(`🤖 Sending ${programmes.length} programmes to Groq AI...`);
     
@@ -117,7 +119,7 @@ Respond with ONLY the JSON array, no other text.`;
         model: 'llama-3.1-70b-versatile',
         messages: [{
           role: 'system',
-          content: 'You are a TV listing analyzer. Always respond with valid JSON only.'
+          content: 'You are a TV listing analyzer. Only mark scripted TV series as isSeries:true. News, sports, and talk shows should be isSeries:false. Always respond with valid JSON only.'
         }, {
           role: 'user',
           content: prompt
@@ -147,7 +149,7 @@ Respond with ONLY the JSON array, no other text.`;
     }
     
     const results = JSON.parse(jsonStr);
-    console.log(`✅ AI identified ${results.filter(r => r.isSeries).length} series episodes`);
+    console.log(`✅ AI identified ${results.filter(r => r.isSeries).length} series episodes out of ${results.length} programmes`);
     
     return results;
     
