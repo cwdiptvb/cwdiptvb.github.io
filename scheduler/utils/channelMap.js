@@ -1,7 +1,7 @@
 export const CHANNEL_MAP = {
     // News
     "abc-east": "465150",
-    "bbc-news-america": "465025",
+    "bbc-news-america": "",
     "bloomberg": "465324",
     "cbs-247": "464994",
     "cnbc": "464791",
@@ -52,7 +52,7 @@ export const CHANNEL_MAP = {
     "american-heroes": "464895",
     "antenna": "465202", // Local/syndication
     "aspire": "403648",
-    "bbc-america": "403895",
+    "bbc-america": "465025",
     "bet-east": "403923",
     "bet-gospel": "405730",
     "bet-her": "403495",
