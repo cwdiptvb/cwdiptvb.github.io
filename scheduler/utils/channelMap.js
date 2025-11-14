@@ -12,7 +12,7 @@ export const CHANNEL_MAP = {
     "fox-buisness": "464766",
     "hln": "465044",
     "msnbc": "465087",
-    "NBC.(WNBC).New.York,.NY.US": "467015",
+    "NBC.(WNBC).New.York,.NY.us": "467015",
     "NewsNation.-.Eastern.Feed.us": "465039",
     "The.Weather.Channel.us": "465272",
 
