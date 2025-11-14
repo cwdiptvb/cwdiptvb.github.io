@@ -1,6 +1,9 @@
 #EXTM3U url-tvg="https://cwdiptvb.vercel.app/"
 
-#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ny" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHYjbUUOA9cZDNtYuKd9pOAEvJOI-tsuUbV4ZnRKzf_g&s=10" tvg-name="ABC 7 (WABC) New York NY,ABC 7 (WABC) New York NY
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ny" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHYjbUUOA9cZDNtYuKd9pOAEvJOI-tsuUbV4ZnRKzf_g&s=10" tvg-name="ABC 5 (KSTP) Minneapolis MN",ABC 5 (KSTP) Minneapolis MN
+https://cwdiptvb.github.io/stream/abc-5-mn/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ny" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHYjbUUOA9cZDNtYuKd9pOAEvJOI-tsuUbV4ZnRKzf_g&s=10" tvg-name="ABC 7 (WABC) New York NY",ABC 7 (WABC) New York NY
 https://cwdiptvb.github.io/stream/abc-7-ny/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-east" tvg-logo="https://payload.cargocollective.com/1/4/146919/13926257/V_BoxedBlackBorder_569.png" tvg-name="ABC News Live",ABC News Live
