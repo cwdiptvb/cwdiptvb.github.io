@@ -616,7 +616,7 @@ https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/TBS/index.m3u8
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/TCM/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="Kids" tvg-id="teennick" tvg-logo="https://static.wikia.nocookie.net/nickelodeon/images/d/da/TeenNick_Splat_2023.svg/revision/latest/scale-to-width-down/1200?cb=20240904132305" tvg-name="",TeenNick
-https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/Teen_Nick/index.m3u8
+https://cwdiptvb.github.io/stream/teennick/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="Sports" tvg-id="The.Tennis.Channel.us" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s33395_dark_360w_270h.png" tvg-name="Tennis Channel",Tennis Channel
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/TENNIS_CHANNEL/index.m3u8
