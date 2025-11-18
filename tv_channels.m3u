@@ -183,6 +183,9 @@ https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/ESPN_U/index.m3u
 #EXTINF:-1 tvg-type="live" group-title="Entertainment" tvg-id="food" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s12574_dark_360w_270h.png" tvg-name="Food Network",Food Network
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/FOOD_NETWORK/index.m3u8
 
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="fox-mn" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStUHqC8fE-nFzqU8KofuZQwQXVZPWdTBme_eqRKud171qxBZX96fAPSj0&s=10" tvg-name="Fox 9 (KMSP) Minneapolis MN",Fox 9 (KMSP) Minneapolis MN
+https://cwdiptvb.github.io/stream/fox-9-mn/index.m3u8
+
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="fox-news" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_News_Channel_logo.svg/512px-Fox_News_Channel_logo.svg.png" tvg-name="Fox News Channel",Fox News Channel
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/FOX_NEWS_CHANNEL/index.m3u8
 
