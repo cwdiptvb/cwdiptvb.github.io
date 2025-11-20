@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>M3U8 Output</title>
+  <style>
+    body {
+      font-family: monospace;
+      white-space: pre;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+<script>
+async function main() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  if (!id) {
+    document.body.innerText = "Missing ?id= parameter.";
+    return;
+  }
+
+  try {
+    const response = await fetch("data.json");
+    const data = await response.json();
+
+    const m3u8Url = data[id];
+    if (!m3u8Url) {
+      document.body.innerText = "No entry found for id=" + id;
+      return;
+    }
+
+    // Output the URL directly as plain text
+    document.body.innerText = m3u8Url;
+
+  } catch (err) {
+    document.body.innerText = "Error loading JSON: " + err;
+  }
+}
+
+main();
+</script>
+</body>
+</html>
