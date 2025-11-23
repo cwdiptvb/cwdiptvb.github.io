@@ -139,15 +139,13 @@
         }
 
         function escapeXml(str) {
-            return str.replace(/[<>&'"]/g, (char) => {
-                switch (char) {
-                    case '<': return '&lt;';
-                    case '>': return '&gt;';
-                    case '&': return '&amp;';
-                    case "'": return '&apos;';
-                    case '"': return '&quot;';
-                }
-            });
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;')
+                .replace(/[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD]/g, ''); // Remove invalid XML characters
         }
 
         function generateSitemapXml(channels) {
@@ -180,10 +178,12 @@
             xml += '    <priority>0.8</priority>\n';
             xml += '  </url>\n';
             
-            // Channel pages
+            // Channel pages - with proper URL encoding
             channels.forEach(channel => {
+                // Encode the channel ID for URL
+                const encodedId = encodeURIComponent(channel.id);
                 xml += '  <url>\n';
-                xml += `    <loc>${baseUrl}/play?id=${escapeXml(channel.id)}</loc>\n`;
+                xml += `    <loc>${baseUrl}/play?id=${encodedId}</loc>\n`;
                 xml += `    <lastmod>${today}</lastmod>\n`;
                 xml += '    <changefreq>weekly</changefreq>\n';
                 xml += '    <priority>0.7</priority>\n';
