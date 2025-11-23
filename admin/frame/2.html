@@ -154,11 +154,12 @@
             const today = new Date().toISOString().split('T')[0];
             
             let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-            xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+            xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n';
             
             // Homepage
             xml += '  <url>\n';
             xml += `    <loc>${baseUrl}/</loc>\n`;
+            xml += `    <xhtml:title>Free Live TV - Watch TV Online for Free</xhtml:title>\n`;
             xml += `    <lastmod>${today}</lastmod>\n`;
             xml += '    <changefreq>daily</changefreq>\n';
             xml += '    <priority>1.0</priority>\n';
@@ -167,6 +168,7 @@
             // About page
             xml += '  <url>\n';
             xml += `    <loc>${baseUrl}/About/</loc>\n`;
+            xml += `    <xhtml:title>About - Free Live TV</xhtml:title>\n`;
             xml += `    <lastmod>${today}</lastmod>\n`;
             xml += '    <changefreq>monthly</changefreq>\n';
             xml += '    <priority>0.8</priority>\n';
@@ -175,6 +177,7 @@
             // Contact page
             xml += '  <url>\n';
             xml += `    <loc>${baseUrl}/contact/</loc>\n`;
+            xml += `    <xhtml:title>Contact Us - Free Live TV</xhtml:title>\n`;
             xml += `    <lastmod>${today}</lastmod>\n`;
             xml += '    <changefreq>monthly</changefreq>\n';
             xml += '    <priority>0.8</priority>\n';
@@ -184,6 +187,7 @@
             channels.forEach(channel => {
                 xml += '  <url>\n';
                 xml += `    <loc>${baseUrl}/play?id=${escapeXml(channel.id)}</loc>\n`;
+                xml += `    <xhtml:title>Watch ${escapeXml(channel.name)} For Free Online - Free Live TV</xhtml:title>\n`;
                 xml += `    <lastmod>${today}</lastmod>\n`;
                 xml += '    <changefreq>weekly</changefreq>\n';
                 xml += '    <priority>0.7</priority>\n';
