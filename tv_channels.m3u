@@ -6,8 +6,8 @@ https://cwdiptvb.github.io/stream/abc/index.m3u8
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-mn" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/KSTP_logo_%282021%29.svg/1200px-KSTP_logo_%282021%29.svg.png" tvg-name="ABC 5 (KSTP) Minneapolis MN",ABC 5 (KSTP) Minneapolis MN
 https://cwdiptvb.github.io/stream/abc-5-mn/index.m3u8
 
-#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ga" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/KSTP_logo_%282021%29.svg/1200px-KSTP_logo_%282021%29.svg.png" tvg-name="ABC 2 (WSBTV) Atlanta GA",ABC 2 (WSBTV) Atlanta GA
-https://epicplay247.cfd/?url=aHR0cHM6Ly96ZWtvbmV3Lm5ld2tzby5ydS96ZWtvL3ByZW1pdW01MS9tb25vLmNzcyZkYXRhPVQzSnBaMmx1UFdoMGRIQnpPaTh2WlhCcFkzQnNZWGx3YkdGNUxtTm1aQT09&headers=eyJSZWZlcmVyIjoiaHR0cHM6Ly9lcGljcGxheXBsYXkuY2ZkLyJ9
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ga" tvg-logo="https://static.wikia.nocookie.net/logo-timeline/images/0/08/Wsb-2021.png/revision/latest?cb=20211110135147" tvg-name="ABC 2 (WSBTV) Atlanta GA",ABC 2 (WSBTV) Atlanta GA
+https://hlsr.vercel.app/api/proxy?url=https://epicplay247.cfd/?url=aHR0cHM6Ly96ZWtvbmV3Lm5ld2tzby5ydS96ZWtvL3ByZW1pdW01MS9tb25vLmNzcyZkYXRhPVQzSnBaMmx1UFdoMGRIQnpPaTh2WlhCcFkzQnNZWGx3YkdGNUxtTm1aQT09&headers=eyJSZWZlcmVyIjoiaHR0cHM6Ly9lcGljcGxheXBsYXkuY2ZkLyJ9
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ny" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/WABC_TV_New_2021.svg/2560px-WABC_TV_New_2021.svg.png" tvg-name="ABC 7 (WABC) New York NY",ABC 7 (WABC) New York NY
 https://cwdiptvb.github.io/stream/abc-7-ny/index.m3u8
