@@ -1,4 +1,3 @@
-<script>
 (function() {
   // Check if the page is inside an iframe
   const inIframe = window.self !== window.top;
@@ -20,4 +19,3 @@
     }
   }
 })();
-</script>
