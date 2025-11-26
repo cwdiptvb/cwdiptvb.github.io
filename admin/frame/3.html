@@ -296,6 +296,161 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     return out;
   }
+  // Import M3U modal
+  el.importBtn.addEventListener('click', () => {
+    el.importModalOverlay.style.display = 'flex';
+  });
+  el.closeImportModal.addEventListener('click', () => {
+    el.importModalOverlay.style.display = 'none';
+  });
+
+  // Import from URL
+  el.fetchM3uUrlBtn.addEventListener('click', async () => {
+    const url = el.m3uUrl.value.trim();
+    if (!url) return alert('Enter M3U URL');
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+      const text = await res.text();
+      const imported = parseM3U(text, url);
+      if (imported.length === 0) return alert('No streams found');
+      state.channels = state.channels.concat(imported);
+      saveCache();
+      renderCards();
+      el.importModalOverlay.style.display = 'none';
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+    }
+  });
+
+  // Import from file
+  el.importM3uFileBtn.addEventListener('click', async () => {
+    const file = el.m3uFile.files[0];
+    if (!file) return alert('Choose a file');
+    const text = await file.text();
+    const imported = parseM3U(text, null);
+    if (imported.length === 0) return alert('No streams found');
+    state.channels = state.channels.concat(imported);
+    saveCache();
+    renderCards();
+    el.importModalOverlay.style.display = 'none';
+  });
+
+  // Delete confirmation
+  el.deleteBtn.addEventListener('click', () => {
+    const names = Array.from(state.selected).map(i => state.channels[i].name || state.channels[i].id || '(unnamed)');
+    el.deleteMessage.textContent = 'Are you sure you want to delete? Selected Channels: ' + names.join(', ');
+    el.deleteModalOverlay.style.display = 'flex';
+  });
+  el.cancelDelete.addEventListener('click', () => {
+    el.deleteModalOverlay.style.display = 'none';
+  });
+  el.confirmDelete.addEventListener('click', () => {
+    state.channels = state.channels.filter((_, i) => !state.selected.has(i));
+    state.selected.clear();
+    saveCache();
+    renderCards();
+    el.deleteModalOverlay.style.display = 'none';
+  });
+
+  // Batch edit modal
+  el.batchBtn.addEventListener('click', () => {
+    if(state.selected.size < 2) return;
+    el.batchModalOverlay.style.display = 'flex';
+  });
+  el.closeBatchModal.addEventListener('click', () => {
+    el.batchModalOverlay.style.display = 'none';
+  });
+  el.batchProxyOn.addEventListener('click', () => {
+    state.selected.forEach(i => { state.channels[i].proxy = true; });
+    saveCache(); renderCards();
+    el.batchModalOverlay.style.display = 'none';
+  });
+
+  // GitHub save with SHA handling
+  el.saveBtn.addEventListener('click', async () => {
+    if (!state.token) return alert('API key required');
+    showLog();
+    logStep('Saving to GitHub...');
+    try {
+      const content = new TextEncoder().encode(JSON.stringify(state.channels, null, 2));
+      const base64 = btoa(String.fromCharCode(...content));
+      const body = {
+        message: `Update ${fixedConfig.path}`,
+        content: base64,
+        branch: fixedConfig.branch
+      };
+
+      // Try to get existing SHA
+      try {
+        const shaRes = await fetch(
+          `https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}?ref=${fixedConfig.branch}`,
+          { headers: { Authorization: `Bearer ${state.token}` } }
+        );
+        if (shaRes.status === 200) {
+          const info = await shaRes.json();
+          body.sha = info.sha;
+          logStep('Found existing file SHA: ' + info.sha);
+        } else if (shaRes.status === 404) {
+          logStep('File does not exist. A new file will be created.');
+        } else {
+          const t = await shaRes.text();
+          throw new Error('Failed to get SHA: ' + shaRes.status + ' ' + t);
+        }
+      } catch (e) {
+        logStep('Warning: could not fetch SHA. Proceeding anyway. ' + e.message);
+      }
+
+      const res = await fetch(
+        `https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${state.token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github+json'
+          },
+          body: JSON.stringify(body)
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error('Commit failed: ' + JSON.stringify(data));
+      logStep('Commit successful: ' + (data.commit?.sha || '(no sha)'));
+      clearCache();
+      logStep('Local cache cleared.');
+    } catch (err) {
+      logStep('ERROR: ' + err.message);
+    }
+  });
+
+  // Log helpers and overlay
+  function logStep(msg){ el.logPre.textContent += msg + '\n'; }
+  function showLog(){ el.logOverlay.style.display = 'flex'; el.logPre.textContent = ''; }
+  el.closeLog.addEventListener('click', () => { el.logOverlay.style.display = 'none'; });
+
+  // Token prompt and boot
+  el.tokenModalSet.addEventListener('click', () => {
+    const token = el.tokenModalInput.value.trim();
+    if (!token) return alert('API key required.');
+    state.token = token;
+    el.tokenModalOverlay.style.display = 'none';
+    el.saveBtn.disabled = false; // enable Save button
+    if (!loadCache()) {
+      loadCatalog();
+    } else {
+      renderCards();
+    }
+  });
+
+  // Reload button prefers cache
+  el.loadBtn.addEventListener('click', () => {
+    if (!loadCache()) loadCatalog();
+    else renderCards();
+  });
+
+  // Show API key prompt on start
+  el.tokenModalOverlay.style.display = 'flex';
+});
 </script>
 </body>
 </html>
