@@ -106,60 +106,66 @@
   </div>
 
 <script>
-  const fixedConfig={owner:'cwdiptvb',repo:'cwdiptvb.github.io',path:'admin/channel.json',branch:'main',catalogUrl:'https://cwdiptvb.github.io/admin/channel.json'};
-  const state={channels:[],selected:new Set(),token:null};
-  const el={
-    cards:document.getElementById('cards'),
-    loadBtn:document.getElementById('loadBtn'),
-    saveBtn:document.getElementById('saveBtn'),
-    batchBtn:document.getElementById('batchBtn'),
-    addBtn:document.getElementById('addBtn'),
-    deleteBtn:document.getElementById('deleteBtn'),
-    selectAllBtn:document.getElementById('selectAllBtn'),
-    tokenModalOverlay:document.getElementById('tokenModalOverlay'),
-    tokenModalInput:document.getElementById('tokenModalInput'),
-    tokenModalSet:document.getElementById('tokenModalSet'),
-    importBtn:document.getElementById('importBtn'),
-    importModalOverlay:document.getElementById('importModalOverlay'),
-    closeImportModal:document.getElementById('closeImportModal'),
-    fetchM3uUrlBtn:document.getElementById('fetchM3uUrlBtn'),
-    m3uUrl:document.getElementById('m3uUrl'),
-    m3uFile:document.getElementById('m3uFile'),
-    importM3uFileBtn:document.getElementById('importM3uFileBtn'),
-    deleteModalOverlay:document.getElementById('deleteModalOverlay'),
-    deleteMessage:document.getElementById('deleteMessage'),
-    cancelDelete:document.getElementById('cancelDelete'),
-    confirmDelete:document.getElementById('confirmDelete'),
-    logOverlay:document.getElementById('logOverlay'),
-    logPre:document.getElementById('logPre'),
-    closeLog:document.getElementById('closeLog')
+  const fixedConfig = {
+    owner: 'cwdiptvb',
+    repo: 'cwdiptvb.github.io',
+    path: 'admin/channel.json',
+    branch: 'main',
+    catalogUrl: 'https://cwdiptvb.github.io/admin/channel.json'
+  };
+  const state = { channels: [], selected: new Set(), token: null };
+  const el = {
+    cards: document.getElementById('cards'),
+    loadBtn: document.getElementById('loadBtn'),
+    saveBtn: document.getElementById('saveBtn'),
+    batchBtn: document.getElementById('batchBtn'),
+    addBtn: document.getElementById('addBtn'),
+    deleteBtn: document.getElementById('deleteBtn'),
+    selectAllBtn: document.getElementById('selectAllBtn'),
+    tokenModalOverlay: document.getElementById('tokenModalOverlay'),
+    tokenModalInput: document.getElementById('tokenModalInput'),
+    tokenModalSet: document.getElementById('tokenModalSet'),
+    importBtn: document.getElementById('importBtn'),
+    importModalOverlay: document.getElementById('importModalOverlay'),
+    closeImportModal: document.getElementById('closeImportModal'),
+    fetchM3uUrlBtn: document.getElementById('fetchM3uUrlBtn'),
+    m3uUrl: document.getElementById('m3uUrl'),
+    m3uFile: document.getElementById('m3uFile'),
+    importM3uFileBtn: document.getElementById('importM3uFileBtn'),
+    deleteModalOverlay: document.getElementById('deleteModalOverlay'),
+    deleteMessage: document.getElementById('deleteMessage'),
+    cancelDelete: document.getElementById('cancelDelete'),
+    confirmDelete: document.getElementById('confirmDelete'),
+    logOverlay: document.getElementById('logOverlay'),
+    logPre: document.getElementById('logPre'),
+    closeLog: document.getElementById('closeLog')
   };
 
-  function saveCache(){localStorage.setItem('channelEditorCache',JSON.stringify(state.channels));}
-  function loadCache(){const c=localStorage.getItem('channelEditorCache');if(c){try{state.channels=JSON.parse(c);return true;}catch{}}return false;}
-  function clearCache(){localStorage.removeItem('channelEditorCache');}
+  function saveCache(){ localStorage.setItem('channelEditorCache', JSON.stringify(state.channels)); }
+  function loadCache(){ const c = localStorage.getItem('channelEditorCache'); if(c){ try{ state.channels = JSON.parse(c); return true; }catch{} } return false; }
+  function clearCache(){ localStorage.removeItem('channelEditorCache'); }
 
   function updateSelectAllButton(){
-    const total=state.channels.length,sel=state.selected.size;
-    if(sel===0) el.selectAllBtn.textContent='Select: ☐';
-    else if(sel===total) el.selectAllBtn.textContent='Select: ☑';
-    else el.selectAllBtn.textContent='Select: ▭';
+    const total = state.channels.length, sel = state.selected.size;
+    if(sel === 0) el.selectAllBtn.textContent = 'Select: ☐';
+    else if(sel === total) el.selectAllBtn.textContent = 'Select: ☑';
+    else el.selectAllBtn.textContent = 'Select: ▭';
   }
 
   async function loadCatalog(){
     try{
-      const res=await fetch(fixedConfig.catalogUrl,{cache:'no-store'});
-      const data=await res.json();
-      state.channels=Array.isArray(data)?data:[data];
+      const res = await fetch(fixedConfig.catalogUrl,{cache:'no-store'});
+      const data = await res.json();
+      state.channels = Array.isArray(data)?data:[data];
       state.channels.forEach(c=>{
-        c._enabled=c._enabled||{};
+        c._enabled = c._enabled || {};
         ['name','id','url','codecs','bdwh','bdwhavg','fps'].forEach(k=>{
           if(c[k]!==undefined) c._enabled[k]=true;
         });
         if(c.proxy===undefined) c.proxy=false;
       });
-      renderCards();saveCache();
-    }catch(err){alert('Failed to load:'+err.message);}
+      renderCards(); saveCache();
+    }catch(err){ alert('Failed to load:'+err.message); }
   }
 
   function renderCards(){
@@ -168,27 +174,27 @@
       const card=document.createElement('div');
       card.className='card'+(state.selected.has(idx)?' selected':'')+(c.proxy?' proxy-on':'');
       card.dataset.index=idx;
-      const top=document.createElement('div');top.className='top';
-      const select=document.createElement('input');select.type='checkbox';select.checked=state.selected.has(idx);
-      select.addEventListener('change',()=>{if(select.checked)state.selected.add(idx);else state.selected.delete(idx);renderCards();});
-      const title=document.createElement('div');title.innerHTML=`<strong>${c.name||'(untitled)'}</strong><span class="tag">id:${c.id||''}</span>`;
-      const badge=document.createElement('span');badge.className='badge';badge.textContent=c.proxy?'Proxy:ON':'Proxy:OFF';
-      top.appendChild(select);top.appendChild(title);top.appendChild(badge);card.appendChild(top);
+      const top=document.createElement('div'); top.className='top';
+      const select=document.createElement('input'); select.type='checkbox'; select.checked=state.selected.has(idx);
+      select.addEventListener('change',()=>{ if(select.checked) state.selected.add(idx); else state.selected.delete(idx); renderCards(); });
+      const title=document.createElement('div'); title.innerHTML=`<strong>${c.name||'(untitled)'}</strong><span class="tag">id:${c.id||''}</span>`;
+      const badge=document.createElement('span'); badge.className='badge'; badge.textContent=c.proxy?'Proxy:ON':'Proxy:OFF';
+      top.appendChild(select); top.appendChild(title); top.appendChild(badge); card.appendChild(top);
 
-      const grid=document.createElement('div');grid.className='grid';
+      const grid=document.createElement('div'); grid.className='grid';
       function makeRow(label,key,type='text'){
-        const row=document.createElement('div');row.className='row';
-        const lb=document.createElement('label');lb.className='checkbox';
+        const row=document.createElement('div'); row.className='row';
+        const lb=document.createElement('label'); lb.className='checkbox';
         lb.innerHTML=`<input type="checkbox" ${c._enabled?.[key]?'checked':''}/> ${label}`;
-        const input=document.createElement('input');input.type=type;input.value=c[key]||'';
-        const apply=document.createElement('button');apply.className='btn';apply.textContent='Apply';
+        const input=document.createElement('input'); input.type=type; input.value=c[key]||'';
+        const apply=document.createElement('button'); apply.className='btn'; apply.textContent='Apply';
         apply.addEventListener('click',()=>{
           const enabled=lb.querySelector('input').checked;
-          c._enabled=c._enabled||{};c._enabled[key]=enabled;
-          if(enabled){c[key]=type==='number'?Number(input.value):input.value;} else delete c[key];
-          saveCache();renderCards();
+          c._enabled=c._enabled||{}; c._enabled[key]=enabled;
+          if(enabled){ c[key]=type==='number'?Number(input.value):input.value; } else delete c[key];
+          saveCache(); renderCards();
         });
-        row.appendChild(lb);row.appendChild(input);row.appendChild(apply);
+        row.appendChild(lb); row.appendChild(input); row.appendChild(apply);
         return row;
       }
       grid.appendChild(makeRow('Title','name'));
@@ -198,11 +204,11 @@
       grid.appendChild(makeRow('Avg bandwidth','bdwhavg','number'));
       grid.appendChild(makeRow('Frame rate','fps','number'));
 
-      const proxyRow=document.createElement('div');proxyRow.className='row';
+      const proxyRow=document.createElement('div'); proxyRow.className='row';
       proxyRow.innerHTML=`<label class="checkbox"><input type="checkbox" ${c.proxy?'checked':''}/> Proxy</label><span></span><button class="btn">Apply</button>`;
       proxyRow.querySelector('button').addEventListener('click',()=>{
         c.proxy=proxyRow.querySelector('input').checked;
-        saveCache();renderCards();
+        saveCache(); renderCards();
       });
       grid.appendChild(proxyRow);
 
@@ -215,155 +221,203 @@
 
   // Select all toggle
   el.selectAllBtn.addEventListener('click',()=>{
-    const total=state.channels.length,sel=state.selected.size;
+    const total=state.channels.length, sel=state.selected.size;
     if(sel<total) state.selected=new Set(state.channels.map((_,i)=>i));
     else state.selected.clear();
     renderCards();
   });
 
+  // M3U parser
+  function parseM3U(text, sourceUrl) {
+    const lines = text.split(/\r?\n/);
+    const out = [];
+    const base = (() => { try { return sourceUrl ? new URL(sourceUrl) : null; } catch { return null; } })();
+    function resolveUrl(u){ if(!u) return ''; if(base){ try{ return new URL(u, base).toString(); }catch{} } return u; }
+    function parseAttrs(attrStr){
+      const attrs={};
+      attrStr.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).forEach(part=>{
+        const m=part.trim().match(/([A-Z0-9\-]+)=(.*)/);
+        if(m){ let v=m[2].trim(); if(v.startsWith('"')&&v.endsWith('"')) v=v.slice(1,-1); attrs[m[1]]=v; }
+      });
+      return attrs;
+    }
+    let lastExtinfTitle=null;
+    for(let i=0;i<lines.length;i++){
+      const line=lines[i].trim(); if(!line) continue;
+      if(line.startsWith('#EXT-X-STREAM-INF')){
+        const attrs=parseAttrs(line.split(':')[1]||'');
+        let variantUrl=''; for(let j=i+1;j<lines.length;j++){ const nxt=lines[j].trim(); if(!nxt||nxt.startsWith('#')) continue; variantUrl=resolveUrl(nxt); i=j; break; }
+        if(!variantUrl) continue;
+        const name=attrs.NAME||lastExtinfTitle||variantUrl;
+        out.push({ name, id:name.toLowerCase().replace(/[^a-z0-9]+/g,'-'), url:variantUrl,
+          bdwh:attrs.BANDWIDTH?Number(attrs.BANDWIDTH):undefined,
+          bdwhavg:attrs['AVERAGE-BANDWIDTH']?Number(attrs['AVERAGE-BANDWIDTH']):undefined,
+          fps:attrs['FRAME-RATE']?Number(attrs['FRAME-RATE']):undefined,
+          codecs:attrs.CODECS, proxy:variantUrl.startsWith('http://'),
+          _enabled:{name:true,id:true,url:true}
+        });
+        continue;
+      }
+      if(line.startsWith('#EXTINF')){
+        const m=line.match(/#EXTINF:[^,]*,(.*)$/);
+        lastExtinfTitle=m?m[1].trim():lastExtinfTitle;
+        continue;
+      }
+      if(!line.startsWith('#')&&(line.startsWith('http://')||line.startsWith('https://')      ) {
+        const variantUrl = resolveUrl(line);
+        const name = lastExtinfTitle || variantUrl;
+        out.push({
+          name,
+          id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          url: variantUrl,
+          proxy: variantUrl.startsWith('http://'),
+          _enabled: { name: true, id: true, url: true }
+        });
+        lastExtinfTitle = null;
+      }
+    }
+    return out;
+  }
+
   // Import M3U modal
-  el.importBtn.addEventListener('click',()=>{el.importModalOverlay.style.display='flex';});
-  el.closeImportModal.addEventListener('click',()=>{el.importModalOverlay.style.display='none';});
-  el.fetchM3uUrlBtn.addEventListener('click',async()=>{
-    const url=el.m3uUrl.value.trim();if(!url)return;
-    const res=await fetch(url);const text=await res.text();
-    const lines=text.split(/\r?\n/).filter(l=>l&&!l.startsWith('#'));
-    lines.forEach((line,i)=>{state.channels.push({name:'Imported '+(i+1),id:'import-'+i,url:line,proxy:line.startsWith('http://'),_enabled:{url:true}});});
-    saveCache();renderCards();el.importModalOverlay.style.display='none';
+  el.importBtn.addEventListener('click', () => {
+    el.importModalOverlay.style.display = 'flex';
   });
-  el.importM3uFileBtn.addEventListener('click',async()=>{
-    const file=el.m3uFile.files[0];if(!file)return;
-    const text=await file.text();
-    const lines=text.split(/\r?\n/).filter(l=>l&&!l.startsWith('#'));
-    lines.forEach((line,i)=>{state.channels.push({name:'Imported '+(i+1),id:'import-'+i,url:line,proxy:line.startsWith('http://'),_enabled:{url:true}});});
-    saveCache();renderCards();el.importModalOverlay.style.display='none';
+  el.closeImportModal.addEventListener('click', () => {
+    el.importModalOverlay.style.display = 'none';
+  });
+
+  // Import from URL
+  el.fetchM3uUrlBtn.addEventListener('click', async () => {
+    const url = el.m3uUrl.value.trim();
+    if (!url) return alert('Enter M3U URL');
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+      const text = await res.text();
+      const imported = parseM3U(text, url);
+      if (imported.length === 0) return alert('No streams found');
+      state.channels = state.channels.concat(imported);
+      saveCache();
+      renderCards();
+      el.importModalOverlay.style.display = 'none';
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+    }
+  });
+
+  // Import from file
+  el.importM3uFileBtn.addEventListener('click', async () => {
+    const file = el.m3uFile.files[0];
+    if (!file) return alert('Choose a file');
+    const text = await file.text();
+    const imported = parseM3U(text, null);
+    if (imported.length === 0) return alert('No streams found');
+    state.channels = state.channels.concat(imported);
+    saveCache();
+    renderCards();
+    el.importModalOverlay.style.display = 'none';
   });
 
   // Delete confirmation
-  el.deleteBtn.addEventListener('click',()=>{
-    const names=Array.from(state.selected).map(i=>state.channels[i].name||state.channels[i].id);
-    el.deleteMessage.textContent='Are you sure you want to delete? Selected Channels: '+names.join(', ');
-    el.deleteModalOverlay.style.display='flex';
+  el.deleteBtn.addEventListener('click', () => {
+    const names = Array.from(state.selected).map(i => state.channels[i].name || state.channels[i].id || '(unnamed)');
+    el.deleteMessage.textContent = 'Are you sure you want to delete? Selected Channels: ' + names.join(', ');
+    el.deleteModalOverlay.style.display = 'flex';
   });
-  el.cancelDelete.addEventListener('click',()=>{el.deleteModalOverlay.style.display='none';});
-  el.confirmDelete.addEventListener('click',()=>{
-    state.channels=state.channels.filter((_,i)=>!state.selected.has(i));
-    state.selected.clear();saveCache();renderCards();
-    el.deleteModalOverlay.style.display='none';
+  el.cancelDelete.addEventListener('click', () => {
+    el.deleteModalOverlay.style.display = 'none';
   });
-
-  // GitHub save
-  el.saveBtn.addEventListener('click',async()=>{
-    if(!state.token)return alert('API key required');
-    showLog();logStep('Saving to GitHub...');
-    try{
-      const content=new TextEncoder().encode(JSON.stringify(state.channels,null,2));
-      const base64=btoa(String.fromCharCode(...content));
-      const url=`https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}`;
-    const body = {
-      message: `Update ${fixedConfig.path}`,
-      content: base64,
-      branch: fixedConfig.branch
-    };
-
-    // Retrieve current file SHA (if exists) so we can update instead of create
-    try {
-      const shaRes = await fetch(
-        `https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}?ref=${fixedConfig.branch}`,
-        { headers: { Authorization: `Bearer ${state.token}` } }
-      );
-      if (shaRes.status === 200) {
-        const info = await shaRes.json();
-        body.sha = info.sha;
-        logStep('Found existing file SHA: ' + info.sha);
-      } else if (shaRes.status === 404) {
-        logStep('File does not exist. A new file will be created.');
-      } else {
-        const t = await shaRes.text();
-        throw new Error('Failed to get SHA: ' + shaRes.status + ' ' + t);
-      }
-    } catch (e) {
-      logStep('Warning: could not fetch SHA. Proceeding to commit (may fail if file exists). ' + e.message);
-    }
-
-    // Commit changes
-    const res = await fetch(
-      `https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}`,
-      {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/vnd.github+json'
-        },
-        body: JSON.stringify(body)
-      }
-    );
-    const data = await res.json();
-    if (!res.ok) throw new Error('Commit failed: ' + JSON.stringify(data));
-    logStep('Commit successful: ' + (data.commit?.sha || '(no sha)'));
-
-    // Clear local cache after successful push
-    clearCache();
-    logStep('Local cache cleared.');
-  } catch(err) {
-    logStep('ERROR: ' + err.message);
-  }
-});
-
-// Log helpers and overlay controls
-function logStep(msg){ el.logPre.textContent += msg + '\n'; }
-function showLog(){ el.logOverlay.style.display = 'flex'; el.logPre.textContent = ''; }
-el.closeLog.addEventListener('click', () => { el.logOverlay.style.display = 'none'; });
-
-// Token prompt and boot
-el.tokenModalSet.addEventListener('click', () => {
-  const token = el.tokenModalInput.value.trim();
-  if (!token) return alert('API key required.');
-  state.token = token;
-  el.tokenModalOverlay.style.display = 'none';
-  // If we have cache, use it; otherwise load from GitHub
-  if (!loadCache()) {
-    loadCatalog();
-  } else {
+  el.confirmDelete.addEventListener('click', () => {
+    state.channels = state.channels.filter((_, i) => !state.selected.has(i));
+    state.selected.clear();
+    saveCache();
     renderCards();
-  }
-});
+    el.deleteModalOverlay.style.display = 'none';
+  });
 
-// Manual add channel dialog (optional if already present elsewhere)
-el.addBtn.addEventListener('click', () => {
-  // Minimal inline add (replace with your full modal if you had one)
-  const name = prompt('Channel title:') || '';
-  const id = prompt('Channel ID (leave blank to auto):') || '';
-  const url = prompt('Stream URL:') || '';
-  if (!name || !url) return;
-  const c = {
-    name,
-    id: id || name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,64),
-    url,
-    proxy: url.startsWith('http://'),
-    _enabled: { name: true, id: true, url: true }
-  };
-  state.channels.push(c);
-  saveCache();
-  renderCards();
-});
+  // GitHub save with SHA handling
+  el.saveBtn.addEventListener('click', async () => {
+    if (!state.token) return alert('API key required');
+    showLog();
+    logStep('Saving to GitHub...');
+    try {
+      const content = new TextEncoder().encode(JSON.stringify(state.channels, null, 2));
+      const base64 = btoa(String.fromCharCode(...content));
+      const body = {
+        message: `Update ${fixedConfig.path}`,
+        content: base64,
+        branch: fixedConfig.branch
+      };
 
-// Batch edit launcher (if you have a modal, wire it here; otherwise disable button)
-el.batchBtn.addEventListener('click', () => {
-  if (state.selected.size === 0) return;
-  alert('Batch edit modal not shown in this snippet. Integrate with your existing batch edit dialog.');
-});
+      // Try to get existing SHA
+      try {
+        const shaRes = await fetch(
+          `https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}?ref=${fixedConfig.branch}`,
+          { headers: { Authorization: `Bearer ${state.token}` } }
+        );
+        if (shaRes.status === 200) {
+          const info = await shaRes.json();
+          body.sha = info.sha;
+          logStep('Found existing file SHA: ' + info.sha);
+        } else if (shaRes.status === 404) {
+          logStep('File does not exist. A new file will be created.');
+        } else {
+          const t = await shaRes.text();
+          throw new Error('Failed to get SHA: ' + shaRes.status + ' ' + t);
+        }
+      } catch (e) {
+        logStep('Warning: could not fetch SHA. Proceeding anyway. ' + e.message);
+      }
 
-// Reload button
-el.loadBtn.addEventListener('click', () => {
-  // Prefer cache if present; otherwise reload from GitHub
-  if (!loadCache()) loadCatalog();
-  else renderCards();
-});
+      const res = await fetch(
+        `https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${state.token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github+json'
+          },
+          body: JSON.stringify(body)
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error('Commit failed: ' + JSON.stringify(data));
+      logStep('Commit successful: ' + (data.commit?.sha || '(no sha)'));
+      clearCache();
+      logStep('Local cache cleared.');
+    } catch (err) {
+      logStep('ERROR: ' + err.message);
+    }
+  });
 
-// Initial prompt for API key
-el.tokenModalOverlay.style.display = 'flex';
+  // Log helpers and overlay
+  function logStep(msg){ el.logPre.textContent += msg + '\n'; }
+  function showLog(){ el.logOverlay.style.display = 'flex'; el.logPre.textContent = ''; }
+  el.closeLog.addEventListener('click', () => { el.logOverlay.style.display = 'none'; });
+
+  // Token prompt and boot
+  el.tokenModalSet.addEventListener('click', () => {
+    const token = el.tokenModalInput.value.trim();
+    if (!token) return alert('API key required.');
+    state.token = token;
+    el.tokenModalOverlay.style.display = 'none';
+    if (!loadCache()) {
+      loadCatalog();
+    } else {
+      renderCards();
+    }
+  });
+
+  // Reload button prefers cache
+  el.loadBtn.addEventListener('click', () => {
+    if (!loadCache()) loadCatalog();
+    else renderCards();
+  });
+
+  // Show API key prompt on start
+  el.tokenModalOverlay.style.display = 'flex';
 </script>
 </body>
 </html>
