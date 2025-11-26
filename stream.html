@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>M3U Playlist Redirect</title>
   <script>
-    async function servePlaylist() {
+    async function redirectToPlaylist() {
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
       if (!id) {
@@ -25,6 +26,7 @@
           return;
         }
 
+        // Build playlist
         let playlist = '#EXTM3U\n';
         let attrs = [];
         if (channel.name) attrs.push(`NAME="${channel.name}"`);
@@ -37,23 +39,19 @@
           : channel.url;
         playlist += streamURL + '\n';
 
+        // Create blob and redirect
         const blob = new Blob([playlist], { type: 'application/vnd.apple.mpegurl' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${id}.m3u8`;
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
 
-        document.body.textContent = `Playlist for ${id} downloaded.`;
+        // Redirect browser to blob URL
+        window.location.href = url;
 
       } catch (err) {
         document.body.textContent = 'Error: ' + err.message;
       }
     }
 
-    servePlaylist();
+    redirectToPlaylist();
   </script>
 </head>
 <body>
