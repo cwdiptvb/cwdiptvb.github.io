@@ -46,7 +46,7 @@
       <button class="btn warn" id="importBtn">Import M3U</button>
       <button class="btn" id="batchBtn" disabled>Batch edit</button>
       <button class="btn" id="addBtn">Add channel</button>
-      <button class="btn" id="deleteBtn" disabled>Delete Selected</button>
+      <button class="btn danger" id="deleteBtn" disabled>Delete Selected</button>
       <button class="btn" id="selectAllBtn">Select: ☐</button>
     </div>
   </header>
@@ -106,10 +106,19 @@
   </div>
 
   <script>
-    // Basic state
+    const fixedConfig={owner:'cwdiptvb',repo:'cwdiptvb.github.io',path:'admin/channel.json',branch:'main',catalogUrl:'https://cwdiptvb.github.io/admin/channel.json'};
     const state={channels:[],selected:new Set(),token:null};
     const el={
       cards:document.getElementById('cards'),
+      loadBtn:document.getElementById('loadBtn'),
+      saveBtn:document.getElementById('saveBtn'),
+      batchBtn:document.getElementById('batchBtn'),
+      addBtn:document.getElementById('addBtn'),
+      deleteBtn:document.getElementById('deleteBtn'),
+      selectAllBtn:document.getElementById('selectAllBtn'),
+      tokenModalOverlay:document.getElementById('tokenModalOverlay'),
+      tokenModalInput:document.getElementById('tokenModalInput'),
+      tokenModalSet:document.getElementById('tokenModalSet'),
       importBtn:document.getElementById('importBtn'),
       importModalOverlay:document.getElementById('importModalOverlay'),
       closeImportModal:document.getElementById('closeImportModal'),
@@ -117,30 +126,18 @@
       m3uUrl:document.getElementById('m3uUrl'),
       m3uFile:document.getElementById('m3uFile'),
       importM3uFileBtn:document.getElementById('importM3uFileBtn'),
-      deleteBtn:document.getElementById('deleteBtn'),
       deleteModalOverlay:document.getElementById('deleteModalOverlay'),
       deleteMessage:document.getElementById('deleteMessage'),
       cancelDelete:document.getElementById('cancelDelete'),
       confirmDelete:document.getElementById('confirmDelete'),
-      selectAllBtn:document.getElementById('selectAllBtn')
+      logOverlay:document.getElementById('logOverlay'),
+      logPre:document.getElementById('logPre'),
+      closeLog:document.getElementById('closeLog')
     };
 
-    function renderCards(){
-      el.cards.innerHTML='';
-      state.channels.forEach((c,i)=>{
-        const card=document.createElement('div');
-        card.className='card'+(state.selected.has(i)?' selected':'');
-        card.textContent=c.name||c.id||'Channel';
-        card.addEventListener('click',()=>{
-          if(state.selected.has(i)) state.selected.delete(i);
-          else state.selected.add(i);
-          renderCards(); updateSelectAllButton();
-        });
-        el.cards.appendChild(card);
-      });
-      el.deleteBtn.disabled=state.selected.size===0;
-      updateSelectAllButton();
-    }
+    function saveCache(){localStorage.setItem('channelEditorCache',JSON.stringify(state.channels));}
+    function loadCache(){const c=localStorage.getItem('channelEditorCache');if(c){try{state.channels=JSON.parse(c);return true;}catch{}}return false;}
+    function clearCache(){localStorage.removeItem('channelEditorCache');}
 
     function updateSelectAllButton(){
       const total=state.channels.length,sel=state.selected.size;
@@ -149,73 +146,107 @@
       else el.selectAllBtn.textContent='Select: ▭';
     }
 
-    //     // Import M3U popup
-    el.importBtn.addEventListener('click',()=>{
-      el.importModalOverlay.style.display='flex';
-    });
-    el.closeImportModal.addEventListener('click',()=>{
-      el.importModalOverlay.style.display='none';
-    });
-
-    el.fetchM3uUrlBtn.addEventListener('click',async()=>{
-      const url=el.m3uUrl.value.trim();
-      if(!url) return alert('Enter M3U URL');
-      try{
-        const res=await fetch(url);
-        if(!res.ok) throw new Error('Fetch failed: '+res.status);
-        const text=await res.text();
-        // Simple parse: treat each non-comment line as a channel
-        const lines=text.split(/\r?\n/).filter(l=>l && !l.startsWith('#'));
-        lines.forEach((line,i)=>{
-          state.channels.push({name:'Imported '+(i+1),id:'import-'+i,url:line,proxy:line.startsWith('http://'),_enabled:{name:true,id:true,url:true}});
-        });
-        renderCards();
-        el.importModalOverlay.style.display='none';
-      }catch(err){ alert('Import failed: '+err.message); }
-    });
-
-    el.importM3uFileBtn.addEventListener('click',async()=>{
-      const file=el.m3uFile.files[0];
-      if(!file) return alert('Choose a file');
-      const text=await file.text();
-      const lines=text.split(/\r?\n/).filter(l=>l && !l.startsWith('#'));
-      lines.forEach((line,i)=>{
-        state.channels.push({name:'Imported '+(i+1),id:'import-'+i,url:line,proxy:line.startsWith('http://'),_enabled:{name:true,id:true,url:true}});
+    function renderCards(){
+      el.cards.innerHTML='';
+      state.channels.forEach((c,i)=>{
+        const card=document.createElement('div');
+        card.className='card'+(state.selected.has(i)?' selected':'')+(c.proxy?' proxy-on':'');
+        card.dataset.index=i;
+        const top=document.createElement('div');top.className='top';
+        const select=document.createElement('input');select.type='checkbox';select.checked=state.selected.has(i);
+        select.addEventListener('change',()=>{if(select.checked)state.selected.add(i);else state.selected.delete(i);renderCards();});
+        const title=document.createElement('div');title.innerHTML=`<strong>${c.name||'(untitled)'}</strong><span class="tag">id:${c.id||''}</span>`;
+        const badge=document.createElement('span');badge.className='badge';badge.textContent=c.proxy?'Proxy:ON':'Proxy:OFF';
+        top.appendChild(select);top.appendChild(title);top.appendChild(badge);card.appendChild(top);
+        // Simplified: show URL only
+        const row=document.createElement('div');row.className='row';
+        const input=document.createElement('input');input.type='url';input.value=c.url||'';
+        const apply=document.createElement('button');apply.className='btn';apply.textContent='Apply';
+        apply.addEventListener('click',()=>{c.url=input.value;saveCache();renderCards();});
+        row.appendChild(document.createTextNode('URL'));row.appendChild(input);row.appendChild(apply);
+        card.appendChild(row);
+        el.cards.appendChild(card);
       });
+      el.deleteBtn.disabled=state.selected.size===0;
+      updateSelectAllButton();
+    }
+
+    // Select all toggle
+    el.selectAllBtn.addEventListener('click',()=>{
+      const total=state.channels.length,sel=state.selected.size;
+      if(sel<total) state.selected=new Set(state.channels.map((_,i)=>i));
+      else state.selected.clear();
       renderCards();
-      el.importModalOverlay.style.display='none';
     });
 
-    // Delete selected confirmation
+    // Import M3U modal
+    el.importBtn.addEventListener('click',()=>{el.importModalOverlay.style.display='flex';});
+    el.closeImportModal.addEventListener('click',()=>{el.importModalOverlay.style.display='none';});
+    el.fetchM3uUrlBtn.addEventListener('click',async()=>{
+      const url=el.m3uUrl.value.trim();if(!url)return;
+      const res=await fetch(url);const text=await res.text();
+      const lines=text.split(/\r?\n/).filter(l=>l&&!l.startsWith('#'));
+      lines.forEach((line,i)=>{state.channels.push({name:'Imported '+(i+1),id:'import-'+i,url:line,proxy:line.startsWith('http://'),_enabled:{url:true}});});
+      saveCache();renderCards();el.importModalOverlay.style.display='none';
+    });
+    el.importM3uFileBtn.addEventListener('click',async()=>{
+      const file=el.m3uFile.files[0];if(!file)return;
+      const text=await file.text();
+      const lines=text.split(/\r?\n/).filter(l=>l&&!l.startsWith('#'));
+      lines.forEach((line,i)=>{state.channels.push({name:'Imported '+(i+1),id:'import-'+i,url:line,proxy:line.startsWith('http://'),_enabled:{url:true}});});
+      saveCache();renderCards();el.importModalOverlay.style.display='none';
+    });
+
+    // Delete confirmation
     el.deleteBtn.addEventListener('click',()=>{
-      if(state.selected.size===0) return;
       const names=Array.from(state.selected).map(i=>state.channels[i].name||state.channels[i].id);
       el.deleteMessage.textContent='Are you sure you want to delete? Selected Channels: '+names.join(', ');
       el.deleteModalOverlay.style.display='flex';
     });
-    el.cancelDelete.addEventListener('click',()=>{
-      el.deleteModalOverlay.style.display='none';
-    });
+    el.cancelDelete.addEventListener('click',()=>{el.deleteModalOverlay.style.display='none';});
     el.confirmDelete.addEventListener('click',()=>{
       state.channels=state.channels.filter((_,i)=>!state.selected.has(i));
-      state.selected.clear();
-      renderCards();
+      state.selected.clear();saveCache();renderCards();
       el.deleteModalOverlay.style.display='none';
     });
 
-    // Select all button
-    el.selectAllBtn.addEventListener('click',()=>{
-      const total=state.channels.length, selected=state.selected.size;
-      if(selected===0||selected<total){
-        state.selected=new Set(state.channels.map((_,i)=>i));
-      } else state.selected.clear();
-      renderCards();
+    // GitHub save (simplified)
+    el.saveBtn.addEventListener('click',async()=>{
+      if(!state.token)return alert('API key required');
+      showLog();logStep('Saving to GitHub...');
+      try{
+        const content=new TextEncoder().encode(JSON.stringify(state.channels,null,2));
+        const base64=btoa(String.fromCharCode(...content));
+        const url=`https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}`;
+        const body={message:'Update catalog',content:base64,branch:fixedConfig.branch};
+        const res=await fetch(url,{method:'PUT',headers:{Authorization:`Bearer ${state.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(!res.ok)throw new Error('Commit failed');
+        logStep('Commit successful');clearCache();
+      }catch(err){logStep('ERROR:'+err.message);}
     });
 
-    // Init with dummy channels for demo
-    state.channels=[{name:'Demo Channel 1',id:'demo1',url:'http://example.com/1.m3u8',proxy:true,_enabled:{name:true,id:true,url:true}},
-                    {name:'Demo Channel 2',id:'demo2',url:'http://example.com/2.m3u8',proxy:false,_enabled:{name:true,id:true,url:true}}];
-    renderCards();
+    // Log overlay
+    function logStep(msg){el.logPre.textContent+=msg+"\\n";}
+    function showLog(){el.logOverlay.style.display='flex';el.logPre.textContent='';}
+    el.closeLog.addEventListener('click',()=>{el.logOverlay.style.display='none';});
+
+    // Token prompt
+    el.tokenModalSet.addEventListener('click',()=>{
+      const token=el.tokenModalInput.value.trim();if(!token)return;
+      state.token=token;el.tokenModalOverlay.style.display='none';
+      if(!loadCache()){loadCatalog();}
+      else renderCards();
+    });
+
+    // Load from GitHub
+    async function loadCatalog(){
+      try{const res=await fetch(fixedConfig.catalogUrl,{cache:'no-store'});const data=await res.json();
+        state.channels=Array.isArray(data)?data:[data];renderCards();
+      }catch(err){alert('Failed to load:'+err.message);}
+    }
+
+    // Init
+    el.tokenModalOverlay.style.display='flex';
   </script>
 </body>
 </html>
