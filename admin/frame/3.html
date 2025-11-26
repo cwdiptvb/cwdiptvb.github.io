@@ -113,7 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
     branch: 'main',
     catalogUrl: 'https://cwdiptvb.github.io/admin/channel.json'
   };
+
   const state = { channels: [], selected: new Set(), token: null };
+
   const el = {
     cards: document.getElementById('cards'),
     loadBtn: document.getElementById('loadBtn'),
@@ -122,9 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
     addBtn: document.getElementById('addBtn'),
     deleteBtn: document.getElementById('deleteBtn'),
     selectAllBtn: document.getElementById('selectAllBtn'),
+
+    // Modals
     tokenModalOverlay: document.getElementById('tokenModalOverlay'),
     tokenModalInput: document.getElementById('tokenModalInput'),
     tokenModalSet: document.getElementById('tokenModalSet'),
+
     importBtn: document.getElementById('importBtn'),
     importModalOverlay: document.getElementById('importModalOverlay'),
     closeImportModal: document.getElementById('closeImportModal'),
@@ -132,22 +137,28 @@ document.addEventListener('DOMContentLoaded', () => {
     m3uUrl: document.getElementById('m3uUrl'),
     m3uFile: document.getElementById('m3uFile'),
     importM3uFileBtn: document.getElementById('importM3uFileBtn'),
+
     deleteModalOverlay: document.getElementById('deleteModalOverlay'),
     deleteMessage: document.getElementById('deleteMessage'),
     cancelDelete: document.getElementById('cancelDelete'),
     confirmDelete: document.getElementById('confirmDelete'),
-    logOverlay: document.getElementById('logOverlay'),
-    logPre: document.getElementById('logPre'),
-    closeLog: document.getElementById('closeLog'),
+
     batchModalOverlay: document.getElementById('batchModalOverlay'),
     closeBatchModal: document.getElementById('closeBatchModal'),
-    batchProxyOn: document.getElementById('batchProxyOn')
+    batchProxyOn: document.getElementById('batchProxyOn'),
+
+    // Log overlay
+    logOverlay: document.getElementById('logOverlay'),
+    logPre: document.getElementById('logPre'),
+    closeLog: document.getElementById('closeLog')
   };
 
+  // -------- Cache helpers --------
   function saveCache(){ localStorage.setItem('channelEditorCache', JSON.stringify(state.channels)); }
   function loadCache(){ const c = localStorage.getItem('channelEditorCache'); if(c){ try{ state.channels = JSON.parse(c); return true; }catch{} } return false; }
   function clearCache(){ localStorage.removeItem('channelEditorCache'); }
 
+  // -------- UI helpers --------
   function updateSelectAllButton(){
     const total = state.channels.length, sel = state.selected.size;
     if(sel === 0) el.selectAllBtn.textContent = 'Select: ☐';
@@ -155,11 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
     else el.selectAllBtn.textContent = 'Select: ▭';
   }
 
+  // -------- Load catalog from GitHub --------
   async function loadCatalog(){
     try{
       const res = await fetch(fixedConfig.catalogUrl,{cache:'no-store'});
+      if (!res.ok) throw new Error('HTTP '+res.status);
       const data = await res.json();
       state.channels = Array.isArray(data)?data:[data];
+      // Normalize fields and enabled flags
       state.channels.forEach(c=>{
         c._enabled = c._enabled || {};
         ['name','id','url','codecs','bdwh','bdwhavg','fps'].forEach(k=>{
@@ -168,38 +182,44 @@ document.addEventListener('DOMContentLoaded', () => {
         if(c.proxy===undefined) c.proxy=false;
       });
       renderCards(); saveCache();
-    }catch(err){ alert('Failed to load:'+err.message); }
+    }catch(err){ alert('Failed to load: '+err.message); }
   }
 
+  // -------- Render cards --------
   function renderCards(){
     el.cards.innerHTML='';
     state.channels.forEach((c,idx)=>{
       const card=document.createElement('div');
       card.className='card'+(state.selected.has(idx)?' selected':'')+(c.proxy?' proxy-on':'');
       card.dataset.index=idx;
+
+      // Header: checkbox, title (no ID), proxy badge
       const top=document.createElement('div'); top.className='top';
       const select=document.createElement('input'); select.type='checkbox'; select.checked=state.selected.has(idx);
       select.addEventListener('change',()=>{ if(select.checked) state.selected.add(idx); else state.selected.delete(idx); renderCards(); });
+
       const title=document.createElement('div'); title.innerHTML=`<strong>${c.name||'(untitled)'}</strong>`;
       const badge=document.createElement('span'); badge.className='badge'; badge.textContent=c.proxy?'Proxy:ON':'Proxy:OFF';
       top.appendChild(select); top.appendChild(title); top.appendChild(badge); card.appendChild(top);
 
+      // Editable rows
       const grid=document.createElement('div'); grid.className='grid';
       function makeRow(label,key,type='text'){
         const row=document.createElement('div'); row.className='row';
         const lb=document.createElement('label'); lb.className='checkbox';
         lb.innerHTML=`<input type="checkbox" ${c._enabled?.[key]?'checked':''}/> ${label}`;
-        const input=document.createElement('input'); input.type=type; input.value=c[key]||'';
+        const input=document.createElement('input'); input.type=type; input.value=c[key]??'';
         const apply=document.createElement('button'); apply.className='btn'; apply.textContent='Apply';
         apply.addEventListener('click',()=>{
           const enabled=lb.querySelector('input').checked;
           c._enabled=c._enabled||{}; c._enabled[key]=enabled;
-          if(enabled){ c[key]=type==='number'?Number(input.value):input.value; } else delete c[key];
+          if(enabled){ c[key]=type==='number'?Number(input.value):input.value; } else { delete c[key]; }
           saveCache(); renderCards();
         });
         row.appendChild(lb); row.appendChild(input); row.appendChild(apply);
         return row;
       }
+
       grid.appendChild(makeRow('Title','name'));
       grid.appendChild(makeRow('ID','id'));
       grid.appendChild(makeRow('URL','url','url'));
@@ -218,12 +238,14 @@ document.addEventListener('DOMContentLoaded', () => {
       card.appendChild(grid);
       el.cards.appendChild(card);
     });
+
+    // Button states
     el.deleteBtn.disabled = state.selected.size === 0;
     el.batchBtn.disabled = state.selected.size < 2;
     updateSelectAllButton();
   }
 
-  // Select all toggle
+  // -------- Select all toggle --------
   el.selectAllBtn.addEventListener('click',()=>{
     const total=state.channels.length, sel=state.selected.size;
     if(sel<total) state.selected=new Set(state.channels.map((_,i)=>i));
@@ -231,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCards();
   });
 
-  // Proxy cleanup helper
+  // -------- URL cleanup (proxy wrapper) --------
   function cleanUrl(u){
     const prefix = "https://hlsr.vercel.app/api/proxy?url=";
     if(u.startsWith(prefix)){
@@ -240,29 +262,46 @@ document.addEventListener('DOMContentLoaded', () => {
     return { url: u, proxy: u.startsWith('http://') };
   }
 
-  // M3U parser
+  // -------- M3U parser --------
   function parseM3U(text, sourceUrl) {
     const lines = text.split(/\r?\n/);
     const out = [];
     const base = (() => { try { return sourceUrl ? new URL(sourceUrl) : null; } catch { return null; } })();
+
     function resolveUrl(u){ if(!u) return ''; if(base){ try{ return new URL(u, base).toString(); }catch{} } return u; }
+
     function parseAttrs(attrStr){
       const attrs={};
       attrStr.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).forEach(part=>{
         const m=part.trim().match(/([A-Z0-9\-]+)=(.*)/);
-        if(m){ let v=m[2].trim(); if(v.startsWith('"')&&v.endsWith('"')) v=v.slice(1,-1); attrs[m[1]]=v; }
+        if(m){
+          let v=m[2].trim();
+          if(v.startsWith('"')&&v.endsWith('"')) v=v.slice(1,-1);
+          attrs[m[1]]=v;
+        }
       });
       return attrs;
     }
+
     let lastExtinfTitle=null;
+
     for(let i=0;i<lines.length;i++){
-      const line=lines[i].trim(); if(!line) continue;
+      const line=lines[i].trim();
+      if(!line) continue;
+
+      // Master playlist variants
       if(line.startsWith('#EXT-X-STREAM-INF')){
         const attrs=parseAttrs(line.split(':')[1]||'');
-        let variantUrl=''; for(let j=i+1;j<lines.length;j++){ const nxt=lines[j].trim(); if(!nxt||nxt.startsWith('#')) continue; variantUrl=resolveUrl(nxt); i=j; break; }
+        let variantUrl='';
+        for(let j=i+1;j<lines.length;j++){
+          const nxt=lines[j].trim();
+          if(!nxt||nxt.startsWith('#')) continue;
+          variantUrl=resolveUrl(nxt); i=j; break;
+        }
         if(!variantUrl) continue;
+
         const cleaned=cleanUrl(variantUrl);
-                const name = attrs.NAME || lastExtinfTitle || cleaned.url;
+        const name = attrs.NAME || lastExtinfTitle || cleaned.url;
         out.push({
           name,
           id: name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
@@ -276,27 +315,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         continue;
       }
-      if (line.startsWith('#EXTINF')) {
-        const m = line.match(/#EXTINF:[^,]*,(.*)$/);
-        lastExtinfTitle = m ? m[1].trim() : lastExtinfTitle;
+
+      // Media playlist item title
+      if(line.startsWith('#EXTINF')){
+        const m=line.match(/#EXTINF:[^,]*,(.*)$/);
+        lastExtinfTitle=m?m[1].trim():lastExtinfTitle;
         continue;
       }
-      if (!line.startsWith('#') && (line.startsWith('http://') || line.startsWith('https://'))) {
-        const cleaned = cleanUrl(resolveUrl(line));
-        const name = lastExtinfTitle || cleaned.url;
+
+      // Bare URL line
+      if(!line.startsWith('#') && (line.startsWith('http://') || line.startsWith('https://'))){
+        const cleaned=cleanUrl(resolveUrl(line));
+        const name=lastExtinfTitle||cleaned.url;
         out.push({
           name,
-          id: name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+          id:name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
           url: cleaned.url,
           proxy: cleaned.proxy,
-          _enabled: { name:true, id:true, url:true }
+          _enabled:{name:true,id:true,url:true}
         });
-        lastExtinfTitle = null;
+        lastExtinfTitle=null;
       }
     }
     return out;
   }
-  // Import M3U modal
+
+  // -------- Import M3U modal --------
   el.importBtn.addEventListener('click', () => {
     el.importModalOverlay.style.display = 'flex';
   });
@@ -304,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
     el.importModalOverlay.style.display = 'none';
   });
 
-  // Import from URL
   el.fetchM3uUrlBtn.addEventListener('click', async () => {
     const url = el.m3uUrl.value.trim();
     if (!url) return alert('Enter M3U URL');
@@ -323,7 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Import from file
   el.importM3uFileBtn.addEventListener('click', async () => {
     const file = el.m3uFile.files[0];
     if (!file) return alert('Choose a file');
@@ -336,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.importModalOverlay.style.display = 'none';
   });
 
-  // Delete confirmation
+  // -------- Delete confirmation modal --------
   el.deleteBtn.addEventListener('click', () => {
     const names = Array.from(state.selected).map(i => state.channels[i].name || state.channels[i].id || '(unnamed)');
     el.deleteMessage.textContent = 'Are you sure you want to delete? Selected Channels: ' + names.join(', ');
@@ -353,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.deleteModalOverlay.style.display = 'none';
   });
 
-  // Batch edit modal
+  // -------- Batch edit modal --------
   el.batchBtn.addEventListener('click', () => {
     if(state.selected.size < 2) return;
     el.batchModalOverlay.style.display = 'flex';
@@ -367,7 +409,12 @@ document.addEventListener('DOMContentLoaded', () => {
     el.batchModalOverlay.style.display = 'none';
   });
 
-  // GitHub save with SHA handling
+  // -------- Log overlay helpers --------
+  function logStep(msg){ el.logPre.textContent += msg + '\n'; }
+  function showLog(){ el.logOverlay.style.display = 'flex'; el.logPre.textContent = ''; }
+  el.closeLog.addEventListener('click', () => { el.logOverlay.style.display = 'none'; });
+
+  // -------- Save to GitHub (with SHA) --------
   el.saveBtn.addEventListener('click', async () => {
     if (!state.token) return alert('API key required');
     showLog();
@@ -381,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
         branch: fixedConfig.branch
       };
 
-      // Try to get existing SHA
+      // Retrieve current file SHA (if exists)
       try {
         const shaRes = await fetch(
           `https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}?ref=${fixedConfig.branch}`,
@@ -416,25 +463,30 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (!res.ok) throw new Error('Commit failed: ' + JSON.stringify(data));
       logStep('Commit successful: ' + (data.commit?.sha || '(no sha)'));
+
+      // Clear local cache and optionally redirect to published catalog
       clearCache();
       logStep('Local cache cleared.');
+      // Redirect logic: after successful commit, offer to view the catalog JSON
+      setTimeout(() => {
+        if (confirm('Commit succeeded. Open catalog JSON?')) {
+          window.location.href = fixedConfig.catalogUrl;
+        }
+      }, 300);
+
     } catch (err) {
       logStep('ERROR: ' + err.message);
     }
   });
 
-  // Log helpers and overlay
-  function logStep(msg){ el.logPre.textContent += msg + '\n'; }
-  function showLog(){ el.logOverlay.style.display = 'flex'; el.logPre.textContent = ''; }
-  el.closeLog.addEventListener('click', () => { el.logOverlay.style.display = 'none'; });
-
-  // Token prompt and boot
+  // -------- Token prompt and boot --------
   el.tokenModalSet.addEventListener('click', () => {
     const token = el.tokenModalInput.value.trim();
     if (!token) return alert('API key required.');
     state.token = token;
     el.tokenModalOverlay.style.display = 'none';
     el.saveBtn.disabled = false; // enable Save button
+
     if (!loadCache()) {
       loadCatalog();
     } else {
@@ -442,15 +494,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Reload button prefers cache
-  el.loadBtn.addEventListener('click', () => {
-    if (!loadCache()) loadCatalog();
-    else renderCards();
-  });
+  // Redirect/boot logic:
+  // - If there is cached data, render immediately.
+  // - If no cache, try loading JSON.
+  // - Always prompt for API key on first visit so Save is available.
+  const hadCache = loadCache();
+  if (hadCache) {
+    renderCards();
+  } else {
+    loadCatalog();
+  }
+  // Show API key prompt on start if no token yet
+  if (!state.token) {
+    el.tokenModalOverlay.style.display = 'flex';
+  }
 
-  // Show API key prompt on start
-  el.tokenModalOverlay.style.display = 'flex';
+  // -------- Optional: Add channel quick add (kept minimal) --------
+  if (el.addBtn) {
+    el.addBtn.addEventListener('click', () => {
+      const name = prompt('Channel title:') || '';
+      const id = prompt('Channel ID (leave blank to auto):') || '';
+      const url = prompt('Stream URL:') || '';
+      if (!name || !url) return;
+      const cleaned = cleanUrl(url);
+      const c = {
+        name,
+        id: id || name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,64),
+        url: cleaned.url,
+        proxy: cleaned.proxy,
+        _enabled: { name: true, id: true, url: true }
+      };
+      state.channels.push(c);
+      saveCache();
+      renderCards();
+    });
+  }
 });
+</script>
 </script>
 </body>
 </html>
