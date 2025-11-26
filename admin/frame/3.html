@@ -5,41 +5,36 @@
   <title>Channel catalog editor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
-      --bg: #0f1216; --panel: #171b22; --card: #1c2129;
-      --text: #e6e6e6; --muted: #a9b0bd; --accent: #4f9cf4;
-      --accent-2: #22c55e; --danger: #ef4444; --warning: #f59e0b;
-      --border: #2a313b;
-    }
-    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui, sans-serif; }
-    header { background:var(--panel); border-bottom:1px solid var(--border);
-      padding:12px 16px; position:sticky; top:0; z-index:10;
-      display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; }
-    header .title { font-size:18px; font-weight:600; }
-    header .actions { display:flex; gap:8px; flex-wrap:wrap; }
-    .btn { padding:8px 12px; border:1px solid var(--border); background:var(--card);
-      color:var(--text); border-radius:8px; cursor:pointer; font-weight:600; }
-    .btn.accent { background:var(--accent); color:#0b1a2b; border-color:transparent; }
-    .btn.success { background:var(--accent-2); color:#0b1a2b; border-color:transparent; }
-    .btn.warn { background:var(--warning); color:#1a1202; border-color:transparent; }
-    .btn.danger { background:var(--danger); color:#2b0b0b; border-color:transparent; }
-    .btn:disabled { opacity:0.6; cursor:not-allowed; }
-    main { padding:16px; }
-    .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:12px; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; }
-    .card.selected { outline:2px solid var(--accent); }
-    .card.proxy-on { border-color:var(--accent-2); }
-    .top { display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center; margin-bottom:8px; }
-    .badge { font-size:12px; padding:3px 8px; border-radius:999px; background:var(--panel); border:1px solid var(--border); color:var(--muted); }
-    .grid { display:grid; gap:8px; }
-    .row { display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center; }
-    .row input { width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--text); }
-    .checkbox { display:inline-flex; align-items:center; gap:6px; color:var(--muted); }
-    .footer-actions { display:flex; gap:8px; margin-top:12px; }
-    .log-overlay,.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:100; }
-    .log,.modal { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px; width:min(720px,90vw); max-height:80vh; overflow:auto; }
-    .modal { width:min(520px,92vw); }
-    .log pre { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:8px; color:var(--muted); white-space:pre-wrap; }
+    :root { --bg:#0f1216; --panel:#171b22; --card:#1c2129; --text:#e6e6e6;
+      --muted:#a9b0bd; --accent:#4f9cf4; --accent-2:#22c55e; --danger:#ef4444;
+      --warning:#f59e0b; --border:#2a313b; }
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;}
+    header{background:var(--panel);border-bottom:1px solid var(--border);padding:12px 16px;
+      display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;}
+    header .title{font-size:18px;font-weight:600;}
+    header .actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .btn{padding:8px 12px;border:1px solid var(--border);background:var(--card);
+      color:var(--text);border-radius:8px;cursor:pointer;font-weight:600;}
+    .btn.accent{background:var(--accent);color:#0b1a2b;border-color:transparent;}
+    .btn.success{background:var(--accent-2);color:#0b1a2b;border-color:transparent;}
+    .btn.warn{background:var(--warning);color:#1a1202;border-color:transparent;}
+    .btn.danger{background:var(--danger);color:#2b0b0b;border-color:transparent;}
+    .btn:disabled{opacity:.6;cursor:not-allowed;}
+    main{padding:16px;}
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;}
+    .card.selected{outline:2px solid var(--accent);}
+    .card.proxy-on{border-color:var(--accent-2);}
+    .top{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-bottom:8px;}
+    .badge{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--border);color:var(--muted);}
+    .grid{display:grid;gap:8px;}
+    .row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;}
+    .row input{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);}
+    .checkbox{display:inline-flex;align-items:center;gap:6px;color:var(--muted);}
+    .footer-actions{display:flex;gap:8px;margin-top:12px;}
+    .log-overlay,.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:100;}
+    .log,.modal{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px;width:min(520px,92vw);max-height:80vh;overflow:auto;}
+    .log pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--muted);white-space:pre-wrap;}
   </style>
 </head>
 <body>
@@ -51,6 +46,7 @@
       <button class="btn warn" id="importBtn">Import M3U</button>
       <button class="btn" id="batchBtn" disabled>Batch edit</button>
       <button class="btn" id="addBtn">Add channel</button>
+      <button class="btn" id="deleteBtn" disabled>Delete Selected</button>
       <button class="btn" id="selectAllBtn">Select: ☐</button>
     </div>
   </header>
@@ -67,11 +63,10 @@
     </div>
   </div>
 
-  <!-- Password prompt -->
+  <!-- API key prompt -->
   <div class="modal-overlay" id="tokenModalOverlay">
     <div class="modal">
       <h3>GitHub API key</h3>
-      <p style="color:var(--muted)">Enter a Personal Access Token (repo scope). It will be used to commit changes to <strong>cwdiptvb/cwdiptvb.github.io</strong> on <strong>main</strong>.</p>
       <div class="row">
         <label>API key</label>
         <input type="password" id="tokenModalInput" placeholder="ghp_..." />
@@ -80,117 +75,133 @@
     </div>
   </div>
 
+  <!-- Import M3U modal -->
+  <div class="modal-overlay" id="importModalOverlay">
+    <div class="modal">
+      <h3>Import M3U</h3>
+      <div class="row">
+        <label>From URL</label>
+        <input type="url" id="m3uUrl" placeholder="https://example.com/playlist.m3u8" />
+        <button class="btn" id="fetchM3uUrlBtn">Import</button>
+      </div>
+      <div class="row">
+        <label>From File</label>
+        <input type="file" id="m3uFile" accept=".m3u,.m3u8,text/plain" />
+        <button class="btn" id="importM3uFileBtn">Import</button>
+      </div>
+      <button class="btn" id="closeImportModal">Close</button>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal-overlay" id="deleteModalOverlay">
+    <div class="modal">
+      <h3>Confirm deletion</h3>
+      <p id="deleteMessage"></p>
+      <div class="footer-actions">
+        <button class="btn" id="cancelDelete">Cancel</button>
+        <button class="btn danger" id="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    /* Redirect logic */
-    (function() {
-      const inIframe = window.self !== window.top;
-      if (!inIframe) window.location.replace('/admin');
-      else {
-        const parentUrl = document.referrer || '';
-        if (!parentUrl.startsWith('https://cwdiptvb.github.io')) window.location.replace('/admin');
-      }
-    })();
-
-    const fixedConfig = {
-      owner:'cwdiptvb', repo:'cwdiptvb.github.io',
-      path:'admin/channel.json', branch:'main',
-      catalogUrl:'https://cwdiptvb.github.io/admin/channel.json'
-    };
-
-    const state = { channels:[], selected:new Set(), sha:null, token:null };
-    const el = {
+    // Basic state
+    const state={channels:[],selected:new Set(),token:null};
+    const el={
       cards:document.getElementById('cards'),
-      loadBtn:document.getElementById('loadBtn'),
-      saveBtn:document.getElementById('saveBtn'),
-      batchBtn:document.getElementById('batchBtn'),
-      addBtn:document.getElementById('addBtn'),
-      selectAllBtn:document.getElementById('selectAllBtn'),
-      logOverlay:document.getElementById('logOverlay'),
-      logPre:document.getElementById('logPre'),
-      closeLog:document.getElementById('closeLog'),
-      tokenModalOverlay:document.getElementById('tokenModalOverlay'),
-      tokenModalInput:document.getElementById('tokenModalInput'),
-      tokenModalSet:document.getElementById('tokenModalSet')
+      importBtn:document.getElementById('importBtn'),
+      importModalOverlay:document.getElementById('importModalOverlay'),
+      closeImportModal:document.getElementById('closeImportModal'),
+      fetchM3uUrlBtn:document.getElementById('fetchM3uUrlBtn'),
+      m3uUrl:document.getElementById('m3uUrl'),
+      m3uFile:document.getElementById('m3uFile'),
+      importM3uFileBtn:document.getElementById('importM3uFileBtn'),
+      deleteBtn:document.getElementById('deleteBtn'),
+      deleteModalOverlay:document.getElementById('deleteModalOverlay'),
+      deleteMessage:document.getElementById('deleteMessage'),
+      cancelDelete:document.getElementById('cancelDelete'),
+      confirmDelete:document.getElementById('confirmDelete'),
+      selectAllBtn:document.getElementById('selectAllBtn')
     };
-
-    function logStep(msg){el.logPre.textContent+=msg+"\\n";}
-    function showLog(){el.logOverlay.style.display='flex'; el.logPre.textContent='';}
-    function hideLog(){el.logOverlay.style.display='none';}
-    function saveCache(){localStorage.setItem('channelEditorCache',JSON.stringify(state.channels));}
-    function loadCache(){const c=localStorage.getItem('channelEditorCache'); if(c){try{state.channels=JSON.parse(c); return true;}catch{}} return false;}
-    function clearCache(){localStorage.removeItem('channelEditorCache');}
-
-    function updateSelectAllButton(){
-      const total=state.channels.length, selected=state.selected.size;
-      if(selected===0) el.selectAllBtn.textContent='Select: ☐';
-      else if(selected===total) el.selectAllBtn.textContent='Select: ☑';
-      else el.selectAllBtn.textContent='Select: ▭';
-    }
 
     function renderCards(){
       el.cards.innerHTML='';
-      state.channels.forEach((c,idx)=>{
+      state.channels.forEach((c,i)=>{
         const card=document.createElement('div');
-        card.className='card'+(state.selected.has(idx)?' selected':'')+(c.proxy?' proxy-on':'');
-        card.dataset.index=idx;
-        const top=document.createElement('div'); top.className='top';
-        const selectBox=document.createElement('input'); selectBox.type='checkbox'; selectBox.checked=state.selected.has(idx);
-        selectBox.addEventListener('change',()=>{
-          if(selectBox.checked) state.selected.add(idx);
-          else state.selected.delete(idx);
-          renderCards();
-          updateSelectAllButton();
-          el.batchBtn.disabled=state.selected.size===0;
+        card.className='card'+(state.selected.has(i)?' selected':'');
+        card.textContent=c.name||c.id||'Channel';
+        card.addEventListener('click',()=>{
+          if(state.selected.has(i)) state.selected.delete(i);
+          else state.selected.add(i);
+          renderCards(); updateSelectAllButton();
         });
-
-        const title=document.createElement('div');
-        title.innerHTML=`<strong>${c.name||'(untitled)'}</strong><span class="tag">id: ${c.id||''}</span>`;
-        const badge=document.createElement('span'); badge.className='badge';
-        badge.textContent=c.proxy?'Proxy: ON':'Proxy: OFF';
-        top.appendChild(selectBox); top.appendChild(title); top.appendChild(badge);
-        card.appendChild(top);
-
-        const grid=document.createElement('div'); grid.className='grid';
-        function makeRow(label,key,type='text'){
-          const row=document.createElement('div'); row.className='row';
-          const lb=document.createElement('label'); lb.className='checkbox';
-          lb.innerHTML=`<input type="checkbox" ${c._enabled?.[key]?'checked':''}/> ${label}`;
-          const input=document.createElement('input'); input.type=type; input.value=c[key]||'';
-          const apply=document.createElement('button'); apply.className='btn'; apply.textContent='Apply';
-          apply.addEventListener('click',()=>{
-            const enabled=lb.querySelector('input').checked;
-            c._enabled=c._enabled||{}; c._enabled[key]=enabled;
-            if(enabled){ c[key]=type==='number'?Number(input.value):input.value; }
-            else delete c[key];
-            renderCards(); saveCache(); el.saveBtn.disabled=false;
-          });
-          row.appendChild(lb); row.appendChild(input); row.appendChild(apply);
-          return row;
-        }
-        grid.appendChild(makeRow('URL','url','url'));
-        grid.appendChild(makeRow('Bandwidth','bdwh','number'));
-        grid.appendChild(makeRow('Avg bandwidth','bdwhavg','number'));
-        grid.appendChild(makeRow('Frame rate','fps','number'));
-        const proxyRow=document.createElement('div'); proxyRow.className='row';
-        proxyRow.innerHTML=`<label class="checkbox"><input type="checkbox" ${c.proxy?'checked':''}/> Proxy</label><span></span><button class="btn">Apply</button>`;
-        proxyRow.querySelector('button').addEventListener('click',()=>{
-          c.proxy=proxyRow.querySelector('input').checked;
-          renderCards(); saveCache(); el.saveBtn.disabled=false;
-        });
-        grid.appendChild(proxyRow);
-        card.appendChild(grid);
-
-        const footer=document.createElement('div'); footer.className='footer-actions';
-        const del=document.createElement('button'); del.className='btn danger'; del.textContent='Delete';
-        del.addEventListener('click',()=>{
-          state.channels.splice(idx,1); state.selected.delete(idx);
-          renderCards(); saveCache(); el.saveBtn.disabled=false;
-        });
-        footer.appendChild(del); card.appendChild(footer);
         el.cards.appendChild(card);
       });
+      el.deleteBtn.disabled=state.selected.size===0;
       updateSelectAllButton();
     }
+
+    function updateSelectAllButton(){
+      const total=state.channels.length,sel=state.selected.size;
+      if(sel===0) el.selectAllBtn.textContent='Select: ☐';
+      else if(sel===total) el.selectAllBtn.textContent='Select: ☑';
+      else el.selectAllBtn.textContent='Select: ▭';
+    }
+
+    //     // Import M3U popup
+    el.importBtn.addEventListener('click',()=>{
+      el.importModalOverlay.style.display='flex';
+    });
+    el.closeImportModal.addEventListener('click',()=>{
+      el.importModalOverlay.style.display='none';
+    });
+
+    el.fetchM3uUrlBtn.addEventListener('click',async()=>{
+      const url=el.m3uUrl.value.trim();
+      if(!url) return alert('Enter M3U URL');
+      try{
+        const res=await fetch(url);
+        if(!res.ok) throw new Error('Fetch failed: '+res.status);
+        const text=await res.text();
+        // Simple parse: treat each non-comment line as a channel
+        const lines=text.split(/\r?\n/).filter(l=>l && !l.startsWith('#'));
+        lines.forEach((line,i)=>{
+          state.channels.push({name:'Imported '+(i+1),id:'import-'+i,url:line,proxy:line.startsWith('http://'),_enabled:{name:true,id:true,url:true}});
+        });
+        renderCards();
+        el.importModalOverlay.style.display='none';
+      }catch(err){ alert('Import failed: '+err.message); }
+    });
+
+    el.importM3uFileBtn.addEventListener('click',async()=>{
+      const file=el.m3uFile.files[0];
+      if(!file) return alert('Choose a file');
+      const text=await file.text();
+      const lines=text.split(/\r?\n/).filter(l=>l && !l.startsWith('#'));
+      lines.forEach((line,i)=>{
+        state.channels.push({name:'Imported '+(i+1),id:'import-'+i,url:line,proxy:line.startsWith('http://'),_enabled:{name:true,id:true,url:true}});
+      });
+      renderCards();
+      el.importModalOverlay.style.display='none';
+    });
+
+    // Delete selected confirmation
+    el.deleteBtn.addEventListener('click',()=>{
+      if(state.selected.size===0) return;
+      const names=Array.from(state.selected).map(i=>state.channels[i].name||state.channels[i].id);
+      el.deleteMessage.textContent='Are you sure you want to delete? Selected Channels: '+names.join(', ');
+      el.deleteModalOverlay.style.display='flex';
+    });
+    el.cancelDelete.addEventListener('click',()=>{
+      el.deleteModalOverlay.style.display='none';
+    });
+    el.confirmDelete.addEventListener('click',()=>{
+      state.channels=state.channels.filter((_,i)=>!state.selected.has(i));
+      state.selected.clear();
+      renderCards();
+      el.deleteModalOverlay.style.display='none';
+    });
 
     // Select all button
     el.selectAllBtn.addEventListener('click',()=>{
@@ -201,65 +212,10 @@
       renderCards();
     });
 
-    // Load catalog from GitHub or cache
-    async function loadCatalog(){
-      if(loadCache()){ renderCards(); return; }
-      try{
-        const res=await fetch(fixedConfig.catalogUrl,{cache:'no-store'});
-        const data=await res.json();
-        state.channels=Array.isArray(data)?data:[data];
-        state.channels.forEach(c=>{
-          c._enabled={}; ['name','id','url','codecs','bdwh','bdwhavg','fps'].forEach(k=>{
-            if(c[k]!==undefined) c._enabled[k]=true;
-          });
-          if(c.proxy===undefined) c.proxy=false;
-        });
-        renderCards();
-      }catch(err){ alert('Failed to load: '+err.message); }
-    }
-
-    // Save to GitHub
-    el.saveBtn.addEventListener('click',async()=>{
-      if(!state.token) return alert('API key required.');
-      showLog(); logStep('Starting deployment...');
-      try{
-        const output=state.channels.map(c=>{
-          const o={}; if(c._enabled?.name&&c.name) o.name=c.name;
-          if(c._enabled?.id&&c.id) o.id=c.id;
-          if(c._enabled?.url&&c.url) o.url=c.url;
-          if(c._enabled?.codecs&&c.codecs) o.codecs=c.codecs;
-          if(c._enabled?.bdwh&&c.bdwh) o.bdwh=c.bdwh;
-          if(c._enabled?.bdwhavg&&c.bdwhavg) o.bdwhavg=c.bdwhavg;
-          if(c._enabled?.fps&&c.fps) o.fps=c.fps;
-          o.proxy=!!c.proxy; return o;
-        });
-        const content=new TextEncoder().encode(JSON.stringify(output,null,2));
-        const base64=btoa(String.fromCharCode(...content));
-        const url=`https://api.github.com/repos/${fixedConfig.owner}/${fixedConfig.repo}/contents/${fixedConfig.path}`;
-        const body={message:`Update ${fixedConfig.path}`,content:base64,branch:fixedConfig.branch};
-        if(state.sha) body.sha=state.sha;
-        const res=await fetch(url,{method:'PUT',headers:{Authorization:`Bearer ${state.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
-        const data=await res.json();
-        if(!res.ok) throw new Error('Commit failed: '+JSON.stringify(data));
-        logStep('Commit successful: '+(data.commit?.sha||''));
-        clearCache();
-      }catch(err){ logStep('ERROR: '+err.message); }
-    });
-
-    // Token prompt
-    function promptForToken(){ el.tokenModalOverlay.style.display='flex'; }
-    el.tokenModalSet.addEventListener('click',()=>{
-      const token=el.tokenModalInput.value.trim();
-      if(!token) return alert('API key required.');
-      state.token=token; el.tokenModalOverlay.style.display='none';
-      loadCatalog();
-    });
-
-    el.loadBtn.addEventListener('click',loadCatalog);
-    el.closeLog.addEventListener('click',hideLog);
-
-    // Init
-    promptForToken();
+    // Init with dummy channels for demo
+    state.channels=[{name:'Demo Channel 1',id:'demo1',url:'http://example.com/1.m3u8',proxy:true,_enabled:{name:true,id:true,url:true}},
+                    {name:'Demo Channel 2',id:'demo2',url:'http://example.com/2.m3u8',proxy:false,_enabled:{name:true,id:true,url:true}}];
+    renderCards();
   </script>
 </body>
 </html>
