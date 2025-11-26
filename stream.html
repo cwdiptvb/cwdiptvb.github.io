@@ -16,7 +16,6 @@
         if (!response.ok) throw new Error('Failed to load channel.json');
         const channels = await response.json();
 
-        // Support both array of channels or single object
         const channel = Array.isArray(channels)
           ? channels.find(c => c.id === id || c.name === id)
           : (channels.id === id || channels.name === id ? channels : null);
@@ -27,26 +26,27 @@
         }
 
         let playlist = '#EXTM3U\n';
+        let attrs = [];
+        if (channel.name) attrs.push(`NAME="${channel.name}"`);
+        if (channel.codecs) attrs.push(`CODECS="${channel.codecs}"`);
+        if (channel.resolution) attrs.push(`RESOLUTION=${channel.resolution}x0`);
+        if (attrs.length) playlist += `#EXT-X-STREAM-INF:${attrs.join(',')}\n`;
 
-        let attributes = [];
-        if (channel.name) attributes.push(`NAME="${channel.name}"`);
-        if (channel.codecs) attributes.push(`CODECS="${channel.codecs}"`);
-        if (channel.resolution) attributes.push(`RESOLUTION=${channel.resolution}x0`);
+        let streamURL = channel.proxy
+          ? `https://hlsr.vercel.app/api/proxy?url=${encodeURIComponent(channel.url)}`
+          : channel.url;
+        playlist += streamURL + '\n';
 
-        if (attributes.length > 0) {
-          playlist += `#EXT-X-STREAM-INF:${attributes.join(',')}\n`;
-        }
+        const blob = new Blob([playlist], { type: 'application/vnd.apple.mpegurl' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${id}.m3u8`;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
 
-        let streamURL = channel.url;
-        if (channel.proxy) {
-          streamURL = `https://hlsr.vercel.app/api/proxy?url=${encodeURIComponent(channel.url)}`;
-        }
-        playlist += `${streamURL}\n`;
-
-        // Replace document with raw playlist text
-        document.open();
-        document.write(playlist);
-        document.close();
+        document.body.textContent = `Playlist for ${id} downloaded.`;
 
       } catch (err) {
         document.body.textContent = 'Error: ' + err.message;
