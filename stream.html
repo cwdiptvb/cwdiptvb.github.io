@@ -1,45 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <style>
-    body {
-      font-family: monospace;
-      white-space: pre;
-      margin: 20px;
+  <script>
+    async function servePlaylist() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (!id) {
+        document.body.textContent = 'Error: Missing ?id parameter';
+        return;
+      }
+
+      try {
+        const response = await fetch('/admin/channel.json');
+        if (!response.ok) throw new Error('Failed to load channel.json');
+        const channels = await response.json();
+
+        // Support both array of channels or single object
+        const channel = Array.isArray(channels)
+          ? channels.find(c => c.id === id || c.name === id)
+          : (channels.id === id || channels.name === id ? channels : null);
+
+        if (!channel) {
+          document.body.textContent = 'Error: Channel not found';
+          return;
+        }
+
+        let playlist = '#EXTM3U\n';
+
+        let attributes = [];
+        if (channel.name) attributes.push(`NAME="${channel.name}"`);
+        if (channel.codecs) attributes.push(`CODECS="${channel.codecs}"`);
+        if (channel.resolution) attributes.push(`RESOLUTION=${channel.resolution}x0`);
+
+        if (attributes.length > 0) {
+          playlist += `#EXT-X-STREAM-INF:${attributes.join(',')}\n`;
+        }
+
+        let streamURL = channel.url;
+        if (channel.proxy) {
+          streamURL = `https://hlsr.vercel.app/api/proxy?url=${encodeURIComponent(channel.url)}`;
+        }
+        playlist += `${streamURL}\n`;
+
+        // Replace document with raw playlist text
+        document.open();
+        document.write(playlist);
+        document.close();
+
+      } catch (err) {
+        document.body.textContent = 'Error: ' + err.message;
+      }
     }
-  </style>
+
+    servePlaylist();
+  </script>
 </head>
 <body>
-<script>
-async function main() {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-
-  if (!id) {
-    document.body.innerText = "Missing ?id= parameter.";
-    return;
-  }
-
-  try {
-    const response = await fetch("https://freelivestream.vercel.app/api/source.json");
-    const data = await response.json();
-
-    const m3u8Url = data[id];
-    if (!m3u8Url) {
-      document.body.innerText = "No entry found for id=" + id;
-      return;
-    }
-
-    // Output the URL directly as plain text
-    document.body.innerText = m3u8Url;
-
-  } catch (err) {
-    document.body.innerText = "Error loading JSON: " + err;
-  }
-}
-
-main();
-</script>
 </body>
 </html>
