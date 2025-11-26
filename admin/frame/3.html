@@ -104,8 +104,8 @@
       </div>
     </div>
   </div>
-
 <script>
+document.addEventListener('DOMContentLoaded', () => {
   const fixedConfig = {
     owner: 'cwdiptvb',
     repo: 'cwdiptvb.github.io',
@@ -263,15 +263,15 @@
         lastExtinfTitle=m?m[1].trim():lastExtinfTitle;
         continue;
       }
-      if(!line.startsWith('#')&&(line.startsWith('http://')||line.startsWith('https://')      ) {
+            if(!line.startsWith('#') && (line.startsWith('http://') || line.startsWith('https://'))) {
         const variantUrl = resolveUrl(line);
         const name = lastExtinfTitle || variantUrl;
         out.push({
           name,
-          id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          id: name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
           url: variantUrl,
           proxy: variantUrl.startsWith('http://'),
-          _enabled: { name: true, id: true, url: true }
+          _enabled: { name:true, id:true, url:true }
         });
         lastExtinfTitle = null;
       }
@@ -418,6 +418,7 @@
 
   // Show API key prompt on start
   el.tokenModalOverlay.style.display = 'flex';
+});
 </script>
 </body>
 </html>
