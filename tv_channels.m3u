@@ -1,8 +1,5 @@
 #EXTM3U url-tvg="https://cwdiptvb.vercel.app/"
 
-#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/2/2f/ABC-2021-LOGO.svg" tvg-name="ABC",ABC
-https://cwdiptvb.github.io/stream/abc/index.m3u8
-
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-mn" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/KSTP_logo_%282021%29.svg/1200px-KSTP_logo_%282021%29.svg.png" tvg-name="ABC 5 (KSTP) Minneapolis MN",ABC 5 (KSTP) Minneapolis MN
 https://cwdiptvb.github.io/stream/abc-5-mn/index.m3u8
 
