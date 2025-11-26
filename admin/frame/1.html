@@ -256,6 +256,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.20.3/video.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.15.0/videojs-contrib-hls.min.js"></script>
     <script>
+        /* --- Redirect logic --- */
+(function() {
+  const inIframe = window.self !== window.top;
+
+  if (!inIframe) {
+    // Not embedded → redirect to /admin
+    window.location.replace('/admin');
+  } else {
+    try {
+      const parentUrl = document.referrer || '';
+      if (!parentUrl.startsWith('https://cwdiptvb.github.io')) {
+        // If iframe parent is not from cwdiptvb.github.io → redirect
+        window.location.replace('/admin');
+      }
+    } catch (err) {
+      // If we can't check referrer, be safe and redirect
+      window.location.replace('/admin');
+    }
+  }
+})();
         let isChecking = false;
         let workingStreams = [];
         let allStreams = [];
