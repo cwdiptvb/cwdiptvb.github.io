@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Channel catalog editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f1216;
+      --panel: #171b22;
+      --card: #1c2129;
+      --text: #e6e6e6;
+      --muted: #a9b0bd;
+      --accent: #4f9cf4;
+      --accent-2: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: #2a313b;
+    }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px; position: sticky; top: 0; z-index: 10;
+      display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center;
+    }
+    header .title { font-size: 18px; font-weight: 600; }
+    header .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      padding: 8px 12px; border: 1px solid var(--border); background: var(--card);
+      color: var(--text); border-radius: 8px; cursor: pointer; font-weight: 600;
+    }
+    .btn.accent { border-color: transparent; background: var(--accent); color: #0b1a2b; }
+    .btn.success { border-color: transparent; background: var(--accent-2); color: #0b1a2b; }
+    .btn.warn { border-color: transparent; background: var(--warning); color: #1a1202; }
+    .btn.danger { border-color: transparent; background: var(--danger); color: #2b0b0b; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    main { padding: 20px; }
+    .toolbar {
+      display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; margin-bottom: 16px;
+    }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+    }
+    .field { display: grid; grid-template-columns: 140px 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .field input[type="text"],
+    .field input[type="number"],
+    .field input[type="url"] {
+      width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text);
+    }
+    .field label { color: var(--muted); }
+    .cards {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; position: relative;
+    }
+    .card .top {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center;
+      margin-bottom: 8px;
+    }
+    .badge { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--border); color: var(--muted); }
+    .grid { display: grid; gap: 8px; }
+    .row { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+    .row input[type="text"],
+    .row input[type="url"],
+    .row input[type="number"] {
+      width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--panel); color: var(--text);
+    }
+    .checkbox { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+    .select {
+      display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; margin-bottom: 8px;
+    }
+    .footer-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .selected { outline: 2px solid var(--accent); }
+    .proxy-on { border-color: var(--accent-2); }
+    .log-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 100;
+    }
+    .log {
+      width: min(720px, 90vw); max-height: 80vh; overflow: auto;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+    }
+    .log h3 { margin: 0 0 8px; }
+    .log pre {
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px; color: var(--muted); white-space: pre-wrap;
+    }
+    .tag { display:inline-block; margin-left: 6px; font-size: 11px; color: var(--muted); }
+    .import-panel .row { grid-template-columns: 140px 1fr auto; }
+    .divider { height: 1px; background: var(--border); margin: 12px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">Channel catalog editor</div>
+    <div class="actions">
+      <button class="btn accent" id="loadBtn">Load catalog</button>
+      <button class="btn success" id="saveBtn" disabled>Save to GitHub</button>
+      <button class="btn warn" id="importBtn">Import M3U</button>
+      <button class="btn" id="batchBtn" disabled>Batch edit selected</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar">
+      <div class="panel">
+        <div class="field">
+          <label>Catalog URL</label>
+          <input type="url" id="catalogUrl" placeholder="https://cwdiptvb.github.io/admin/channel.json" value="https://cwdiptvb.github.io/admin/channel.json" />
+          <button class="btn" id="refreshBtn">Refresh</button>
+        </div>
+        <div class="panel">
+          <div class="field">
+            <label>GitHub owner</label>
+            <input type="text" id="ghOwner" placeholder="org or username" />
+          </div>
+          <div class="field">
+            <label>Repository</label>
+            <input type="text" id="ghRepo" placeholder="repo-name" />
+          </div>
+          <div class="field">
+            <label>File path</label>
+            <input type="text" id="ghPath" placeholder="admin/channel.json" value="admin/channel.json" />
+          </div>
+          <div class="field">
+            <label>Branch</label>
+            <input type="text" id="ghBranch" placeholder="main" value="main" />
+          </div>
+          <div class="field">
+            <label>Token</label>
+            <input type="text" id="ghToken" placeholder="ghp_..." />
+          </div>
+        </div>
+        <div class="panel import-panel">
+          <div class="row">
+            <label>M3U URL</label>
+            <input type="url" id="m3uUrl" placeholder="https://example.com/playlist.m3u8" />
+            <button class="btn" id="fetchM3uUrlBtn">Fetch & import</button>
+          </div>
+          <div class="row">
+            <label>M3U file</label>
+            <input type="file" id="m3uFile" accept=".m3u,.m3u8,text/plain" />
+            <button class="btn" id="importM3uFileBtn">Import file</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="cards" id="cards"></section>
+  </main>
+
+  <div class="log-overlay" id="logOverlay">
+    <div class="log">
+      <h3>Deployment log</h3>
+      <pre id="logPre"></pre>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn" id="closeLog">Close</button>
+      </div>
+    </div>
+  </div>
+  <script src="/admin/securedirect.js" >
+  <script>
+    // Configuration defaults (editable via UI)
+    const state = {
+      channels: [],
+      selected: new Set(),
+      sha: null, // for GitHub file versioning
+    };
+
+    const el = {
+      cards: document.getElementById('cards'),
+      loadBtn: document.getElementById('loadBtn'),
+      saveBtn: document.getElementById('saveBtn'),
+      batchBtn: document.getElementById('batchBtn'),
+      importBtn: document.getElementById('importBtn'),
+      catalogUrl: document.getElementById('catalogUrl'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      ghOwner: document.getElementById('ghOwner'),
+      ghRepo: document.getElementById('ghRepo'),
+      ghPath: document.getElementById('ghPath'),
+      ghBranch: document.getElementById('ghBranch'),
+      ghToken: document.getElementById('ghToken'),
+      m3uUrl: document.getElementById('m3uUrl'),
+      fetchM3uUrlBtn: document.getElementById('fetchM3uUrlBtn'),
+      m3uFile: document.getElementById('m3uFile'),
+      importM3uFileBtn: document.getElementById('importM3uFileBtn'),
+      logOverlay: document.getElementById('logOverlay'),
+      logPre: document.getElementById('logPre'),
+      closeLog: document.getElementById('closeLog'),
+    };
+
+    function logStep(msg) {
+      el.logPre.textContent += msg + "\\n";
+    }
+    function showLog() {
+      el.logOverlay.style.display = 'flex';
+      el.logPre.textContent = '';
+    }
+    function hideLog() {
+      el.logOverlay.style.display = 'none';
+    }
+
+    // Utility: safe parse JSON
+    async function fetchJson(url) {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Failed to fetch: ' + res.status + ' ' + res.statusText);
+      return await res.json();
+    }
+
+    // Render cards
+    function renderCards() {
+      el.cards.innerHTML = '';
+      state.channels.forEach((c, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card' + (state.selected.has(idx) ? ' selected' : '') + (c.proxy ? ' proxy-on' : '');
+        card.dataset.index = idx;
+
+        const top = document.createElement('div');
+        top.className = 'top';
+
+        const selectBox = document.createElement('input');
+        selectBox.type = 'checkbox';
+        selectBox.checked = state.selected.has(idx);
+        selectBox.title = 'Select for batch edit';
+        selectBox.addEventListener('change', () => {
+          if (selectBox.checked) state.selected.add(idx);
+          else state.selected.delete(idx);
+          renderCards();
+          el.batchBtn.disabled = state.selected.size === 0;
+        });
+
+        const title = document.createElement('div');
+        title.innerHTML = `<strong>${escapeHtml(c.name || '(untitled)')}</strong><span class="tag">id: ${escapeHtml(c.id || '')}</span>`;
+
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = c.proxy ? 'Proxy: ON' : 'Proxy: OFF';
+
+        top.appendChild(selectBox);
+        top.appendChild(title);
+        top.appendChild(badge);
+        card.appendChild(top);
+
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+
+        // Helper to make row
+        function makeRow(label, key, type='text', placeholder='') {
+          const row = document.createElement('div');
+          row.className = 'row';
+
+          const lb = document.createElement('label');
+          lb.className = 'checkbox';
+          lb.innerHTML = `<input type="checkbox" ${c._enabled?.[key] ? 'checked' : ''} /> ${label}`;
+
+          const input = document.createElement('input');
+          input.type = type;
+          input.placeholder = placeholder;
+          input.value = c[key] !== undefined ? c[key] : '';
+
+          const apply = document.createElement('button');
+          apply.className = 'btn';
+          apply.textContent = 'Apply';
+          apply.addEventListener('click', () => {
+            const enabled = lb.querySelector('input[type=checkbox]').checked;
+            c._enabled = c._enabled || {};
+            c._enabled[key] = enabled;
+            if (enabled) {
+              if (type === 'number') c[key] = Number(input.value);
+              else c[key] = input.value;
+            } else {
+              delete c[key];
+            }
+            renderCards();
+            el.saveBtn.disabled = false;
+          });
+
+          row.appendChild(lb);
+          row.appendChild(input);
+          row.appendChild(apply);
+          return row;
+        }
+
+        // Immutable fields: name, id (no batch edits)
+        const nameRow = document.createElement('div');
+        nameRow.className = 'row';
+        nameRow.innerHTML = `
+          <label class="checkbox"><input type="checkbox" ${c._enabled?.name ? 'checked' : ''} /> Title</label>
+          <input type="text" value="${escapeAttr(c.name || '')}" />
+          <button class="btn">Apply</button>
+        `;
+        nameRow.querySelector('button').addEventListener('click', () => {
+          const enabled = nameRow.querySelector('input[type=checkbox]').checked;
+          c._enabled = c._enabled || {};
+          c._enabled.name = enabled;
+          if (enabled) c.name = nameRow.querySelector('input[type=text]').value;
+          else delete c.name;
+          renderCards();
+          el.saveBtn.disabled = false;
+        });
+
+        const idRow = document.createElement('div');
+        idRow.className = 'row';
+        idRow.innerHTML = `
+          <label class="checkbox"><input type="checkbox" ${c._enabled?.id ? 'checked' : ''} /> ID</label>
+          <input type="text" value="${escapeAttr(c.id || '')}" />
+          <button class="btn">Apply</button>
+        `;
+        idRow.querySelector('button').addEventListener('click', () => {
+          const enabled = idRow.querySelector('input[type=checkbox]').checked;
+          c._enabled = c._enabled || {};
+          c._enabled.id = enabled;
+          if (enabled) c.id = idRow.querySelector('input[type=text]').value;
+          else delete c.id;
+          renderCards();
+          el.saveBtn.disabled = false;
+        });
+
+        grid.appendChild(nameRow);
+        grid.appendChild(idRow);
+
+        grid.appendChild(makeRow('URL', 'url', 'url', 'https://...'));
+        grid.appendChild(makeRow('Bandwidth (bdwh)', 'bdwh', 'number', 'e.g. 2500000'));
+        grid.appendChild(makeRow('Average bandwidth (bdwhavg)', 'bdwhavg', 'number', 'e.g. 2200000'));
+        grid.appendChild(makeRow('Frame rate (fps)', 'fps', 'number', 'e.g. 30'));
+
+        // Proxy toggle (boolean, enable-only checkbox)
+        const proxyRow = document.createElement('div');
+        proxyRow.className = 'row';
+        proxyRow.innerHTML = `
+          <label class="checkbox"><input type="checkbox" ${c.proxy ? 'checked' : ''} /> Proxy</label>
+          <span style="color:var(--muted)">Enable or disable proxy</span>
+          <button class="btn">Apply</button>
+        `;
+        proxyRow.querySelector('button').addEventListener('click', () => {
+          const enabled = proxyRow.querySelector('input[type=checkbox]').checked;
+          c.proxy = !!enabled;
+          renderCards();
+          el.saveBtn.disabled = false;
+        });
+        grid.appendChild(proxyRow);
+
+        card.appendChild(grid);
+
+        const footer = document.createElement('div');
+        footer.className = 'footer-actions';
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn danger';
+        delBtn.textContent = 'Delete';
+        delBtn.addEventListener('click', () => {
+          state.channels.splice(idx, 1);
+          state.selected.delete(idx);
+          renderCards();
+          el.saveBtn.disabled = false;
+        });
+        footer.appendChild(delBtn);
+        card.appendChild(footer);
+
+        el.cards.appendChild(card);
+      });
+    }
+
+    // Batch edit selected (except name and id)
+    async function batchEditDialog() {
+      if (state.selected.size === 0) return;
+      const indices = Array.from(state.selected);
+      const template = document.createElement('div');
+      template.innerHTML = `
+        <div class="panel">
+          <h3 style="margin:0 0 8px;">Batch edit ${indices.length} selected</h3>
+          <div class="field"><label>URL</label><input type="url" id="b_url" placeholder="skip to leave unchanged" /></div>
+          <div class="field"><label>Bandwidth (bdwh)</label><input type="number" id="b_bdwh" placeholder="skip" /></div>
+          <div class="field"><label>Average bandwidth (bdwhavg)</label><input type="number" id="b_bdwhavg" placeholder="skip" /></div>
+          <div class="field"><label>Frame rate (fps)</label><input type="number" id="b_fps" placeholder="skip" /></div>
+          <div class="field"><label>Proxy</label>
+            <select id="b_proxy">
+              <option value="skip">Skip</option>
+              <option value="on">Enable</option>
+              <option value="off">Disable</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="btn success" id="b_apply">Apply</button>
+            <button class="btn" id="b_cancel">Cancel</button>
+          </div>
+        </div>
+      `;
+      const overlay = document.createElement('div');
+      overlay.className = 'log-overlay';
+      overlay.style.display = 'flex';
+      const box = document.createElement('div');
+      box.className = 'log';
+      box.style.maxWidth = '520px';
+      box.appendChild(template);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+
+      template.querySelector('#b_cancel').addEventListener('click', () => {
+        document.body.removeChild(overlay);
+      });
+      template.querySelector('#b_apply').addEventListener('click', () => {
+        const v = {
+          url: template.querySelector('#b_url').value.trim(),
+          bdwh: template.querySelector('#b_bdwh').value.trim(),
+          bdwhavg: template.querySelector('#b_bdwhavg').value.trim(),
+          fps: template.querySelector('#b_fps').value.trim(),
+          proxy: template.querySelector('#b_proxy').value,
+        };
+        indices.forEach(i => {
+          const c = state.channels[i];
+          if (v.url) { c.url = v.url; c._enabled = c._enabled || {}; c._enabled.url = true; }
+          if (v.bdwh) { c.bdwh = Number(v.bdwh); c._enabled = c._enabled || {}; c._enabled.bdwh = true; }
+          if (v.bdwhavg) { c.bdwhavg = Number(v.bdwhavg); c._enabled = c._enabled || {}; c._enabled.bdwhavg = true; }
+          if (v.fps) { c.fps = Number(v.fps); c._enabled = c._enabled || {}; c._enabled.fps = true; }
+          if (v.proxy === 'on') c.proxy = true;
+          if (v.proxy === 'off') c.proxy = false;
+        });
+        renderCards();
+        el.saveBtn.disabled = false;
+        document.body.removeChild(overlay);
+      });
+    }
+
+    // Import M3U parser (simple, robust enough)
+    function parseM3U(text) {
+      // Supports master or media: extracts NAME, CODECS, RESOLUTION, BANDWIDTH, AVERAGE-BANDWIDTH, FRAME-RATE + URL line
+      const lines = text.split(/\r?\n/);
+      const channels = [];
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.startsWith('#EXT-X-STREAM-INF')) {
+          // Master variant block: next non-comment line is URL
+          const attrsStr = line.substring(line.indexOf(':') + 1);
+          const attrs = {};
+          attrsStr.split(',').forEach(pair => {
+            const m = pair.match(/([A-Z0-9\-]+)=(.*)/);
+            if (!m) return;
+            const k = m[1];
+            let v = m[2];
+            if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+            attrs[k] = v;
+          });
+          // Find next URL
+          let url = '';
+          for (let j = i + 1; j < lines.length; j++) {
+            const nxt = lines[j].trim();
+            if (!nxt || nxt.startsWith('#')) continue;
+            url = nxt;
+            i = j; // advance
+            break;
+          }
+          if (url) {
+            const name = attrs.NAME || url;
+            const id = slugify(name);
+            channels.push({
+              name,
+              id,
+              url,
+              codecs: attrs.CODECS || undefined,
+              bdwh: attrs.BANDWIDTH ? Number(attrs.BANDWIDTH) : undefined,
+              bdwhavg: attrs['AVERAGE-BANDWIDTH'] ? Number(attrs['AVERAGE-BANDWIDTH']) : undefined,
+              fps: attrs['FRAME-RATE'] ? Number(attrs['FRAME-RATE']) : undefined,
+              proxy: url.startsWith('http://') ? true : false,
+              _enabled: {
+                name: true, id: true, url: true,
+                codecs: !!attrs.CODECS,
+                bdwh: !!attrs.BANDWIDTH,
+                bdwhavg: !!attrs['AVERAGE-BANDWIDTH'],
+                fps: !!attrs['FRAME-RATE'],
+              }
+            });
+          }
+        } else if (line.startsWith('#EXTINF')) {
+          // Media playlist entries (#EXTINF) followed by segment URLs (less useful for catalog)
+          // Skipping; catalog should point at variant URLs rather than segments.
+        }
+      }
+      return channels;
+    }
+
+    // Slugify name to id
+    function slugify(str) {
+      return String(str).toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 64);
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function escapeAttr(s) { return escapeHtml(s); }
+
+    // Load catalog
+    async function loadCatalog() {
+      try {
+        const url = el.catalogUrl.value.trim();
+        const data = await fetchJson(url);
+        state.channels = Array.isArray(data) ? data : [data];
+        // Initialize _enabled flags for existing fields
+        state.channels.forEach(c => {
+          c._enabled = c._enabled || {};
+          ['name','id','url','codecs','bdwh','bdwhavg','fps'].forEach(k => {
+            if (c[k] !== undefined) c._enabled[k] = true;
+          });
+          if (c.proxy === undefined) c.proxy = false;
+        });
+        el.saveBtn.disabled = false;
+        renderCards();
+      } catch (err) {
+        alert('Failed to load: ' + err.message);
+      }
+    }
+
+    // Refresh button mirrors load
+    el.refreshBtn.addEventListener('click', loadCatalog);
+    el.loadBtn.addEventListener('click', loadCatalog);
+
+    // Batch edit
+    el.batchBtn.addEventListener('click', batchEditDialog);
+
+    // Import M3U from URL
+    el.fetchM3uUrlBtn.addEventListener('click', async () => {
+      const url = el.m3uUrl.value.trim();
+      if (!url) return alert('Enter M3U URL');
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+        const text = await res.text();
+        const imported = parseM3U(text);
+        if (imported.length === 0) return alert('No variants found in M3U');
+        state.channels = state.channels.concat(imported);
+        renderCards();
+        el.saveBtn.disabled = false;
+      } catch (err) {
+        alert('Import failed: ' + err.message);
+      }
+    });
+
+    // Import M3U from file
+    el.importM3uFileBtn.addEventListener('click', async () => {
+      const file = el.m3uFile.files[0];
+      if (!file) return alert('Choose a file');
+      const text = await file.text();
+      const imported = parseM3U(text);
+      if (imported.length === 0) return alert('No variants found in M3U');
+      state.channels = state.channels.concat(imported);
+      renderCards();
+      el.saveBtn.disabled = false;
+    });
+
+    // GitHub save (commit)
+    el.saveBtn.addEventListener('click', async () => {
+      const owner = el.ghOwner.value.trim();
+      const repo = el.ghRepo.value.trim();
+      const path = el.ghPath.value.trim() || 'admin/channel.json';
+      const branch = el.ghBranch.value.trim() || 'main';
+      const token = el.ghToken.value.trim();
+      if (!owner || !repo || !token) {
+        return alert('Owner, repo, and token are required.');
+      }
+
+      showLog();
+      logStep('Starting deployment...');
+      try {
+        // Normalize output: include only enabled fields (+ proxy if present)
+        const output = state.channels.map(c => {
+          const o = {};
+          if (c._enabled?.name && c.name) o.name = c.name;
+          if (c._enabled?.id && c.id) o.id = c.id;
+          if (c._enabled?.url && c.url) o.url = c.url;
+          if (c._enabled?.codecs && c.codecs) o.codecs = c.codecs;
+          if (c._enabled?.bdwh && (c.bdwh || c.bdwh === 0)) o.bdwh = c.bdwh;
+          if (c._enabled?.bdwhavg && (c.bdwhavg || c.bdwhavg === 0)) o.bdwhavg = c.bdwhavg;
+          if (c._enabled?.fps && (c.fps || c.fps === 0)) o.fps = c.fps;
+          // proxy lives outside enable since it's a boolean toggle
+          if (typeof c.proxy === 'boolean') o.proxy = c.proxy;
+          return o;
+        });
+        const content = new TextEncoder().encode(JSON.stringify(output, null, 2));
+        const base64 = btoa(String.fromCharCode(...content));
+
+        logStep('Fetching current file SHA...');
+        let sha = null;
+        {
+          const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
+          const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+          if (res.status === 200) {
+            const data = await res.json();
+            sha = data.sha;
+            state.sha = sha;
+            logStep('Found existing file SHA: ' + sha);
+          } else if (res.status === 404) {
+            logStep('File does not exist. Will create new file.');
+          } else {
+            const txt = await res.text();
+            throw new Error('Failed to get SHA: ' + res.status + ' ' + txt);
+          }
+        }
+
+        logStep('Committing changes to GitHub...');
+        {
+          const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+          const body = {
+            message: `Update ${path} via catalog editor`,
+            content: base64,
+            branch,
+          };
+          if (sha) body.sha = sha;
+          const res = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github+json',
+            },
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error('Commit failed: ' + res.status + ' ' + JSON.stringify(data));
+          logStep('Commit successful: ' + (data.commit && data.commit.sha ? data.commit.sha : '(no sha)'));
+        }
+
+        logStep('Triggering Pages/Vercel rebuild (optional)…');
+        logStep('Done. You may need to wait a minute for the static host to reflect changes.');
+
+      } catch (err) {
+        logStep('ERROR: ' + err.message);
+      }
+    });
+
+    // Overlay controls
+    el.closeLog.addEventListener('click', hideLog);
+
+    // Keyboard: hold Shift to multi-select toggle quickly
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.card');
+      if (!card) return;
+      if (e.shiftKey) {
+        const idx = Number(card.dataset.index);
+        if (state.selected.has(idx)) state.selected.delete(idx);
+        else state.selected.add(idx);
+        renderCards();
+        el.batchBtn.disabled = state.selected.size === 0;
+      }
+    });
+
+    // Initial hint
+    (function initHint() {
+      el.batchBtn.disabled = true;
+      el.saveBtn.disabled = true;
+    })();
+  </script>
+</body>
+</html>
