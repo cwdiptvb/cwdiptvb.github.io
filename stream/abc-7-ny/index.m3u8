@@ -1,5 +1,5 @@
 #EXTM3U
 #EXT-X-VERSION:3
 
-#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="avc1.640028,mp4a.40.2"
+#EXT-X-STREAM-INF:CODECS="avc1.640028,mp4a.40.2"
 https://hlsr.vercel.app/api/proxy?url=http://fl61.moveonjoy.com/ABC_EAST/tracks-v1a1/mono.m3u8
