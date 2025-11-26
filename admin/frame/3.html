@@ -215,7 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
       card.appendChild(grid);
       el.cards.appendChild(card);
     });
-    el.deleteBtn.disabled=state.selected.size===0;
+    el.deleteBtn.disabled = state.selected.size === 0;
+    el.batchBtn.disabled = state.selected.size < 2; // enable batch edit if 2+ selected
     updateSelectAllButton();
   }
 
@@ -253,25 +254,26 @@ document.addEventListener('DOMContentLoaded', () => {
           bdwh:attrs.BANDWIDTH?Number(attrs.BANDWIDTH):undefined,
           bdwhavg:attrs['AVERAGE-BANDWIDTH']?Number(attrs['AVERAGE-BANDWIDTH']):undefined,
           fps:attrs['FRAME-RATE']?Number(attrs['FRAME-RATE']):undefined,
-          codecs:attrs.CODECS, proxy:variantUrl.startsWith('http://'),
-          _enabled:{name:true,id:true,url:true}
+          codecs: attrs.CODECS,
+          proxy: variantUrl.startsWith('http://'),
+          _enabled: { name: true, id: true, url: true }
         });
         continue;
       }
-      if(line.startsWith('#EXTINF')){
-        const m=line.match(/#EXTINF:[^,]*,(.*)$/);
-        lastExtinfTitle=m?m[1].trim():lastExtinfTitle;
+      if (line.startsWith('#EXTINF')) {
+        const m = line.match(/#EXTINF:[^,]*,(.*)$/);
+        lastExtinfTitle = m ? m[1].trim() : lastExtinfTitle;
         continue;
       }
-            if(!line.startsWith('#') && (line.startsWith('http://') || line.startsWith('https://'))) {
+      if (!line.startsWith('#') && (line.startsWith('http://') || line.startsWith('https://'))) {
         const variantUrl = resolveUrl(line);
         const name = lastExtinfTitle || variantUrl;
         out.push({
           name,
-          id: name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+          id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
           url: variantUrl,
           proxy: variantUrl.startsWith('http://'),
-          _enabled: { name:true, id:true, url:true }
+          _enabled: { name: true, id: true, url: true }
         });
         lastExtinfTitle = null;
       }
@@ -403,6 +405,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!token) return alert('API key required.');
     state.token = token;
     el.tokenModalOverlay.style.display = 'none';
+    // Enable Save button once token is set
+    el.saveBtn.disabled = false;
+
     if (!loadCache()) {
       loadCatalog();
     } else {
