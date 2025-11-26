@@ -165,10 +165,27 @@
       </div>
     </div>
   </div>
-  <script src="/admin/securedirect.js" ></script>
   <script>
-    // Configuration defaults (editable via UI)
-    const state = {
+/* --- Redirect logic --- */
+(function() {
+  const inIframe = window.self !== window.top;
+
+  if (!inIframe) {
+    // Not embedded → redirect to /admin
+    window.location.replace('/admin');
+  } else {
+    try {
+      const parentUrl = document.referrer || '';
+      if (!parentUrl.startsWith('https://cwdiptvb.github.io')) {
+        // If iframe parent is not from cwdiptvb.github.io → redirect
+        window.location.replace('/admin');
+      }
+    } catch (err) {
+      // If we can't check referrer, be safe and redirect
+      window.location.replace('/admin');
+    }
+  }
+})();    const state = {
       channels: [],
       selected: new Set(),
       sha: null, // for GitHub file versioning
