@@ -2,4 +2,4 @@
 #EXT-X-VERSION:3
 
 #EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="avc1.640028,mp4a.40.2"
-https://hlsr.vercel.app/api/proxy?url=https%3A%2F%2Fepicplay247.cfd%2F%3Furl%3DaHR0cHM6Ly96ZWtvbmV3Lm5ld2tzby5ydS96ZWtvL3ByZW1pdW03NjkvbW9uby5jc3MmZGF0YT1UM0pwWjJsdVBXaDBkSEJ6T2k4dlpYQnBZM0JzWVhsd2JHRjVMbU5tWkE9PQ%3D%3D%26headers%3DeyJSZWZlcmVyIjoiaHR0cHM6Ly9lcGljcGxheXBsYXkuY2ZkLyJ9
+https://hlsr.vercel.app/api/proxy?url=https://cfcdn.sbs/?url=aHR0cHM6Ly96ZWtvbmV3Lm5ld2tzby5ydS96ZWtvL3ByZW1pdW03NjkvbW9uby5jc3MmZGF0YT1UM0pwWjJsdVBXaDBkSEJ6T2k4dlpYQnBZM0JzWVhsd2JHRjVMbU5tWkE9PQ%3D%3D&headers=eyJSZWZlcmVyIjoiaHR0cHM6Ly9lcGljcGxheXBsYXkuY2ZkLyJ9
