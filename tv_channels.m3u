@@ -4,7 +4,7 @@
 https://cwdiptvb.github.io/stream/abc-5-mn/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ga" tvg-logo="https://i.ibb.co/dRQ10zH/Wsb-2021.webp" tvg-name="ABC 2 (WSBTV) Atlanta GA",ABC 2 (WSBTV) Atlanta GA
-https://hlsr.vercel.app/api/proxy?url=https://epicplay247.cfd/?url=aHR0cHM6Ly96ZWtvbmV3Lm5ld2tzby5ydS96ZWtvL3ByZW1pdW01MS9tb25vLmNzcyZkYXRhPVQzSnBaMmx1UFdoMGRIQnpPaTh2WlhCcFkzQnNZWGx3YkdGNUxtTm1aQT09&headers=eyJSZWZlcmVyIjoiaHR0cHM6Ly9lcGljcGxheXBsYXkuY2ZkLyJ9
+https://hlsr.vercel.app/api/proxy?url=http://206.212.244.71:8080/live/Abxc5k/363887/120849.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ny" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/WABC_TV_New_2021.svg/2560px-WABC_TV_New_2021.svg.png" tvg-name="ABC 7 (WABC) New York NY",ABC 7 (WABC) New York NY
 https://cwdiptvb.github.io/stream/abc-7-ny/index.m3u8
