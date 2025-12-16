@@ -967,9 +967,15 @@
         player.setConfig({ image: "" });
       });
 
-      player.on("fullscreen", function (e) {
+     player.on("fullscreen", function (e) {
         const videoElement = document.getElementById("my-video");
-        videoElement.style.border = e.fullscreen ? "none" : "2px solid #00ffff";
+        if (e.fullscreen) {
+          videoElement.style.border = "none";
+          videoElement.style.borderRadius = "0";
+        } else {
+          videoElement.style.border = "2px solid #00ffff";
+          videoElement.style.borderRadius = "8px";
+        }
       });
 
       player.on("error", function (e) {
