@@ -23,6 +23,35 @@
             color: #333;
             margin-bottom: 20px;
         }
+        .input-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .input-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        .url-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
         button {
             background: #007bff;
             color: white;
@@ -31,7 +60,6 @@
             font-size: 16px;
             border-radius: 4px;
             cursor: pointer;
-            margin-bottom: 20px;
             margin-right: 10px;
         }
         button:hover:not(:disabled) {
@@ -46,6 +74,12 @@
         }
         .load-btn:hover:not(:disabled) {
             background: #218838;
+        }
+        .url-btn {
+            background: #17a2b8;
+        }
+        .url-btn:hover:not(:disabled) {
+            background: #138496;
         }
         .select-all-btn {
             background: #6c757d;
@@ -216,12 +250,29 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #6c757d;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Stream URL Checker</h1>
-        <p>Load moveonjoy.com streams from M3U playlist and test them</p>
+        <p>Load moveonjoy.com streams from M3U playlist or test individual URLs</p>
+        
+        <div class="input-section">
+            <h3>Test Individual URL</h3>
+            <div class="url-input-container">
+                <input type="text" id="urlInput" placeholder="Enter moveonjoy.com URL (e.g., https://fl1.moveonjoy.com/CHANNEL_NAME/index.m3u8)" />
+                <button class="url-btn" onclick="testIndividualURL()">Test URL</button>
+            </div>
+            <small style="color: #6c757d;">Enter a moveonjoy.com URL to test it directly and scan for working alternatives</small>
+        </div>
+
+        <div class="divider">OR</div>
         
         <button class="load-btn" id="loadBtn" onclick="loadM3U()">Load M3U Playlist</button>
         
@@ -282,6 +333,69 @@
         let allSelected = false;
         let currentPlayer = null;
         let videoSectionCount = 0;
+        
+        async function testIndividualURL() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            
+            if (!url.includes('moveonjoy.com')) {
+                alert('Please enter a valid moveonjoy.com URL');
+                return;
+            }
+            
+            // Extract channel name from URL
+            const pathMatch = url.match(/\.com\/([^\/]+)\//);
+            const channelName = pathMatch ? pathMatch[1] : 'Custom URL';
+            
+            // Reset the interface
+            isChecking = true;
+            workingStreams = [];
+            videoSectionCount = 0;
+            
+            document.getElementById('dropdownSection').style.display = 'none';
+            document.getElementById('queueSection').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'inline-block';
+            document.getElementById('videoSections').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('resultsContainer').style.display = 'none';
+            
+            // Create queue item
+            const queueList = document.getElementById('queueList');
+            queueList.innerHTML = '';
+            const queueItem = document.createElement('div');
+            queueItem.className = 'queue-item';
+            queueItem.id = 'queue-item-0';
+            queueItem.innerHTML = `
+                <span>${channelName}</span>
+                <span class="queue-status pending">Pending</span>
+            `;
+            queueList.appendChild(queueItem);
+            
+            // Test the URL
+            const result = await testStream(url, channelName, 'queue-item-0');
+            
+            if (result.success) {
+                workingStreams.push({ name: channelName, url: result.url });
+                addWorkingStream(result.url, channelName);
+                alert('Working stream found!');
+            } else {
+                alert('No working stream found after scanning all alternatives');
+            }
+            
+            // Hide video sections after completion
+            const videoSections = document.getElementById('videoSections');
+            if (workingStreams.length > 0) {
+                videoSections.style.display = 'none';
+            }
+            
+            document.getElementById('stopBtn').style.display = 'none';
+            isChecking = false;
+        }
         
         async function loadM3U() {
             const loadBtn = document.getElementById('loadBtn');
