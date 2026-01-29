@@ -1,7 +1,10 @@
 export const CHANNEL_MAP = {
     // News
+    "abc-ny": "467679"
+    "abc-mn": "469016"
+    "abc-ga": "467943"
     "abc-east": "465150",
-    "bbc-news-america": "",
+    "bbc-news-america": "464746",
     "bloomberg": "465324",
     "cbs-247": "464994",
     "cnbc": "464791",
@@ -28,8 +31,8 @@ export const CHANNEL_MAP = {
     "fs1": "465248",
     "fs2": "465280",
     "Golf.Channel.USA.us": "464783",
-    "marquee": "403956",
-    "MavTV.USA.us": null, // MAVTV - check listings
+    "marquee": "465271",
+    "MavTV.USA.us": "465231",
     "mlb-network": "465239",
     "NBA.TV.USA.us": "464912",
     "NFL.Network.us": "465311",
@@ -55,15 +58,15 @@ export const CHANNEL_MAP = {
     "aspire": "403648",
     "bbc-america": "465025",
     "bet-east": "403923",
-    "bet-gospel": "405730",
-    "bet-her": "403495",
-    "bet-jams": "8895",
-    "bet-soul": "405733",
+    "bet-gospel": "465072",
+    "bet-her": "465008",
+    "bet-jams": "465128",
+    "bet-soul": "465030",
     "boomerang": "464755",
-    "bounce": null, // Local/syndication
+    "bounce": "465292",
     "bravo": "403897",
-    "buzzr": null, // Local/syndication
-    "cleo": null, // Cleo TV
+    "buzzr": "473210",
+    "cleo": "465363",
     "cmt": "403600",
     "comedy-central": "403666",
     "comet": null, // Local/syndication
