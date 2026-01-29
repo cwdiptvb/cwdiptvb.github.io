@@ -1,4 +1,4 @@
-// api/index.js
+// api/index.js - FIXED VERSION
 import fetch from 'node-fetch';
 import { CHANNEL_MAP } from '../utils/channelMap.js';
 import { convertToXMLTV, validateXMLTV, getStatistics, formatSize } from '../utils/convert.js';
@@ -20,7 +20,7 @@ async function fetchChannelEPG(tvgId, epgId) {
   
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 10000); // Increased from 8s to 10s
     
     const response = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
@@ -28,13 +28,21 @@ async function fetchChannelEPG(tvgId, epgId) {
     });
     
     clearTimeout(timeout);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.log(`⚠️ Failed to fetch ${tvgId}: HTTP ${response.status}`);
+      return null;
+    }
     
     const xml = await response.text();
-    if (!xml.includes('<tv')) return null;
+    if (!xml.includes('<tv')) {
+      console.log(`⚠️ Invalid XML for ${tvgId}`);
+      return null;
+    }
     
+    console.log(`✓ Fetched ${tvgId}`);
     return { tvgId, xml };
   } catch (error) {
+    console.log(`⚠️ Error fetching ${tvgId}: ${error.message}`);
     return null;
   }
 }
@@ -168,7 +176,7 @@ async function enrichWithTMDB(programme, aiResult) {
   try {
     // Search TMDB
     const searchUrl = `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(aiResult.showName)}`;
-    const searchRes = await fetch(searchUrl, { timeout: 3000 });
+    const searchRes = await fetch(searchUrl, { timeout: 5000 });
     
     if (!searchRes.ok) return programme;
     
@@ -186,7 +194,7 @@ async function enrichWithTMDB(programme, aiResult) {
     // Get episode details if we have season/episode
     if (aiResult.season && aiResult.episode) {
       const episodeUrl = `https://api.themoviedb.org/3/tv/${show.id}/season/${aiResult.season}/episode/${aiResult.episode}?api_key=${TMDB_API_KEY}`;
-      const episodeRes = await fetch(episodeUrl, { timeout: 3000 });
+      const episodeRes = await fetch(episodeUrl, { timeout: 5000 });
       
       if (episodeRes.ok) {
         const episodeData = await episodeRes.json();
@@ -227,7 +235,9 @@ export default async function handler(req, res) {
       cacheAge: cacheAge ? `${cacheAge}s` : 'none',
       nextRefresh: cacheTimestamp ? `${Math.max(0, 1800 - cacheAge)}s` : 'now',
       groqEnabled: !!GROQ_API_KEY,
-      tmdbEnabled: !!TMDB_API_KEY
+      tmdbEnabled: !!TMDB_API_KEY,
+      totalChannels: Object.keys(CHANNEL_MAP).length,
+      validChannels: Object.values(CHANNEL_MAP).filter(id => id !== null && id !== '').length
     });
   }
   
@@ -252,14 +262,14 @@ export default async function handler(req, res) {
     console.log('🔄 Generating fresh EPG data...');
     const startTime = Date.now();
     
+    // FIXED: Removed .slice(0, 10) to fetch ALL channels with valid EPG IDs
     const channelsToFetch = Object.entries(CHANNEL_MAP)
-      .filter(([_, epgId]) => epgId !== null)
-      .slice(0, 10); // LIMIT TO 10 CHANNELS FOR TESTING - REMOVE THIS LINE WHEN READY
+      .filter(([_, epgId]) => epgId !== null && epgId !== '');
     
-    console.log(`📡 Fetching ${channelsToFetch.length} channels...`);
+    console.log(`📡 Fetching ${channelsToFetch.length} channels (out of ${Object.keys(CHANNEL_MAP).length} total)...`);
     
-    // Fetch EPG data in batches
-    const BATCH_SIZE = 5;
+    // Fetch EPG data in batches (increased batch size for better performance)
+    const BATCH_SIZE = 10; // Increased from 5
     const allResults = [];
     
     for (let i = 0; i < channelsToFetch.length; i += BATCH_SIZE) {
@@ -268,23 +278,23 @@ export default async function handler(req, res) {
         batch.map(([tvgId, epgId]) => fetchChannelEPG(tvgId, epgId))
       );
       allResults.push(...results.filter(r => r !== null));
-      console.log(`✓ Fetched batch ${Math.floor(i / BATCH_SIZE) + 1}`);
+      console.log(`✓ Batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(channelsToFetch.length / BATCH_SIZE)} complete (${allResults.length} successful so far)`);
     }
     
-    console.log(`✅ Got ${allResults.length} channels with data`);
+    console.log(`✅ Got ${allResults.length} channels with data (${channelsToFetch.length - allResults.length} failed)`);
     
     if (allResults.length === 0) {
       throw new Error('No EPG data available from any channel');
     }
     
-    // Extract all programmes
+    // Extract all programmes - FIXED: Removed .slice(0, 20) limit
     let allProgrammes = [];
     for (const result of allResults) {
       const progs = extractProgrammes(result.xml, result.tvgId);
-      allProgrammes.push(...progs.slice(0, 20)); // LIMIT: 20 programmes per channel - REMOVE THIS WHEN READY
+      allProgrammes.push(...progs); // No limit - get ALL programmes
     }
     
-    console.log(`📺 Total programmes: ${allProgrammes.length}`);
+    console.log(`📺 Total programmes extracted: ${allProgrammes.length}`);
     
     if (allProgrammes.length === 0) {
       throw new Error('No programmes extracted from EPG data');
@@ -365,6 +375,7 @@ export default async function handler(req, res) {
     res.setHeader('X-Generation-Time', duration);
     res.setHeader('X-Programme-Count', stats.total.toString());
     res.setHeader('X-Enriched-Count', stats.enriched.toString());
+    res.setHeader('X-Channel-Count', stats.channels.toString());
     res.status(200).send(xmltv);
     
   } catch (error) {
@@ -373,5 +384,5 @@ export default async function handler(req, res) {
     
     res.setHeader('Content-Type', 'text/plain');
     res.status(500).send(`Error generating XMLTV: ${error.message}\n\nCheck Vercel logs for details.`);
-  }
-}
+  } 
+                  }
