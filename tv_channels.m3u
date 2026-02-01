@@ -1,10 +1,39 @@
 #EXTM3U url-tvg="https://cwdiptvb.vercel.app/"
 
-#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-mn" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/KSTP_logo_%282021%29.svg/1200px-KSTP_logo_%282021%29.svg.png" tvg-name="ABC 5 (KSTP) Minneapolis MN",ABC 5 (KSTP) Minneapolis MN
-https://cwdiptvb.github.io/stream/abc-5-mn/index.m3u8
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-15-az" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTph7rQWEuOUf2TbqHVpLCICNTD4cOD0MkxIg&s" tvg-name="ABC 15 (KNXV) Phoenix AZ",ABC 15 (KNXV) Phoenix AZ
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/AZ_PHOENIX_ABC/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-7-ca" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/KGO-TV_and_KABC-TV_ABC_7_%282021_flat_version%29.svg/1280px-KGO-TV_and_KABC-TV_ABC_7_%282021_flat_version%29.svg.png" tvg-name="ABC 7 (KABC) Los Angeles CA",ABC 7 (KABC) Los Angeles CA
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/CA_LOS_ANGELES_ABC/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-10-ca" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/9/90/KXTV_ABC_10_logo_2021.svg" tvg-name="ABC 10 (KXTV) Sacramento CA",ABC 10 (KXTV) Sacramento CA
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/CA_SACRAMENTO_ABC/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-10-fl" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/d/dd/WPLG_Local_10_%282014%2C_without_ABC_logo%29.svg" tvg-name="ABC 10 (WPLG) Miami FL",ABC 10 (WPLG) Miami FL
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/FL_MIAMI_ABC/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-9-fl" tvg-logo="https://static.wikia.nocookie.net/logopedia/images/a/ac/WFTV_1.svg/revision/latest/scale-to-width-down/250?cb=20210615095010" tvg-name="ABC 9 (WFTV) Orlando FL",ABC 10 (WFTV) Orlando FL
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/FL_ORLANDO_ABC/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ga" tvg-logo="https://i.ibb.co/dRQ10zH/Wsb-2021.webp" tvg-name="ABC 2 (WSBTV) Atlanta GA",ABC 2 (WSBTV) Atlanta GA
 https://hlsr.vercel.app/api/proxy?url=http://206.212.244.71:8080/live/Abxc5k/363887/120849.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-7-il" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/KGO-TV_and_KABC-TV_ABC_7_%282021_flat_version%29.svg/1280px-KGO-TV_and_KABC-TV_ABC_7_%282021_flat_version%29.svg.png" tvg-name="ABC 7 (WLS-TV) Chicago IL",ABC 7 (WLS-TV) Chicago IL
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/IL_CHICAGO_ABC/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-26-la" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/WGNO_%282020%29.svg/960px-WGNO_%282020%29.svg.png" tvg-name="ABC 26 (WGNO) New Orleans LA",ABC 26 (WGNO) New Orleans LA
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/LA_NEW_ORLEANS_ABC/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-9-mo" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/KMBC_9_ABC.svg/250px-KMBC_9_ABC.svg.png" tvg-name="ABC 9 (KMBC) Kansas City MO",ABC 9 (KMBC) Kansas City MO
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/MO_KANSAS_CITY_ABC/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-mn" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/KSTP_logo_%282021%29.svg/1200px-KSTP_logo_%282021%29.svg.png" tvg-name="ABC 5 (KSTP) Minneapolis MN",ABC 5 (KSTP) Minneapolis MN
+https://cwdiptvb.github.io/stream/abc-5-mn/index.m3u8
+
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-16-ms" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/WAPT2022logo.png/250px-WAPT2022logo.png" tvg-name="ABC 16 (WAPT) Jackson MS",ABC 16 (WAPT) Jackson MI
+https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/MS_JACKSON_ABC/index.m3u8
+
+
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ny" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/WABC_TV_New_2021.svg/2560px-WABC_TV_New_2021.svg.png" tvg-name="ABC 7 (WABC) New York NY",ABC 7 (WABC) New York NY
 https://cwdiptvb.github.io/stream/abc-7-ny/index.m3u8
