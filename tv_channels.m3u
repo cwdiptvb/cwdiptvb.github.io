@@ -9,10 +9,10 @@ https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/CA_LOS_ANGELES_A
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-10-ca" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/9/90/KXTV_ABC_10_logo_2021.svg" tvg-name="ABC 10 (KXTV) Sacramento CA",ABC 10 (KXTV) Sacramento CA
 https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/CA_SACRAMENTO_ABC/index.m3u8
 
-#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-10-fl" tvg-logo="https://cwdiptvb.github.io/img/IMG_0204.webp" tvg-name="ABC 10 (WPLG) Miami FL",ABC 10 (WPLG) Miami FL
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-10-fl" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/d/dd/WPLG_Local_10_%282014%2C_without_ABC_logo%29.svg" tvg-name="ABC 10 (WPLG) Miami FL",ABC 10 (WPLG) Miami FL
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/FL_MIAMI_ABC/index.m3u8
 
-#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-9-fl" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/d/dd/WPLG_Local_10_%282014%2C_without_ABC_logo%29.svg" tvg-name="ABC 9 (WFTV) Orlando FL",ABC 10 (WFTV) Orlando FL
+#EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-9-fl" tvg-logo="https://cwdiptvb.github.io/img/IMG_0204.webp" tvg-name="ABC 9 (WFTV) Orlando FL",ABC 9 (WFTV) Orlando FL
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/FL_ORLANDO_ABC/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-ga" tvg-logo="https://i.ibb.co/dRQ10zH/Wsb-2021.webp" tvg-name="ABC 2 (WSBTV) Atlanta GA",ABC 2 (WSBTV) Atlanta GA
