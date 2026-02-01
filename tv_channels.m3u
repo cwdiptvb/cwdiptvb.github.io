@@ -19,7 +19,7 @@ https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/FL_ORLANDO_ABC/i
 https://hlsr.vercel.app/api/proxy?url=http://206.212.244.71:8080/live/Abxc5k/363887/120849.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-7-il" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/KGO-TV_and_KABC-TV_ABC_7_%282021_flat_version%29.svg/1280px-KGO-TV_and_KABC-TV_ABC_7_%282021_flat_version%29.svg.png" tvg-name="ABC 7 (WLS-TV) Chicago IL",ABC 7 (WLS-TV) Chicago IL
-https://hlsr.vercel.app/proxy?url=https://fl1.moveonjoy.com/IL_CHICAGO_ABC/index.m3u8
+https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/IL_CHICAGO_ABC/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-26-la" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/WGNO_%282020%29.svg/960px-WGNO_%282020%29.svg.png" tvg-name="ABC 26 (WGNO) New Orleans LA",ABC 26 (WGNO) New Orleans LA
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/LA_NEW_ORLEANS_ABC/index.m3u8
