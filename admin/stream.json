@@ -1,0 +1,18 @@
+[
+  {
+  "name":"ABC 7 (WABC) New York NY"
+  "id":"abc-7-new-york-ny"
+  "url":"http://206.212.244.71:8080/live/BRIDGITS@YAHOO.COM/BRIDGITS@2022/121139.m3u8"
+  "logo":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1y4-S0vX3crOlnSPpkIQ16TAQPQN4GJXX0w&s"
+  "bandwidth":"5000000"
+  "codecs":"avc1.640028,mp4a.40.2"
+  },
+  {
+  "name":"Cartoon Network"
+  "id":"cartoon-network"
+  "url":"http://206.212.244.71:8080/live/BRIDGITS@YAHOO.COM/BRIDGITS@2022/121139.m3u8"
+  "logo":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaaTj8zBJc2pBVGzBDHBR2ez9YZd1-D5boRg&s"
+  "bandwidth":"5000000"
+  "codecs":"avc1.640028,mp4a.40.2"
+  },
+]
