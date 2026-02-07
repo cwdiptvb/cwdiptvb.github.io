@@ -1,4 +1,4 @@
-d#EXTM3U url-tvg="https://cwdiptvb.vercel.app/"
+#EXTM3U url-tvg="https://cwdiptvb.vercel.app/"
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-15-az" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTph7rQWEuOUf2TbqHVpLCICNTD4cOD0MkxIg&s" tvg-name="ABC 15 (KNXV) Phoenix AZ",ABC 15 (KNXV) Phoenix AZ
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/AZ_PHOENIX_ABC/index.m3u8
