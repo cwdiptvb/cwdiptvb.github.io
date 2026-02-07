@@ -1,4 +1,4 @@
-#EXTM3U url-tvg="https://cwdiptvb.vercel.app/"
+d#EXTM3U url-tvg="https://cwdiptvb.vercel.app/"
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="abc-15-az" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTph7rQWEuOUf2TbqHVpLCICNTD4cOD0MkxIg&s" tvg-name="ABC 15 (KNXV) Phoenix AZ",ABC 15 (KNXV) Phoenix AZ
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/AZ_PHOENIX_ABC/index.m3u8
@@ -88,7 +88,7 @@ https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/BIG_TEN_NETWORK/
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/BLOOMBERG/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="Kids" tvg-id="boomerang" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s21883_dark_360w_270h.png" tvg-name="Boomerang",Boomerang
-https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/BOOMERANG/index.m3u8
+https://fl1.moveonjoy.com/BOOMERANG/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="Entertainment" tvg-id="bounce" tvg-logo="https://github.com/tv-logo/tv-logos/blob/main/countries/united-states/bounce-us.png?raw=true" tvg-name="Bounce",Bounce
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/BOUNCE_TV/index.m3u8
