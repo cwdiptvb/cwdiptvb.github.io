@@ -103,7 +103,7 @@ https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/Buzzr/index.m3u8
 https://hlsr.vercel.app/api/proxy?url=https://fl1.moveonjoy.com/C-SPAN/index.m3u8
 
 #EXTINF:-1 tvg-type="live" group-title="Kids" tvg-id="cartoon-network" tvg-logo="https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s12131_dark_360w_270h.png" tvg-name="Cartoon Network",Cartoon Network
-https://cwdiptvb.github.io/stream/cartoon-network/index.m3u8
+https://iptvpro.itscwd273.workers.dev/web?id=cartoon-network
 
 #EXTINF:-1 tvg-type="live" group-title="News" tvg-id="cbs-247" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/CBS_News_247_logo.svg/2560px-CBS_News_247_logo.svg.png" tvg-name="CBS News 24/7",CBS News 24/7
 https://hlsr.vercel.app/api/proxy?url=https://cbsn-us.cbsnstream.cbsnews.com/out/v1/55a8648e8f134e82a470f83d562deeca/master.m3u8
