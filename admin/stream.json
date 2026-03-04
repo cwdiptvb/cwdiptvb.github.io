@@ -10,7 +10,7 @@
   {
     "name": "Cartoon Network",
     "id": "cartoon-network",
-    "url": "http://supersonictv.live:8080/live/Keyonna123/Keyonna123/21792.m3u8",
+    "url": "http://proxy.smartcdn.org/live/sub_4vwzyp75/36zy-6tuv-d6xm/41.ts",
     "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaaTj8zBJc2pBVGzBDHBR2ez9YZd1-D5boRg&s",
     "bandwidth": "5000000",
     "codecs": "avc1.640028,mp4a.40.2"
