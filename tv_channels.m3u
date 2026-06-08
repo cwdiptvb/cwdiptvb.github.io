@@ -32,7 +32,7 @@ https://tvpass.org/live/CSPAN/sd
 #EXTINF:-1 tvg-id="cspan-2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/c-span-2-us.png" tvg-name="C-SPAN 2" group-title="Live",C-SPAN 2
 https://tvpass.org/live/CSPAN2/sd
 #EXTINF:-1 tvg-id="cartoon-network-usa-eastern-feed" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cartoon-network-us.png" tvg-name="Cartoon Network USA Eastern Feed" group-title="Live",Cartoon Network USA Eastern Feed
-https://tvpass.org/live/CartoonNetworkEast/sd
+https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CARTOON_NETWORK/index.m3u8
 #EXTINF:-1 tvg-id="cbs-kcbs-los-angeles-ca" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/cbs-2-kcbs-us.png" tvg-name="CBS (KCBS) Los Angeles" group-title="Live",CBS (KCBS) Los Angeles
 https://tvpass.org/live/cbs-kcbs-los-angeles-ca/sd
 #EXTINF:-1 tvg-id="cbs-wcbs-new-york-ny" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/cbs-2-wcbs-us.png" tvg-name="CBS (WCBS) New York, NY" group-title="Live",CBS (WCBS) New York, NY
