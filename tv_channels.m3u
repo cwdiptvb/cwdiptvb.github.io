@@ -1,10 +1,8 @@
 #EXTM3U x-tvg-url="https://tvpass.org/epg.xml"
 #EXTINF:-1 tvg-id="ae-us-eastern-feed" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/a-and-e-us.png" tvg-name="A&E US Eastern Feed" group-title="Live",A&E US Eastern Feed
 https://tvpass.org/live/AEEast/sd
-#EXTINF:-1 tvg-id="abc-kabc-los-angeles-ca" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/abc-7-kabc-us.png" tvg-name="ABC (KABC) Los Angeles" group-title="Live",ABC (KABC) Los Angeles
-https://tvpass.org/live/abc-kabc-los-angeles-ca/sd
-#EXTINF:-1 tvg-id="abc-wabc-new-york-ny" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/abc-7-wabc-us.png" tvg-name="ABC (WABC) New York, NY" group-title="Live",ABC (WABC) New York, NY
-https://tvpass.org/live/WABCDT1/sd
+#EXTINF:-1 tvg-id="abc-7-ny" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/abc-7-wabc-us.png" tvg-name="ABC 7 New York NY (WABC)" group-title="Live",ABC 7 New York NY (WABC)
+https://hlsr-app.vercel.app/api/proxy?url=https://images.dulo.tv/memfs/cf396710-6c4d-4c85-9021-df9c24fd6c0b.m3u8
 #EXTINF:-1 tvg-id="acc-network" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/acc-network-us.png" tvg-name="ACC Network" group-title="Live",ACC Network
 https://tvpass.org/live/ACCNetwork/sd
 #EXTINF:-1 tvg-id="altitude-sports-denver" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/altitude-sports-us.png" tvg-name="Altitude Sports Denver" group-title="Live",Altitude Sports Denver
