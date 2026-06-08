@@ -4,15 +4,13 @@ https://tvpass.org/live/AEEast/sd
 #EXTINF:-1 tvg-id="abc-7-ny" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/abc-7-wabc-us.png" tvg-name="ABC 7 New York NY (WABC)" group-title="Live",ABC 7 New York NY (WABC)
 https://hlsr-app.vercel.app/api/proxy?url=https://images.dulo.tv/memfs/cf396710-6c4d-4c85-9021-df9c24fd6c0b.m3u8
 #EXTINF:-1 tvg-id="acc-network" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/acc-network-us.png" tvg-name="ACC Network" group-title="Live",ACC Network
-https://tvpass.org/live/ACCNetwork/sd
-#EXTINF:-1 tvg-id="altitude-sports-denver" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/altitude-sports-us.png" tvg-name="Altitude Sports Denver" group-title="Live",Altitude Sports Denver
-https://tvpass.org/live/altitude-sports-denver/sd
+https://hlsr-app.vercel.app/api/proxy?url=https://images.dulo.tv/memfs/a2a7afae-9bc8-410f-8383-eb1e4117d2f9.m3u8
 #EXTINF:-1 tvg-id="amc-eastern-feed" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/amc-us.png" tvg-name="AMC Eastern Feed" group-title="Live",AMC Eastern Feed
 https://tvpass.org/live/AMCEast/sd
 #EXTINF:-1 tvg-id="american-heroes-channel" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/american-heroes-channel-us.png" tvg-name="American Heroes Channel" group-title="Live",American Heroes Channel
 https://tvpass.org/live/AmericanHeroesChannel/sd
-#EXTINF:-1 tvg-id="animal-planet-us-east" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/animal-planet-us.png" tvg-name="Animal Planet US East" group-title="Live",Animal Planet US East
-https://tvpass.org/live/AnimalPlanetEast/sd
+#EXTINF:-1 tvg-id="animal-planet" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/animal-planet-us.png" tvg-name="Animal Planet US East" group-title="Live",Animal Planet US East
+https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_ANIMAL_PLANET/index.m3u8
 #EXTINF:-1 tvg-id="bbc-america-east" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bbc-america-us.png" tvg-name="BBC America East" group-title="Live",BBC America East
 https://tvpass.org/live/BBCAmericaEast/sd
 #EXTINF:-1 tvg-id="bbc-news-north-america-hd" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-kingdom/bbc-news-uk.png" tvg-name="BBC News North America HD" group-title="Live",BBC News North America HD
