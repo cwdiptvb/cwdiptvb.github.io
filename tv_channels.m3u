@@ -1,4 +1,6 @@
-#EXTM3U x-tvg-url="https://tvpass.org/epg.xml"
+#EXTM3U playlist-title="Free Live TV" playlist-logo="https://cwdiptvb.github.io/fav/512.png" x-playlist-logo="https://cwdiptvb.github.io/fav/512.png" logo="https://cwdiptvb.github.io/fav/512.png"
+#PLAYLIST:Free Live TV
+#EXTIPL:Free Live TV
 #EXTINF:-1 tvg-id="ae-us-eastern-feed" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/a-and-e-us.png" tvg-name="A&E US Eastern Feed" group-title="Live",A&E US Eastern Feed
 null
 #EXTINF:-1 tvg-id="abc-7-ny" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/abc-7-wabc-us.png" tvg-name="ABC 7 New York NY (WABC)" group-title="Live",ABC 7 New York NY (WABC)
