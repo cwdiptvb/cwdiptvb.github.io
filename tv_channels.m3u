@@ -69,7 +69,7 @@ null
 null
 #EXTINF:-1 tvg-id="Disney.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/disney-channel-us.png" tvg-name="Disney Eastern Feed" group-title="Live",Disney Eastern Feed
 null
-#EXTINF:-1 tvg-id="Disney.Junior.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/disney-junior-us.png" tvg-name="Disney Junior USA East" group-title="Live",Disney Junior USA East
+#EXTINF:-1 tvg-id="Disney.Junior.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/2024_Disney_Jr._Logo.svg/960px-2024_Disney_Jr._Logo.svg.png" tvg-name="Disney Junior USA East" group-title="Live",Disney Junior USA East
 https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DISNEY_JUNIOR/index.m3u8
 #EXTINF:-1 tvg-id="Disney.XD.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/disney-xd-us.png" tvg-name="Disney XD USA Eastern Feed" group-title="Live",Disney XD USA Eastern Feed
 https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DISNEY_XD/index.m3u8
