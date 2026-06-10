@@ -551,6 +551,32 @@ footer {
     }
   }
 
+  async function fetchGzippedXML(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const isGzip = url.endsWith('.gz') || (res.headers.get('content-type') || '').includes('gzip');
+    let xmlText;
+    if (isGzip && typeof DecompressionStream !== 'undefined') {
+      const ds = new DecompressionStream('gzip');
+      const decompressed = res.body.pipeThrough(ds);
+      const reader = decompressed.getReader();
+      const chunks = [];
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+      const merged = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) { merged.set(chunk, offset); offset += chunk.length; }
+      xmlText = new TextDecoder('utf-8').decode(merged);
+    } else {
+      xmlText = await res.text();
+    }
+    return xmlText;
+  }
+
   async function fetchXMLTVData(silent = false) {
     if (!XMLTV_URL) {
       console.log("Skipping XMLTV fetch: URL not available.");
@@ -562,9 +588,7 @@ footer {
     }
 
     try {
-      const res = await fetch(XMLTV_URL);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      let xmlText = await res.text();
+      let xmlText = await fetchGzippedXML(XMLTV_URL);
 
       const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
       const parser = new DOMParser();

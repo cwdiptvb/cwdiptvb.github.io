@@ -851,6 +851,31 @@
       });
     }
 
+    async function fetchGzippedXML(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const isGzip = url.endsWith('.gz') ||
+        (res.headers.get('content-encoding') || '').includes('gzip') ||
+        (res.headers.get('content-type') || '').includes('gzip');
+
+      if (isGzip && typeof DecompressionStream !== 'undefined') {
+        const ds = new DecompressionStream('gzip');
+        const decompressed = res.body.pipeThrough(ds);
+        const reader = decompressed.getReader();
+        const chunks = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+        const blob = new Blob(chunks);
+        return await blob.text();
+      } else {
+        return await res.text();
+      }
+    }
+
     async function loadXMLTVSchedule(tvgId, silent = false) {
       const scheduleList = document.getElementById("schedule-list");
       
@@ -876,9 +901,7 @@
       
       let xmlDoc;
       try {
-        const res = await fetch(xmltvUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        let xmlText = await res.text();
+        let xmlText = await fetchGzippedXML(xmltvUrl);
         
         const safeXmlText = xmlText.replace(/&(?!(?:apos|quot|[gl]t|amp);)/g, '&amp;');
 
