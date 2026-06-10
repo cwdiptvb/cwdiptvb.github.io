@@ -238,8 +238,8 @@ null
 #EXTINF:-1 tvg-id="New.England.Sports.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nesn-us.png" tvg-name="New England Sports Network" group-title="Live",New England Sports Network
 null
 #EXTINF:-1 tvg-id="Newsmax.TV.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/newsmax-us.png" tvg-name="NewsMax TV" group-title="Live",NewsMax TV
-https://hlsr-app.vercel.app/api/proxy?url=https://nmx1ota.akamaized.net/hls/live/2107010/Live_1/index.m3u8#088d520b022255dc0fcc1c7c27f8700802f8cff2e810fbda1b6f397255af5368
-#EXTINF:-1 tvg-id="Newsmax.TV.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/newsmax-2-us.png" tvg-name="NewsMax 2" group-title="Live",NewsMax 2
+https://hlsr-app.vercel.app/api/proxy?url=https://nmx1ota.akamaized.net/hls/live/2107010/Live_1/index.m3u8
+#EXTINF:-1 tvg-id="Newsmax.2.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/newsmax-2-us.png" tvg-name="NewsMax 2" group-title="Live",NewsMax 2
 https://hlsr-app.vercel.app/api/proxy?url=https://n2ctsota.akamaized.net/hls/live/2113130/Live_1/index.m3u8
 #EXTINF:-1 tvg-id="NFL.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nfl-network-us.png" tvg-name="NFL Network" group-title="Live",NFL Network
 null
