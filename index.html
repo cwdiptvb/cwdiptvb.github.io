@@ -554,8 +554,11 @@ footer {
   async function fetchGzippedXML(url) {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const isGzip = url.endsWith('.gz') || (res.headers.get('content-type') || '').includes('gzip');
-    let xmlText;
+
+    const isGzip = url.endsWith('.gz') ||
+      (res.headers.get('content-encoding') || '').includes('gzip') ||
+      (res.headers.get('content-type') || '').includes('gzip');
+
     if (isGzip && typeof DecompressionStream !== 'undefined') {
       const ds = new DecompressionStream('gzip');
       const decompressed = res.body.pipeThrough(ds);
@@ -566,15 +569,12 @@ footer {
         if (done) break;
         chunks.push(value);
       }
-      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
-      const merged = new Uint8Array(totalLength);
-      let offset = 0;
-      for (const chunk of chunks) { merged.set(chunk, offset); offset += chunk.length; }
-      xmlText = new TextDecoder('utf-8').decode(merged);
+      const blob = new Blob(chunks);
+      return await blob.text();
     } else {
-      xmlText = await res.text();
+      // Fallback: browser may auto-decompress if Content-Encoding: gzip
+      return await res.text();
     }
-    return xmlText;
   }
 
   async function fetchXMLTVData(silent = false) {
