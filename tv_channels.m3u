@@ -10,11 +10,11 @@ null
 #EXTINF:-1 tvg-id="AMC.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/amc-us.png" tvg-name="AMC Eastern Feed" group-title="Live",AMC Eastern Feed
 null
 #EXTINF:-1 tvg-id="American.Heroes.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/american-heroes-channel-us.png" tvg-name="American Heroes Channel" group-title="Live",American Heroes Channel
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_AMERICAN_HEROES/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_AMERICAN_HEROES/index.m3u8
 #EXTINF:-1 tvg-id="Animal.Planet.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/animal-planet-us.png" tvg-name="Animal Planet US East" group-title="Live",Animal Planet US East
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_ANIMAL_PLANET/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_ANIMAL_PLANET/index.m3u8
 #EXTINF:-1 tvg-id="BBC.America.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bbc-america-us.png" tvg-name="BBC America East" group-title="Live",BBC America East
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_BBC_AMERICA/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_BBC_AMERICA/index.m3u8
 #EXTINF:-1 tvg-id="BBC.News.(North.America).HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-kingdom/bbc-news-uk.png" tvg-name="BBC News North America HD" group-title="Live",BBC News North America HD
 null
 #EXTINF:-1 tvg-id="BET.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bet-us.png" tvg-name="BET Eastern Feed" group-title="Live",BET Eastern Feed
@@ -22,11 +22,11 @@ null
 #EXTINF:-1 tvg-id="BET.Her.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bet-her-us.png" tvg-name="BET Her" group-title="Live",BET Her
 null
 #EXTINF:-1 tvg-id="Big.Ten.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/big-ten-network-us.png" tvg-name="Big Ten Network" group-title="Live",Big Ten Network
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_BTN/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_BTN/index.m3u8
 #EXTINF:-1 tvg-id="Bloomberg.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bloomberg-television-us.png" tvg-name="Bloomberg TV USA" group-title="Live",Bloomberg TV USA
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_BLOOMBERG/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_BLOOMBERG/index.m3u8
 #EXTINF:-1 tvg-id="Boomerang.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/boomerang-us.png" tvg-name="Boomerang" group-title="Live",Boomerang
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_BOOMERANG/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_BOOMERANG/index.m3u8
 #EXTINF:-1 tvg-id="Bravo.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bravo-us.png" tvg-name="Bravo USA Eastern Feed" group-title="Live",Bravo USA Eastern Feed
 null
 #EXTINF:-1 tvg-id="CSPAN.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/c-span-us.png" tvg-name="C-SPAN" group-title="Live",C-SPAN
@@ -34,7 +34,7 @@ null
 #EXTINF:-1 tvg-id="CSPAN2.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/c-span-2-us.png" tvg-name="C-SPAN 2" group-title="Live",C-SPAN 2
 null
 #EXTINF:-1 tvg-id="Cartoon.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cartoon-network-us.png" tvg-name="Cartoon Network USA Eastern Feed" group-title="Live",Cartoon Network USA Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CARTOON_NETWORK/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CARTOON_NETWORK/index.m3u8
 #EXTINF:-1 tvg-id="CBS.West.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/cbs-2-kcbs-us.png" tvg-name="CBS (KCBS) Los Angeles" group-title="Live",CBS (KCBS) Los Angeles
 null
 #EXTINF:-1 tvg-id="CBS.East.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/cbs-2-wcbs-us.png" tvg-name="CBS (WCBS) New York, NY" group-title="Live",CBS (WCBS) New York, NY
@@ -44,25 +44,25 @@ null
 #EXTINF:-1 tvg-id="CHSN.Chicago.Sports.Network.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/chicago-sports-network-us.png" tvg-name="Chicago Sports Network" group-title="Live",Chicago Sports Network
 null
 #EXTINF:-1 tvg-id="Cinemax.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cinemax-us.png" tvg-name="Cinemax Eastern Feed" group-title="Live",Cinemax Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CINEMAX/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CINEMAX/index.m3u8
 #EXTINF:-1 tvg-id="CMT.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cmt-us.png" tvg-name="CMT US Eastern Feed" group-title="Live",CMT US Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CMT/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CMT/index.m3u8
 #EXTINF:-1 tvg-id="CNBC.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cnbc-us.png" tvg-name="CNBC USA" group-title="Live",CNBC USA
 null
 #EXTINF:-1 tvg-id="CNN.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cnn-us.png" tvg-name="CNN US" group-title="Live",CNN US
 null
 #EXTINF:-1 tvg-id="Comedy.Central.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/comedy-central-us.png" tvg-name="Comedy Central (US) Eastern Feed" group-title="Live",Comedy Central (US) Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_COMEDY_CENTRAL/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_COMEDY_CENTRAL/index.m3u8
 #EXTINF:-1 tvg-id="Crime.and.Investigation.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/crime-and-investigation-us.png" tvg-name="Crime & Investigation Network USA HD" group-title="Live",Crime & Investigation Network USA HD
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CRIME_INVESTIGATION/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_CRIME_INVESTIGATION/index.m3u8
 #EXTINF:-1 tvg-id="CW.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/the-cw-us.png" tvg-name="CW (KFMB-TV2) San Diego" group-title="Live",CW (KFMB-TV2) San Diego
 null
 #EXTINF:-1 tvg-id="CW.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/the-cw-us.png" tvg-name="CW (WDCW) District of Columbia" group-title="Live",CW (WDCW) District of Columbia
 null
 #EXTINF:-1 tvg-id="Destination.America.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/destination-america-us.png" tvg-name="Destination America" group-title="Live",Destination America
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DESTINATION_AMERICA/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DESTINATION_AMERICA/index.m3u8
 #EXTINF:-1 tvg-id="Discovery.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/discovery-channel-us.png" tvg-name="Discovery Channel (US) Eastern Feed" group-title="Live",Discovery Channel (US) Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DISCOVERY/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DISCOVERY/index.m3u8
 #EXTINF:-1 tvg-id="Discovery.Family.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/discovery-family-us.png" tvg-name="Discovery Family Channel" group-title="Live",Discovery Family Channel
 null
 #EXTINF:-1 tvg-id="Discovery.Life.Channel.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/discovery-life-us.png" tvg-name="Discovery Life Channel" group-title="Live",Discovery Life Channel
@@ -70,11 +70,11 @@ null
 #EXTINF:-1 tvg-id="Disney.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/disney-channel-us.png" tvg-name="Disney Eastern Feed" group-title="Live",Disney Eastern Feed
 null
 #EXTINF:-1 tvg-id="Disney.Junior.HD.us2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/2024_Disney_Jr._Logo.svg/960px-2024_Disney_Jr._Logo.svg.png" tvg-name="Disney Junior USA East" group-title="Live",Disney Junior USA East
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DISNEY_JUNIOR/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DISNEY_JUNIOR/index.m3u8
 #EXTINF:-1 tvg-id="Disney.XD.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/disney-xd-us.png" tvg-name="Disney XD USA Eastern Feed" group-title="Live",Disney XD USA Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DISNEY_XD/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_DISNEY_XD/index.m3u8
 #EXTINF:-1 tvg-id="E.Entertainment.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/e-entertainment-us.png" tvg-name="E! Entertainment USA Eastern Feed" group-title="Live",E! Entertainment USA Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_E/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_E/index.m3u8
 #EXTINF:-1 tvg-id="ESPN.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/espn-us.png" tvg-name="ESPN" group-title="Live",ESPN
 null
 #EXTINF:-1 tvg-id="ESPN.Deportes.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/espn-deportes-us.png" tvg-name="ESPN Deportes" group-title="Live",ESPN Deportes
@@ -124,7 +124,7 @@ null
 #EXTINF:-1 tvg-id="FanDuel.Sports.Tennessee.East.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/fanduel-sports-network-us.png" tvg-name="Fanduel Sports Tennessee East" group-title="Live",Fanduel Sports Tennessee East
 null
 #EXTINF:-1 tvg-id="Food.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/food-network-us.png" tvg-name="Food Network USA Eastern Feed" group-title="Live",Food Network USA Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_FOOD_NETWORK/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_FOOD_NETWORK/index.m3u8
 #EXTINF:-1 tvg-id="FOX.West.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/fox-11-kttv-us.png" tvg-name="FOX (KTTV) Los Angeles" group-title="Live",FOX (KTTV) Los Angeles
 null
 #EXTINF:-1 tvg-id="FOX.East.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/fox-5-wnyw-us.png" tvg-name="FOX (WNYW) New York, NY" group-title="Live",FOX (WNYW) New York, NY
@@ -140,49 +140,49 @@ null
 #EXTINF:-1 tvg-id="Freeform.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/freeform-us.png" tvg-name="Freeform East Feed" group-title="Live",Freeform East Feed
 null
 #EXTINF:-1 tvg-id="Fuse.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/fuse-us.png" tvg-name="FUSE TV Eastern feed" group-title="Live",FUSE TV Eastern feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_FUSE/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_FUSE/index.m3u8
 #EXTINF:-1 tvg-id="FX.Movie.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/fx-movie-channel-us.png" tvg-name="FX Movie Channel" group-title="Live",FX Movie Channel
 null
 #EXTINF:-1 tvg-id="FX.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/fx-us.png" tvg-name="FX Movie Channel" group-title="Live",FX
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_FX/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_FX/index.m3u8
 #EXTINF:-1 tvg-id="FXX.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/fxx-us.png" tvg-name="FXX" group-title="Live",FXX
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_FXX/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_FXX/index.m3u8
 #EXTINF:-1 tvg-id="FYI.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/fyi-us.png" tvg-name="FYI USA Eastern" group-title="Live",FYI USA Eastern
 null
 #EXTINF:-1 tvg-id="Game.Show.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/game-show-network-us.png" tvg-name="Game Show Network East" group-title="Live",Game Show Network East
 null
 #EXTINF:-1 tvg-id="Golf.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nbc-golf-us.png" tvg-name="Golf Channel USA" group-title="Live",Golf Channel USA
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_GOLF/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_GOLF/index.m3u8
 #EXTINF:-1 tvg-id="Hallmark.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hallmark-channel-us.png" tvg-name="Hallmark Eastern Feed" group-title="Live",Hallmark Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HALLMARK/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HALLMARK/index.m3u8
 #EXTINF:-1 tvg-id="Hallmark.Family.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hallmark-family-us.png" tvg-name="Hallmark Family HD" group-title="Live",Hallmark Family HD
 null
 #EXTINF:-1 tvg-id="Hallmark.Mystery.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hallmark-movies-and-mysteries-us.png" tvg-name="Hallmark Mystery Eastern HD" group-title="Live",Hallmark Mystery Eastern HD
 null
 #EXTINF:-1 tvg-id="HBO.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hbo-us.png" tvg-name="HBO" group-title="Live",HBO
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO/index.m3u8
 #EXTINF:-1 tvg-id="HBO2.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hbo2-us.png" tvg-name="HBO 2 Eastern Feed" group-title="Live",HBO 2 Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO2/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO2/index.m3u8
 #EXTINF:-1 tvg-id="HBO.Comedy.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hbo-comedy-us.png" tvg-name="HBO Comedy HD East" group-title="Live",HBO Comedy HD East
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO_COMEDY/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO_COMEDY/index.m3u8
 #EXTINF:-1 tvg-id="HBO.Family.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hbo-family-us.png" tvg-name="HBO Family Eastern Feed" group-title="Live",HBO Family Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO_FAMILY/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO_FAMILY/index.m3u8
 #EXTINF:-1 tvg-id="HBO.Signature.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hbo-signature-us.png" tvg-name="HBO Signature (HBO 3) Eastern" group-title="Live",HBO Signature (HBO 3) Eastern
 null
 #EXTINF:-1 tvg-id="HBO.Zone.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hbo-zone-us.png" tvg-name="HBO Zone HD East" group-title="Live",HBO Zone HD East
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO_ZONE/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HBO_ZONE/index.m3u8
 #EXTINF:-1 tvg-id="HGTV.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hgtv-us.png" tvg-name="HGTV USA Eastern Feed" group-title="Live",HGTV USA Eastern Feed
 null
 #EXTINF:-1 tvg-id="History.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/history-us.png" tvg-name="History Channel US Eastern Feed" group-title="Live",History Channel US Eastern Feed
 null
 #EXTINF:-1 tvg-id="HLN.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/hln-us.png" tvg-name="HLN" group-title="Live",HLN
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HLN/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_HLN/index.m3u8
 #EXTINF:-1 tvg-id="IFC.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/ifc-us.png" tvg-name="Independent Film Channel US" group-title="Live",Independent Film Channel US
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_IFC/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_IFC/index.m3u8
 #EXTINF:-1 tvg-id="Investigation.Discovery.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/investigation-discovery-us.png" tvg-name="Investigation Discovery USA Eastern" group-title="Live",Investigation Discovery USA Eastern
 null
 #EXTINF:-1 tvg-id="ION.Television.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/ion-us.png" tvg-name="ION Eastern Feed" group-title="Live",ION Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_ION/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_ION/index.m3u8
 #EXTINF:-1 tvg-id="Lifetime.Movie.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/lifetime-movies-us.png" tvg-name="Lifetime Movies East" group-title="Live",Lifetime Movies East
 null
 #EXTINF:-1 tvg-id="Lifetime.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/lifetime-us.png" tvg-name="Lifetime Network US Eastern Feed" group-title="Live",Lifetime Network US Eastern Feed
@@ -202,13 +202,13 @@ null
 #EXTINF:-1 tvg-id="Monumental.Sports.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/monumental-sports-network-us.png" tvg-name="Monumental Sports Network" group-title="Live",Monumental Sports Network
 null
 #EXTINF:-1 tvg-id="MoreMax.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/moremax-us.png" tvg-name="MoreMax Eastern" group-title="Live",MoreMax Eastern
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_MOREMAX/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_MOREMAX/index.m3u8
 #EXTINF:-1 tvg-id="Motor.Trend.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/motortrend-us.png" tvg-name="Motor Trend HD" group-title="Live",Motor Trend HD
 null
 #EXTINF:-1 tvg-id="MovieMax.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/moviemax-us.png" tvg-name="MovieMax (Max 6) East" group-title="Live",MovieMax (Max 6) East
 null
 #EXTINF:-1 tvg-id="MSG.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/msg-us.png" tvg-name="MSG Madison Square Gardens" group-title="Live",MSG Madison Square Gardens
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_MSG/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_MSG/index.m3u8
 #EXTINF:-1 tvg-id="MSG.Plus.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/msg-plus-us.png" tvg-name="MSG Plus" group-title="Live",MSG Plus
 null
 #EXTINF:-1 tvg-id="MSNBC.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/msnbc-us.png" tvg-name="MSNBC USA" group-title="Live",MSNBC USA
@@ -216,13 +216,13 @@ null
 #EXTINF:-1 tvg-id="MTV2.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/mtv2-us.png" tvg-name="MTV 2 East" group-title="Live",MTV 2 East
 null
 #EXTINF:-1 tvg-id="MTV.-.Music.Television.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/mtv-us.png" tvg-name="MTV USA Eastern Feed" group-title="Live",MTV USA Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_MTV/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_MTV/index.m3u8
 #EXTINF:-1 tvg-id="National.Geographic.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/national-geographic-us.png" tvg-name="National Geographic US Eastern" group-title="Live",National Geographic US Eastern
 null
 #EXTINF:-1 tvg-id="National.Geographic.Wild.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/national-geographic-wild-us.png" tvg-name="National Geographic Wild" group-title="Live",National Geographic Wild
 null
 #EXTINF:-1 tvg-id="NBA.TV.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nba-tv-us.png" tvg-name="NBA TV USA" group-title="Live",NBA TV USA
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_NBA/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_NBA/index.m3u8
 #EXTINF:-1 tvg-id="NBC.West.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/nbc-4-knbc-us.png" tvg-name="NBC (KNBC) Los Angeles" group-title="Live",NBC (KNBC) Los Angeles
 null
 #EXTINF:-1 tvg-id="NBC.East.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/nbc-4-wnbc-us.png" tvg-name="NBC (WNBC) New York, NY" group-title="Live",NBC (WNBC) New York, NY
@@ -238,9 +238,9 @@ null
 #EXTINF:-1 tvg-id="New.England.Sports.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nesn-us.png" tvg-name="New England Sports Network" group-title="Live",New England Sports Network
 null
 #EXTINF:-1 tvg-id="Newsmax.TV.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/newsmax-us.png" tvg-name="NewsMax TV" group-title="Live",NewsMax TV
-https://hlsr-app.vercel.app/api/proxy?url=https://nmx1ota.akamaized.net/hls/live/2107010/Live_1/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=https://nmx1ota.akamaized.net/hls/live/2107010/Live_1/index.m3u8
 #EXTINF:-1 tvg-id="Newsmax.2.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/newsmax-2-us.png" tvg-name="NewsMax 2" group-title="Live",NewsMax 2
-https://hlsr-app.vercel.app/api/proxy?url=https://n2ctsota.akamaized.net/hls/live/2113130/Live_1/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=https://n2ctsota.akamaized.net/hls/live/2113130/Live_1/index.m3u8
 #EXTINF:-1 tvg-id="NFL.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nfl-network-us.png" tvg-name="NFL Network" group-title="Live",NFL Network
 null
 #EXTINF:-1 tvg-id="NFL.RedZone.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nfl-red-zone-hz-us.png" tvg-name="NFL RedZone" group-title="Live",NFL RedZone
@@ -250,25 +250,25 @@ null
 #EXTINF:-1 tvg-id="Nick.Jr.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nick-jr-us.png" tvg-name="Nick Jr. East" group-title="Live",Nick Jr. East
 null
 #EXTINF:-1 tvg-id="Nickelodeon.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nickelodeon-us.png" tvg-name="Nickelodeon USA East Feed" group-title="Live",Nickelodeon USA East Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_NICKELODEON/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_NICKELODEON/index.m3u8
 #EXTINF:-1 tvg-id="Nicktoons.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/nicktoons-us.png" tvg-name="Nicktoons East" group-title="Live",Nicktoons East
 null
 #EXTINF:-1 tvg-id="Oprah.Winfrey.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/own-us.png" tvg-name="Oprah Winfrey Network USA Eastern" group-title="Live",Oprah Winfrey Network USA Eastern
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_OWN/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_OWN/index.m3u8
 #EXTINF:-1 tvg-id="Outdoor.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/outdoor-channel-us.png" tvg-name="Outdoor Channel US" group-title="Live",Outdoor Channel US
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_OUTDOOR/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_OUTDOOR/index.m3u8
 #EXTINF:-1 tvg-id="Oxygen.True.Crime.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/oxygen-us.png" tvg-name="Oxygen Eastern Feed" group-title="Live",Oxygen Eastern Feed
 null
 #EXTINF:-1 tvg-id="PBS.Kids.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/pbs-13-wnet-us.png" tvg-name="PBS (WNET) New York, NY" group-title="Live",PBS (WNET) New York, NY
 null
 #EXTINF:-1 tvg-id="ReelzChannel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/reelz-us.png" tvg-name="ReelzChannel" group-title="Live",ReelzChannel
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_REELZ/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_REELZ/index.m3u8
 #EXTINF:-1 tvg-id="Science.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/science-channel-us.png" tvg-name="Science" group-title="Live",Science
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_SCIENCE/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_SCIENCE/index.m3u8
 #EXTINF:-1 tvg-id="SEC.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/sec-network-us.png" tvg-name="SEC Network" group-title="Live",SEC Network
 null
 #EXTINF:-1 tvg-id="Paramount.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/showtime-us.png" tvg-name="Showtime Eastern Feed" group-title="Live",Showtime Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_SHOWTIME/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_SHOWTIME/index.m3u8
 #EXTINF:-1 tvg-id="SNY.SportsNet.New.York.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/sny-us.png" tvg-name="SNY Sportsnet New York Comcast" group-title="Live",SNY Sportsnet New York Comcast
 null
 #EXTINF:-1 tvg-id="Space.City.Home.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/space-city-home-network-us.png" tvg-name="Space City Home Network" group-title="Live",Space City Home Network
@@ -292,10 +292,10 @@ null
 #EXTINF:-1 tvg-id="Sportsnet.West.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/canada/sportsnet-west-ca.png" tvg-name="Sportsnet West" group-title="Live",Sportsnet West
 null
 #EXTINF:-1 tvg-id="Starz.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/starz-us.png" tvg-name="Starz Eastern" group-title="Live",Starz Eastern
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_STARZ/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_STARZ/index.m3u8
 null
 #EXTINF:-1 tvg-id="Syfy.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/syfy-us.png" tvg-name="Syfy Eastern Feed" group-title="Live",Syfy Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_SYFY/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_SYFY/index.m3u8
 #EXTINF:-1 tvg-id="TBS.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/tbs-us.png" tvg-name="TBS East" group-title="Live",TBS East
 null
 #EXTINF:-1 tvg-id="TeenNick.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/teen-nick-us.png" tvg-name="TeenNick Eastern" group-title="Live",TeenNick Eastern
@@ -303,9 +303,9 @@ null
 #EXTINF:-1 tvg-id="Telemundo.Satellite.Feed.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/telemundo-us.png" tvg-name="Telemundo Eastern Feed" group-title="Live",Telemundo Eastern Feed
 null
 #EXTINF:-1 tvg-id="Cooking.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cooking-channel-us.png" tvg-name="The Cooking Channel" group-title="Live",The Cooking Channel
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_COOKING/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_COOKING/index.m3u8
 #EXTINF:-1 tvg-id="Tennis.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/tennis-channel-us.png" tvg-name="The Tennis Channel" group-title="Live",The Tennis Channel
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_TENNIS/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_TENNIS/index.m3u8
 #EXTINF:-1 tvg-id="The.Weather.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/the-weather-channel-us.png" tvg-name="The Weather Channel" group-title="Live",The Weather Channel
 null
 #EXTINF:-1 tvg-id="TLC.HD.(US).us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/tlc-us.png" tvg-name="TLC USA Eastern" group-title="Live",TLC USA Eastern
@@ -317,7 +317,7 @@ null
 #EXTINF:-1 tvg-id="The.Travel.Channel.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/travel-channel-us.png" tvg-name="Travel US East" group-title="Live",Travel US East
 null
 #EXTINF:-1 tvg-id="truTV.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/trutv-us.png" tvg-name="truTV USA Eastern" group-title="Live",truTV USA Eastern
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_TRUTV/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_TRUTV/index.m3u8
 #EXTINF:-1 tvg-id="TSN1.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/canada/tsn1-ca.png" tvg-name="TSN1" group-title="Live",TSN1
 null
 #EXTINF:-1 tvg-id="TSN2.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/canada/tsn2-ca.png" tvg-name="TSN2" group-title="Live",TSN2
@@ -341,7 +341,7 @@ null
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/usa-network-us.png" tvg-name="USA Network East Feed" group-title="Live",USA Network East Feed
 null
 #EXTINF:-1 tvg-id="VH1.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/vh1-us.png" tvg-name="VH1 Eastern Feed" group-title="Live",VH1 Eastern Feed
-https://hlsr-app.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_VH1/index.m3u8
+https://hlsra.vercel.app/api/proxy?url=http://23.237.104.106:8080/USA_VH1/index.m3u8
 #EXTINF:-1 tvg-id="Vice.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/vice-us.png" tvg-name="VICE" group-title="Live",VICE
 null
 #EXTINF:-1 tvg-id="WE.tv.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/wetv-us.png" tvg-name="WE (Women's Entertainment) Eastern" group-title="Live",WE (Women's Entertainment) Eastern
