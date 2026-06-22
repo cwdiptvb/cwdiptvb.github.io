@@ -546,7 +546,7 @@
       <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
       <div class="playlist-label">
         Free M3U Playlist
-        <small>https://cwdiptvb.github.io/tv_channels.m3u</small>
+        <small>https://iptvpro.ddns.net/tv_channels.m3u</small>
       </div>
       <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
     </div>
@@ -565,7 +565,7 @@
   </footer>
 
 <script>
-    const M3U_URL = "https://cwdiptvb.github.io/tv_channels.m3u";
+    const M3U_URL = "http://iptvpro.ddns.net/tv_channels.m3u";
     let CHANNEL_NAME_MAP = {};
     let XMLTV_URL = null;
     let CURRENT_TVG_ID = null;
@@ -576,7 +576,7 @@
     let LAST_TIME_SYNC = null;
 
     function copyPlaylistURL() {
-      const url = "https://cwdiptvb.github.io/tv_channels.m3u";
+      const url = "https://iptvpro.ddns.net/tv_channels.m3u";
       navigator.clipboard.writeText(url).then(() => {
         alert("Playlist URL copied to clipboard!");
       }).catch(err => {
