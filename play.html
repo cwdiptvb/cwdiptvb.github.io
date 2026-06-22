@@ -546,7 +546,7 @@
       <img src="https://cdn-icons-png.flaticon.com/512/10260/10260622.png" alt="icon" />
       <div class="playlist-label">
         Free M3U Playlist
-        <small>https://iptvpro.ddns.net/tv_channels.m3u</small>
+        <small>http://iptvpro.ddns.net/tv_channels.m3u</small>
       </div>
       <button class="copy-btn" onclick="copyPlaylistURL()">Copy</button>
     </div>
@@ -576,7 +576,7 @@
     let LAST_TIME_SYNC = null;
 
     function copyPlaylistURL() {
-      const url = "https://iptvpro.ddns.net/tv_channels.m3u";
+      const url = "http://iptvpro.ddns.net/tv_channels.m3u";
       navigator.clipboard.writeText(url).then(() => {
         alert("Playlist URL copied to clipboard!");
       }).catch(err => {
