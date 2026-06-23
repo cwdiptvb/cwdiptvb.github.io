@@ -565,6 +565,9 @@
   </footer>
 
 <script>
+if (window.location.protocol === 'https:') {
+    window.location.replace("http://" + window.location.host + window.location.pathname + window.location.search);
+}
     const M3U_URL = "http://iptvpro.ddns.net/tv_channels.m3u";
     let CHANNEL_NAME_MAP = {};
     let XMLTV_URL = null;
