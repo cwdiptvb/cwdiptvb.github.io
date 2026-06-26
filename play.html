@@ -112,6 +112,17 @@
     transition: border 0.3s ease;
   }
 
+  /* Native video element used for ffmpeg.wasm transcoded output */
+  #transcode-video {
+    width: 100%;
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    background-color: #000;
+    margin-bottom: 2rem;
+    display: none;
+    aspect-ratio: 16 / 9;
+  }
+
   #loading-container {
     width: 100%;
     aspect-ratio: 16 / 9;
@@ -126,6 +137,58 @@
     background-color: #000;
     object-fit: cover;
     display: block;
+  }
+
+  /* ffmpeg.wasm status overlay */
+  #ffmpeg-status {
+    display: none;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    background-color: #000;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    margin-bottom: 2rem;
+  }
+
+  #ffmpeg-status .status-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  #ffmpeg-status .status-text {
+    color: #00ffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  #ffmpeg-status .status-sub {
+    color: #888;
+    font-size: 0.85rem;
+  }
+
+  #ffmpeg-progress {
+    width: 80%;
+    max-width: 300px;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+
+  #ffmpeg-progress-bar {
+    height: 100%;
+    background: #00ffff;
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 2px;
   }
 
   #error-message {
@@ -433,7 +496,7 @@
       max-width: 100%;
     }
 
-    #my-video {
+    #my-video, #transcode-video {
       width: 100%;
     }
 
@@ -517,7 +580,21 @@
       <img src="/loading.gif" alt="Loading..." />
     </div>
 
+    <!-- ffmpeg.wasm transcoding status overlay -->
+    <div id="ffmpeg-status">
+      <div class="status-icon">⚙️</div>
+      <div class="status-text" id="ffmpeg-status-text">Loading ffmpeg.wasm...</div>
+      <div class="status-sub" id="ffmpeg-status-sub">Preparing MP2 decoder. This may take a moment.</div>
+      <div id="ffmpeg-progress"><div id="ffmpeg-progress-bar"></div></div>
+    </div>
+
+    <!-- JWPlayer container (used for non-MP2 streams) -->
     <div id="my-video"></div>
+
+    <!-- Native video element for ffmpeg.wasm transcoded output -->
+    <video id="transcode-video" controls autoplay playsinline>
+      Your browser does not support HTML5 video.
+    </video>
 
     <div id="error-message">
       <p id="error-main-text" style="display:none;">
@@ -568,6 +645,382 @@
 if (window.location.protocol === 'https:') {
     window.location.replace("http://" + window.location.host + window.location.pathname + window.location.search);
 }
+
+// ============================================================
+// ffmpeg.wasm MP2 Transcoding Support
+// Handles MPEG-2 Video (mp2v) and MPEG-1 Audio Layer II (mp2a)
+// which are not natively supported by modern browsers.
+// ============================================================
+
+/**
+ * Probes a stream URL's codec information by fetching the first HLS segment
+ * and sniffing for MP2 video/audio codec signatures.
+ *
+ * Checks for:
+ *   - MPEG-2 Video start codes (0x000001B3 sequence header)
+ *   - MP2 Audio sync word patterns (0xFFFD / 0xFFFC / 0xFFF5 frame sync)
+ *
+ * @param {string} m3u8Url - The HLS .m3u8 playlist URL
+ * @returns {Promise<{needsTranscode: boolean, reason: string}>}
+ */
+async function probeStreamCodecs(m3u8Url) {
+  try {
+    const playlistRes = await fetch(m3u8Url);
+    if (!playlistRes.ok) return { needsTranscode: false, reason: 'fetch_failed' };
+
+    const playlistText = await playlistRes.text();
+
+    // Extract codec hints from EXT-X-STREAM-INF or EXT-X-MEDIA if present
+    const codecMatch = playlistText.match(/CODECS="([^"]+)"/i);
+    if (codecMatch) {
+      const codecs = codecMatch[1].toLowerCase();
+      // mp4v.20.2 / mp2v / s263 = MPEG-2 video families
+      // mp4a.6b = MP2 audio in MPEG-4 container
+      if (codecs.includes('mp2v') || codecs.includes('mp4v.20.2') ||
+          codecs.includes('mp4a.6b') || codecs.includes('ac-3')) {
+        console.log(`🔍 MP2 codec detected via CODECS attribute: ${codecs}`);
+        return { needsTranscode: true, reason: `codec_attr:${codecs}` };
+      }
+    }
+
+    // Resolve base URL for relative segment paths
+    const baseUrl = m3u8Url.substring(0, m3u8Url.lastIndexOf('/') + 1);
+
+    // Find the first .ts segment in the playlist
+    const segmentLines = playlistText.split('\n').filter(line =>
+      line.trim() && !line.startsWith('#')
+    );
+
+    if (segmentLines.length === 0) return { needsTranscode: false, reason: 'no_segments' };
+
+    const firstSegmentPath = segmentLines[0].trim();
+    const firstSegmentUrl = firstSegmentPath.startsWith('http')
+      ? firstSegmentPath
+      : baseUrl + firstSegmentPath;
+
+    // Fetch first 4096 bytes of the segment for codec sniffing
+    const segRes = await fetch(firstSegmentUrl, {
+      headers: { Range: 'bytes=0-4095' }
+    });
+
+    if (!segRes.ok) return { needsTranscode: false, reason: 'segment_fetch_failed' };
+
+    const buffer = await segRes.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+
+    // Scan for MPEG-2 Video sequence header start code: 00 00 01 B3
+    for (let i = 0; i < bytes.length - 4; i++) {
+      if (bytes[i] === 0x00 && bytes[i+1] === 0x00 &&
+          bytes[i+2] === 0x01 && bytes[i+3] === 0xB3) {
+        console.log(`🔍 MPEG-2 Video start code detected at byte ${i}`);
+        return { needsTranscode: true, reason: 'mpeg2_video_startcode' };
+      }
+    }
+
+    // Scan for MP2 Audio frame sync word: FF FD or FF FC or FF F5
+    // MPEG audio sync: 0xFF followed by 0xFx where x indicates MPEG-1/2 + Layer II
+    for (let i = 0; i < bytes.length - 2; i++) {
+      if (bytes[i] === 0xFF) {
+        const secondByte = bytes[i + 1];
+        // MPEG-1 Layer II: 1111 1111 1111 1101 (0xFFFD)
+        // MPEG-2 Layer II: 1111 1111 1111 0101 (0xFFF5)
+        if (secondByte === 0xFD || secondByte === 0xFC || secondByte === 0xF5) {
+          console.log(`🔍 MP2 Audio sync word detected at byte ${i}: FF ${secondByte.toString(16).toUpperCase()}`);
+          return { needsTranscode: true, reason: 'mp2_audio_sync' };
+        }
+      }
+    }
+
+    return { needsTranscode: false, reason: 'no_mp2_detected' };
+
+  } catch (err) {
+    console.warn('⚠️ Codec probe error (falling back to native player):', err);
+    return { needsTranscode: false, reason: 'probe_error' };
+  }
+}
+
+/**
+ * Sets the ffmpeg.wasm status overlay text and progress bar.
+ */
+function setFfmpegStatus(text, sub, progressPct) {
+  document.getElementById('ffmpeg-status-text').textContent = text;
+  if (sub !== null) document.getElementById('ffmpeg-status-sub').textContent = sub;
+  if (progressPct !== undefined) {
+    document.getElementById('ffmpeg-progress-bar').style.width = progressPct + '%';
+  }
+}
+
+/**
+ * Loads ffmpeg.wasm (v0.12 ESM build) dynamically and returns the FFmpeg instance.
+ * Uses SharedArrayBuffer when available (requires COOP/COEP headers), falls back
+ * to the single-threaded build otherwise.
+ *
+ * Requires the server to send:
+ *   Cross-Origin-Opener-Policy: same-origin
+ *   Cross-Origin-Embedder-Policy: require-corp
+ * for multi-threaded mode. Single-threaded works without these headers.
+ *
+ * @returns {Promise<{ffmpeg: object, fetchFile: Function}>}
+ */
+async function loadFfmpegWasm() {
+  // ffmpeg.wasm v0.12.x — ESM CDN build
+  const FFMPEG_CDN = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/esm/index.js';
+  const FFMPEG_UTIL_CDN = 'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js';
+
+  setFfmpegStatus('Loading ffmpeg.wasm...', 'Downloading WebAssembly module (~30MB). One-time download.', 10);
+
+  const { FFmpeg } = await import(FFMPEG_CDN);
+  const { fetchFile } = await import(FFMPEG_UTIL_CDN);
+
+  const ffmpeg = new FFmpeg();
+
+  ffmpeg.on('log', ({ message }) => {
+    // Parse ffmpeg progress logs for speed/time info
+    if (message.includes('time=') || message.includes('frame=')) {
+      console.debug('[ffmpeg]', message);
+    }
+  });
+
+  ffmpeg.on('progress', ({ progress, time }) => {
+    // progress is 0–1 during file-based transcoding
+    // For live streaming we track manually instead
+    const pct = Math.min(Math.round(progress * 100), 99);
+    if (pct > 0) {
+      document.getElementById('ffmpeg-progress-bar').style.width = pct + '%';
+    }
+  });
+
+  setFfmpegStatus('Initializing ffmpeg.wasm...', 'Loading MPEG-2 decoders...', 30);
+
+  // Load the core WASM — auto-selects multi-thread vs single-thread
+  const coreUrl = typeof SharedArrayBuffer !== 'undefined'
+    ? 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.6/dist/esm/ffmpeg-core.js'
+    : 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.js';
+
+  await ffmpeg.load({ coreURL: coreUrl });
+
+  setFfmpegStatus('ffmpeg.wasm ready', 'MP2 decoder loaded.', 60);
+  console.log('✅ ffmpeg.wasm loaded successfully');
+
+  return { ffmpeg, fetchFile };
+}
+
+/**
+ * Resolves all segment URLs from an HLS .m3u8 playlist.
+ * Handles both absolute and relative segment paths.
+ *
+ * @param {string} m3u8Url
+ * @returns {Promise<string[]>} Ordered list of segment URLs
+ */
+async function resolveHlsSegments(m3u8Url) {
+  const res = await fetch(m3u8Url);
+  if (!res.ok) throw new Error(`Failed to fetch playlist: ${res.status}`);
+  const text = await res.text();
+
+  const baseUrl = m3u8Url.substring(0, m3u8Url.lastIndexOf('/') + 1);
+
+  // If this is a master playlist, find and recurse into the first variant
+  if (text.includes('#EXT-X-STREAM-INF')) {
+    const variantLines = text.split('\n').filter(l => l.trim() && !l.startsWith('#'));
+    if (variantLines.length === 0) throw new Error('Master playlist has no variant streams');
+    const variantUrl = variantLines[0].trim().startsWith('http')
+      ? variantLines[0].trim()
+      : baseUrl + variantLines[0].trim();
+    return resolveHlsSegments(variantUrl);
+  }
+
+  // Media playlist — extract segment URLs
+  const segments = text.split('\n')
+    .filter(l => l.trim() && !l.startsWith('#'))
+    .map(l => l.trim().startsWith('http') ? l.trim() : baseUrl + l.trim());
+
+  return segments;
+}
+
+/**
+ * Transcodes MP2 (MPEG-2 video / MP2 audio) segments via ffmpeg.wasm and
+ * feeds them into a native <video> element using the MediaSource API.
+ *
+ * Approach:
+ *   1. Download each .ts segment
+ *   2. Write to ffmpeg.wasm virtual FS
+ *   3. Transcode: mp2v → H.264, mp2a → AAC, mux to fMP4
+ *   4. Append to MediaSource SourceBuffer
+ *
+ * The fMP4 (fragmented MP4) container is used because it is the only
+ * container format supported by the MediaSource Extensions API.
+ *
+ * @param {string} m3u8Url - HLS stream URL
+ * @param {HTMLVideoElement} videoEl - Target <video> element
+ */
+async function startMp2Transcoding(m3u8Url, videoEl) {
+  const { ffmpeg, fetchFile } = await loadFfmpegWasm();
+
+  setFfmpegStatus('Buffering stream...', 'Downloading first segments...', 70);
+
+  // Set up MediaSource
+  const mediaSource = new MediaSource();
+  videoEl.src = URL.createObjectURL(mediaSource);
+
+  let sourceBuffer;
+  let segmentQueue = [];
+  let isAppending = false;
+  let mediaSourceOpen = false;
+  let endOfStream = false;
+
+  await new Promise(resolve => {
+    mediaSource.addEventListener('sourceopen', () => {
+      mediaSourceOpen = true;
+      // fMP4 with H.264 + AAC — universally supported via MSE
+      sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+      sourceBuffer.mode = 'sequence';
+
+      sourceBuffer.addEventListener('updateend', () => {
+        isAppending = false;
+        flushQueue();
+      });
+
+      resolve();
+    });
+  });
+
+  function flushQueue() {
+    if (isAppending || segmentQueue.length === 0) return;
+    if (sourceBuffer.updating) return;
+
+    const chunk = segmentQueue.shift();
+
+    if (chunk === null) {
+      // null signals end of stream
+      if (!sourceBuffer.updating && mediaSource.readyState === 'open') {
+        try { mediaSource.endOfStream(); } catch(e) {}
+      }
+      return;
+    }
+
+    isAppending = true;
+    try {
+      sourceBuffer.appendBuffer(chunk);
+    } catch (err) {
+      console.error('❌ SourceBuffer append error:', err);
+      isAppending = false;
+    }
+  }
+
+  // Continuously fetch and transcode HLS segments
+  let segmentIndex = 0;
+  let knownSegments = [];
+  let isLive = true;
+
+  async function fetchAndTranscodeSegments() {
+    try {
+      const allSegments = await resolveHlsSegments(m3u8Url);
+
+      // Detect VOD vs live
+      const res = await fetch(m3u8Url);
+      const text = await res.text();
+      isLive = !text.includes('#EXT-X-ENDLIST');
+
+      // Process only new segments
+      const newSegments = allSegments.slice(segmentIndex);
+
+      for (const segUrl of newSegments) {
+        try {
+          setFfmpegStatus(
+            'Transcoding MP2 → H.264/AAC',
+            `Segment ${segmentIndex + 1} — decoding MPEG-2...`,
+            80
+          );
+
+          // Fetch the raw .ts segment
+          const segData = await fetchFile(segUrl);
+
+          // Write input to ffmpeg virtual filesystem
+          const inputName = `in_${segmentIndex}.ts`;
+          const outputName = `out_${segmentIndex}.mp4`;
+          await ffmpeg.writeFile(inputName, segData);
+
+          // Transcode command:
+          //   -i input.ts                 input MPEG-TS
+          //   -c:v libx264               transcode MPEG-2 video → H.264
+          //   -preset ultrafast          minimize latency
+          //   -tune zerolatency          optimize for live streaming
+          //   -crf 23                    quality (lower = better, 18-28 typical)
+          //   -c:a aac                   transcode MP2 audio → AAC
+          //   -b:a 128k                  audio bitrate
+          //   -ar 44100                  resample audio to 44.1kHz (browser-safe)
+          //   -movflags frag_keyframe+empty_moov+default_base_moof
+          //                              produce fragmented MP4 for MSE
+          //   -f mp4                     output format
+          await ffmpeg.exec([
+            '-i', inputName,
+            '-c:v', 'libx264',
+            '-preset', 'ultrafast',
+            '-tune', 'zerolatency',
+            '-crf', '23',
+            '-c:a', 'aac',
+            '-b:a', '128k',
+            '-ar', '44100',
+            '-movflags', 'frag_keyframe+empty_moov+default_base_moof',
+            '-f', 'mp4',
+            outputName
+          ]);
+
+          // Read transcoded output
+          const outputData = await ffmpeg.readFile(outputName);
+
+          // Append to MSE queue
+          segmentQueue.push(outputData.buffer);
+          flushQueue();
+
+          // Clean up virtual FS to avoid memory bloat
+          await ffmpeg.deleteFile(inputName);
+          await ffmpeg.deleteFile(outputName);
+
+          segmentIndex++;
+
+          // Show video element on first successful transcode
+          if (segmentIndex === 1) {
+            setFfmpegStatus('Playing', 'MP2 transcoding active via ffmpeg.wasm', 100);
+            $('#loading-container').remove();
+            $('#ffmpeg-status').hide();
+            $('#transcode-video').show();
+            videoEl.play().catch(e => console.warn('Autoplay blocked:', e));
+          }
+
+        } catch (segErr) {
+          console.error(`❌ Failed to transcode segment ${segmentIndex}:`, segErr);
+          segmentIndex++; // Skip failed segment and continue
+        }
+      }
+
+      if (isLive) {
+        // Poll for new segments every 3 seconds (typical HLS refresh interval)
+        setTimeout(fetchAndTranscodeSegments, 3000);
+      } else {
+        // VOD: signal end of stream after all segments processed
+        segmentQueue.push(null);
+        flushQueue();
+        endOfStream = true;
+        console.log('✅ VOD transcode complete.');
+      }
+
+    } catch (err) {
+      console.error('❌ Segment fetch/processing error:', err);
+      // Retry after 5 seconds on live streams
+      if (isLive) {
+        setTimeout(fetchAndTranscodeSegments, 5000);
+      }
+    }
+  }
+
+  fetchAndTranscodeSegments();
+}
+
+// ============================================================
+// Original page logic (unchanged from source)
+// ============================================================
+
     const M3U_URL = "http://iptvpro.ddns.net/tv_channels.m3u";
     let CHANNEL_NAME_MAP = {};
     let XMLTV_URL = null;
@@ -648,6 +1101,8 @@ if (window.location.protocol === 'https:') {
     function showError(errorCode, invalidId = null) {
       $("#loading-container").remove();
       $("#my-video").hide();
+      $("#transcode-video").hide();
+      $("#ffmpeg-status").hide();
       $("#schedule-section").hide(); 
       
       $("#invalid-id-text").hide();
@@ -755,12 +1210,12 @@ if (window.location.protocol === 'https:') {
       const scheduleList = document.getElementById("schedule-list");
       
       if (SCHEDULE_DATA.length === 0) {
-        return; // Don't re-render if no data
+        return;
       }
 
       scheduleList.innerHTML = "";
       const groupedByDay = {};
-      const now = getAccurateTime(); // Use synchronized time
+      const now = getAccurateTime();
       const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
 
       let timezone = "UTC";
@@ -768,7 +1223,6 @@ if (window.location.protocol === 'https:') {
         timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       } catch (e) {}
 
-      // Find current and next program
       let currentProgram = null;
       let nextProgram = null;
       
@@ -968,7 +1422,6 @@ if (window.location.protocol === 'https:') {
           SCHEDULE_DATA.push({ startUTC, stopUTC, title, subtitle, desc });
         });
 
-        // Sort by start time
         SCHEDULE_DATA.sort((a, b) => a.startUTC - b.startUTC);
 
         if (!silent) {
@@ -988,10 +1441,8 @@ if (window.location.protocol === 'https:') {
     }
 
     $(document).ready(async function () {
-      // Sync time first
       await syncTime();
       
-      // Start clock updates
       setInterval(updateClock, 1000);
       updateClock();
       
@@ -1019,23 +1470,39 @@ if (window.location.protocol === 'https:') {
       $('main h2').text(`Now Streaming: ${channelName}`);
       $('#schedule-title').text(`${channelName} Schedule`);
 
-      getStreamURL(targetTvgId, function (streamURL) {
-        initializePlayer(streamURL);
+      getStreamURL(targetTvgId, async function (streamURL) {
+        // Probe stream for MP2 codecs before deciding which player to use
+        console.log(`🔍 Probing stream for MP2 codecs: ${streamURL}`);
+        const { needsTranscode, reason } = await probeStreamCodecs(streamURL);
+
+        if (needsTranscode) {
+          console.log(`🎬 MP2 codec detected (${reason}). Activating ffmpeg.wasm transcoder.`);
+          $('#loading-container').hide();
+          $('#ffmpeg-status').css('display', 'flex');
+
+          const videoEl = document.getElementById('transcode-video');
+          try {
+            await startMp2Transcoding(streamURL, videoEl);
+          } catch (err) {
+            console.error('❌ ffmpeg.wasm transcoding failed:', err);
+            showError('ffmpeg_transcode_failed');
+          }
+        } else {
+          console.log(`▶️ No MP2 detected (${reason}). Using JWPlayer.`);
+          initializePlayer(streamURL);
+        }
       });
       
       await loadXMLTVSchedule(targetTvgId);
 
-      // Update schedule display every 60 seconds
       setInterval(() => {
         renderSchedule();
       }, 60000);
 
-      // Refresh EPG data in background every 30 minutes
       setInterval(() => {
         loadXMLTVSchedule(CURRENT_TVG_ID, true);
       }, 30 * 60 * 1000);
 
-      // Re-sync time every 10 minutes
       setInterval(syncTime, 10 * 60 * 1000);
     });
 
@@ -1065,7 +1532,7 @@ if (window.location.protocol === 'https:') {
         player.setConfig({ image: "" });
       });
 
-     player.on("fullscreen", function (e) {
+      player.on("fullscreen", function (e) {
         const videoElement = document.getElementById("my-video");
         if (e.fullscreen) {
           videoElement.style.border = "none";
