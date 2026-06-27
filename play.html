@@ -699,9 +699,21 @@ async function probeStreamCodecs(m3u8Url) {
       : baseUrl + firstSegmentPath;
 
     // Fetch first 4096 bytes of the segment for codec sniffing
-    const segRes = await fetch(firstSegmentUrl, {
-      headers: { Range: 'bytes=0-4095' }
-    });
+    // Use an AbortController so we don't hang on live streams that ignore Range
+    const probeController = new AbortController();
+    const probeTimeout = setTimeout(() => probeController.abort(), 5000);
+    let segRes;
+    try {
+      segRes = await fetch(firstSegmentUrl, {
+        headers: { Range: 'bytes=0-4095' },
+        signal: probeController.signal
+      });
+    } catch (fetchErr) {
+      clearTimeout(probeTimeout);
+      // Timed out or network error during probe — fall back to native player
+      return { needsTranscode: false, reason: 'segment_probe_timeout' };
+    }
+    clearTimeout(probeTimeout);
 
     if (!segRes.ok) return { needsTranscode: false, reason: 'segment_fetch_failed' };
 
@@ -1489,7 +1501,7 @@ async function startMp2Transcoding(m3u8Url, videoEl) {
           }
         } else {
           console.log(`▶️ No MP2 detected (${reason}). Using JWPlayer.`);
-          const n=await normalizeStreamURL(streamURL); initializePlayer(n.url);
+          const n=await normalizeStreamURL(streamURL); initializePlayer(n.url, n.isRawTs);
         }
       });
       
@@ -1511,27 +1523,39 @@ async function normalizeStreamURL(streamURL){
   try{
     const r=await fetch(streamURL,{cache:"no-store"});
     const ct=(r.headers.get("content-type")||"").toLowerCase();
-    if(ct.includes("video/mp2t")) return {url:streamURL,isRawTs:true};
+    // Server explicitly says it's a TS stream
+    if(ct.includes("video/mp2t") || ct.includes("video/mpeg")) return {url:streamURL,isRawTs:true};
     const t=await r.text();
     const lines=t.split(/\r?\n/).map(x=>x.trim()).filter(x=>x && !x.startsWith("#"));
+    // If the "playlist" resolves to exactly one URL and it's not an m3u8, treat
+    // it as a raw TS/stream URL (common with IPTV providers that serve a bare
+    // stream path from an m3u entry).
     if(lines.length===1){
       const u=lines[0];
       if(!u.toLowerCase().includes(".m3u8")){
         return {url:u,isRawTs:true};
       }
+      // It is an m3u8, follow it
+      return {url:u,isRawTs:false};
     }
+    // Multi-line — it's a real HLS playlist
     return {url:streamURL,isRawTs:false};
   }catch(e){
     return {url:streamURL,isRawTs:false};
   }
 }
 
-function initializePlayer(streamURL) {
+function initializePlayer(streamURL, isRawTs) {
       const player = jwplayer("my-video");
+
+      // For raw .ts streams (IPTV bare URLs), tell JWPlayer it's an MPEG-TS
+      // file rather than an HLS playlist — otherwise it stalls trying to parse
+      // the URL as M3U8 and never fires "ready" or "play".
+      const streamType = isRawTs ? "video/mp2t" : "application/x-mpegURL";
 
       player.setup({
         file: streamURL,
-        type: "application/x-mpegURL",
+        type: streamType,
         width: "100%",
         aspectratio: "16:9",
         autostart: true,
@@ -1540,32 +1564,27 @@ function initializePlayer(streamURL) {
         mute: false
       });
 
-      player.on("ready", function () {
-        $("#loading-container").remove();
-        $("#my-video").show();
-      });
-      player.on("firstFrame", function () {
-        $("#loading-container").remove();
-        $("#my-video").show();
-      });
-      player.on("buffer", function(e){
-        if(e && e.newstate==="playing"){
-          $("#loading-container").remove();
-          $("#my-video").show();
+      // Safety net: if the player hasn't shown anything after 12 s, surface an error
+      // instead of leaving the user staring at a loading spinner forever.
+      const stallTimer = setTimeout(function() {
+        if ($("#loading-container").length) {
+          console.warn("Player stall timeout — stream may be unreachable or codec unsupported.");
+          showError("stall_timeout");
         }
-      });
-      /* original ready handler removed */
-      player.on("__unused__", function () {
-        $("#loading-container").remove();
-        $("#my-video").show();
-      });
+      }, 12000);
 
-      player.on("play", function () {
+      function revealPlayer() {
+        clearTimeout(stallTimer);
         $("#loading-container").remove();
         $("#my-video").show();
-        $("#player .jw-preview").css("background-image", "none");
-        player.setConfig({ image: "" });
+      }
+
+      player.on("ready", revealPlayer);
+      player.on("firstFrame", revealPlayer);
+      player.on("buffer", function(e){
+        if(e && e.newstate==="playing"){ revealPlayer(); }
       });
+      player.on("play", revealPlayer);
 
       player.on("fullscreen", function (e) {
         const videoElement = document.getElementById("my-video");
