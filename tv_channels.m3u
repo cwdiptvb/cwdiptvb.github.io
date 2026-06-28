@@ -28,19 +28,19 @@ http://23.237.104.106:8080/USA_BLOOMBERG/index.m3u8
 #EXTINF:-1 tvg-id="Boomerang.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/boomerang-us.png" tvg-name="Boomerang" group-title="Live",Boomerang
 http://23.237.104.106:8080/USA_BOOMERANG/index.m3u8
 #EXTINF:-1 tvg-id="Bravo.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bravo-us.png" tvg-name="Bravo USA Eastern Feed" group-title="Live",Bravo USA Eastern Feed
-null
+http://iptvpro.ddns.net/stream/bravo/index.m3u8
 #EXTINF:-1 tvg-id="CSPAN.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/c-span-us.png" tvg-name="C-SPAN" group-title="Live",C-SPAN
-null
+http://iptvpro.ddns.net/stream/cspan/index.m3u8
 #EXTINF:-1 tvg-id="CSPAN2.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/c-span-2-us.png" tvg-name="C-SPAN 2" group-title="Live",C-SPAN 2
-null
+http://iptvpro.ddns.net/stream/cspan2/index.m3u8
 #EXTINF:-1 tvg-id="Cartoon.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cartoon-network-us.png" tvg-name="Cartoon Network USA Eastern Feed" group-title="Live",Cartoon Network USA Eastern Feed
 http://23.237.104.106:8080/USA_CARTOON_NETWORK/index.m3u8
 #EXTINF:-1 tvg-id="CBS.West.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/cbs-2-kcbs-us.png" tvg-name="CBS (KCBS) Los Angeles" group-title="Live",CBS (KCBS) Los Angeles
-null
+http://iptvpro.ddns.net/stream/cbs-9-ca/index.m3u8
 #EXTINF:-1 tvg-id="CBS.East.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/us-local/cbs-2-wcbs-us.png" tvg-name="CBS (WCBS) New York, NY" group-title="Live",CBS (WCBS) New York, NY
-null
+http://iptvpro.ddns.net/stream/cbs-2-ny/index.m3u8
 #EXTINF:-1 tvg-id="CBS.Sports.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cbs-sports-network-us.png" tvg-name="CBS Sports Network USA" group-title="Live",CBS Sports Network USA
-null
+http://iptvpro.ddns.net/stream/cbssportsnetwork/index.m3u8
 #EXTINF:-1 tvg-id="CHSN.Chicago.Sports.Network.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/chicago-sports-network-us.png" tvg-name="Chicago Sports Network" group-title="Live",Chicago Sports Network
 null
 #EXTINF:-1 tvg-id="Cinemax.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/cinemax-us.png" tvg-name="Cinemax Eastern Feed" group-title="Live",Cinemax Eastern Feed
