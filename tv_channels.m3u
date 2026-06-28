@@ -20,7 +20,7 @@ http://iptvpro.ddns.net/stream/bbcnna/index.m3u8
 #EXTINF:-1 tvg-id="BET.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bet-us.png" tvg-name="BET Eastern Feed" group-title="Live",BET Eastern Feed
 http://iptvpro.ddns.net/stream/bet/index.m3u8
 #EXTINF:-1 tvg-id="BET.Her.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bet-her-us.png" tvg-name="BET Her" group-title="Live",BET Her
-null
+http://iptvpro.ddns.net/stream/bether/index.m3u8
 #EXTINF:-1 tvg-id="Big.Ten.Network.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/big-ten-network-us.png" tvg-name="Big Ten Network" group-title="Live",Big Ten Network
 http://23.237.104.106:8080/USA_BTN/index.m3u8
 #EXTINF:-1 tvg-id="Bloomberg.HD.us2" tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/united-states/bloomberg-television-us.png" tvg-name="Bloomberg TV USA" group-title="Live",Bloomberg TV USA
