@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <meta http-equiv="refresh" content="0; url=http://iptvpro.ddns.net/">
+    <script>
+        (function () {
+            const target = "http://iptvpro.ddns.net";
+            const destination =
+                target +
+                window.location.pathname +
+                window.location.search +
+                window.location.hash;
+            window.location.replace(destination);
+        })();
+    </script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #111;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #bbb;
+        }
+
+        a {
+            color: #00c8ff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Website Moved</h1>
+    <p>Redirecting you to the new website...</p>
+    <p>
+        If you aren't redirected automatically,
+        <a id="link" href="http://iptvpro.ddns.net">click here</a>.
+    </p>
+</div>
+
+<script>
+    document.getElementById("link").href =
+        "http://iptvpro.ddns.net" +
+        window.location.pathname +
+        window.location.search +
+        window.location.hash;
+</script>
+</body>
+</html>
