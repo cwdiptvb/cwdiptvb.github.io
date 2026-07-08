@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Cartoon Network",
+    "id": "cartoon-network",
+    "url": "http://23.237.104.106:8080/USA_CARTOON_NETWORK/index.m3u8",
+    "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaaTj8zBJc2pBVGzBDHBR2ez9YZd1-D5boRg&s",
+    "bandwidth": "5000000",
+    "codecs": "avc1.640028,mp4a.40.2"
+  }
+]
